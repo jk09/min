@@ -13,6 +13,7 @@
     flex-direction: column;
     gap: 0.25em;
     padding: 0.5em 0.75em;
+    display: none;
 }
 
 .dark-mode #llm-prompt-panel {
@@ -20,22 +21,8 @@
     border-top-color: rgba(255, 255, 255, 0.15);
 }
 
-body.llm-prompt-panel-visible[data-llm-panel-position="bottom"] #webviews {
-    height: calc(100vh - 36px - var(--control-space-top) - var(--llm-panel-height));
-}
-
-body.llm-prompt-panel-visible[data-llm-panel-position="top"] #webviews {
-    margin-top: var(--llm-panel-height);
-    height: calc(100vh - 36px - var(--control-space-top) - var(--llm-panel-height));
-}
-
-body.llm-prompt-panel-visible[data-llm-panel-position="left"] #webviews {
-    margin-left: var(--llm-panel-width);
-    width: calc(100% - var(--llm-panel-width));
-}
-
-body.llm-prompt-panel-visible[data-llm-panel-position="right"] #webviews {
-    width: calc(100% - var(--llm-panel-width));
+body:not(.is-ntp) #llm-prompt-panel {
+    display: flex;
 }
 
 body.llm-prompt-panel-visible[data-llm-panel-position="top"] #llm-prompt-panel {
@@ -69,10 +56,6 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
 .dark-mode body.llm-prompt-panel-visible[data-llm-panel-position="left"] #llm-prompt-panel,
 .dark-mode body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel {
     border-color: rgba(255, 255, 255, 0.15);
-}
-
-body.llm-prompt-panel-visible[data-llm-panel-position="right"] #webviews {
-    margin-right: var(--llm-panel-width);
 }
 
 .llm-prompt-header {
