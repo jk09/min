@@ -1,0 +1,163 @@
+#llm-prompt-panel {
+    --llm-panel-height: 152px;
+    --llm-panel-width: 360px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--llm-panel-height);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    background: rgb(251, 251, 251);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    padding: 0.5em 0.75em;
+}
+
+.dark-mode #llm-prompt-panel {
+    background: rgb(41, 44, 52);
+    border-top-color: rgba(255, 255, 255, 0.15);
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="bottom"] #webviews {
+    height: calc(100vh - 36px - var(--control-space-top) - var(--llm-panel-height));
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="top"] #webviews {
+    margin-top: var(--llm-panel-height);
+    height: calc(100vh - 36px - var(--control-space-top) - var(--llm-panel-height));
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="left"] #webviews {
+    margin-left: var(--llm-panel-width);
+    width: calc(100% - var(--llm-panel-width));
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="right"] #webviews {
+    width: calc(100% - var(--llm-panel-width));
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="top"] #llm-prompt-panel {
+    top: calc(36px + var(--control-space-top));
+    bottom: auto;
+    border-top: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.dark-mode body.llm-prompt-panel-visible[data-llm-panel-position="top"] #llm-prompt-panel {
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="left"] #llm-prompt-panel,
+body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel {
+    top: calc(36px + var(--control-space-top));
+    bottom: 0;
+    width: var(--llm-panel-width);
+    height: auto;
+    border-top: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel {
+    left: auto;
+    right: 0;
+    border-right: none;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.dark-mode body.llm-prompt-panel-visible[data-llm-panel-position="left"] #llm-prompt-panel,
+.dark-mode body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.llm-prompt-panel-visible[data-llm-panel-position="right"] #webviews {
+    margin-right: var(--llm-panel-width);
+}
+
+.llm-prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875em;
+}
+
+.llm-prompt-title {
+    font-weight: 600;
+}
+
+#llm-prompt-engine-state {
+    opacity: 0.75;
+}
+
+#llm-prompt-response {
+    font-size: 0.85em;
+    line-height: 1.35;
+    min-height: 2.2em;
+    max-height: 4.2em;
+    overflow-y: auto;
+    padding-right: 0.25em;
+}
+
+.llm-prompt-composer {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5em;
+}
+
+#llm-prompt-input {
+    resize: none;
+    flex: 1;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    border-radius: 8px;
+    background: #fff;
+    color: inherit;
+    line-height: 1.35;
+    padding: 0.55em 0.7em;
+}
+
+.dark-mode #llm-prompt-input {
+    background: rgb(52, 58, 68);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+#llm-prompt-send {
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    border-radius: 8px;
+    padding: 0.5em 0.8em;
+    min-width: 70px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+#llm-prompt-send:hover:enabled {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#llm-prompt-send:disabled {
+    opacity: 0.55;
+}
+
+.dark-mode #llm-prompt-send {
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode #llm-prompt-send:hover:enabled {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#llm-prompt-guidance {
+    font-size: 0.78em;
+    min-height: 1em;
+}
+
+@media all and (max-width: 780px) {
+    #llm-prompt-panel {
+        --llm-panel-height: 172px;
+    }
+
+    body.llm-prompt-panel-visible[data-llm-panel-position="left"] #llm-prompt-panel,
+    body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel {
+        --llm-panel-width: 290px;
+    }
+}

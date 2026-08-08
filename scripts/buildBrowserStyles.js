@@ -11,6 +11,7 @@ const modules = [
   'css/tabEditor.css',
   'css/taskOverlay.css',
   'css/webviews.css',
+  'css/llmPrompt.css',
   'css/newTabPage.css',
   'css/searchbar.css',
   'css/listItem.css',
@@ -23,7 +24,7 @@ const modules = [
   'node_modules/dragula/dist/dragula.min.css'
 ]
 
-function buildBrowserStyles () {
+function buildBrowserStyles() {
   /* concatenate modules */
   let output = ''
   modules.forEach(function (script) {

@@ -21,12 +21,13 @@ const modules = [
   'main/prompt.js',
   'main/remoteMenu.js',
   'main/remoteActions.js',
+  'main/llmEngine.js',
   'main/keychainService.js',
   'js/util/proxy.js',
   'main/themeMain.js'
 ]
 
-function buildMain () {
+function buildMain() {
   // build localization support first, since it is included in the bundle
   require('./buildLocalization.js')()
 
