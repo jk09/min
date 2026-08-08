@@ -57,6 +57,22 @@ If you want to develop Min:
 - Start Min with auto-rebuild by running `npm run start`.
 - After you make changes, press `alt+ctrl+r` (or `opt+cmd+r` on Mac) to reload the browser UI.
 
+### Run from console (with hot-reload)
+
+```bash
+npm install
+npm run start
+```
+
+`npm run start` runs an initial build, starts the file watcher, and launches Electron in development mode.
+
+If you want to run without the watcher:
+
+```bash
+npm run build
+npm run startElectron
+```
+
 ### Building binaries
 
 In order to build Min from source, follow the installation instructions above, then use one of the following commands to create binaries:
