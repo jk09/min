@@ -52,9 +52,9 @@ You can find prebuilt binaries for Min [here](https://github.com/minbrowser/min/
 
 If you want to develop Min:
 
-- Install [Node](https://nodejs.org).
+- Install [Node](https://nodejs.org) 22.12.0 or newer (24.x LTS recommended).
 - Run `npm install` to install dependencies.
-- Start Min in development mode by running `npm run start`.
+- Start Min with auto-rebuild by running `npm run start`.
 - After you make changes, press `alt+ctrl+r` (or `opt+cmd+r` on Mac) to reload the browser UI.
 
 ### Building binaries
