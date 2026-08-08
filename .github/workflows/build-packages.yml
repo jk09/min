@@ -35,15 +35,15 @@ jobs:
     env:
       SDKROOT: ${{ matrix.env.SDKROOT }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 24
-    - run: npm install --omit=optional
-    - name: build package
-      run: ${{ matrix.cmd }}
-    - name: upload package
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.artifact }}
-        path: ${{ matrix.path }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --omit=optional
+      - name: build package
+        run: ${{ matrix.cmd }}
+      - name: upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.path }}
