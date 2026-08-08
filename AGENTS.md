@@ -3,7 +3,7 @@
 Instructions for the development of the `min` Web browser which should be read in its entirety before each agentic run. Agents SHOULD USE the [behavioral guidelines](CLAUDE-BEHAVIORAL-GUIDELINES.md).
 
 ## Git Repository
-This repo is forked from the [`Min` source repo](https://github.com/minbrowser/min). The `master` branch is locked except for the upstream updates, which be merged into the project-private branches.
+This repo is forked from the [`Min` source repo](https://github.com/minbrowser/min). The `master` branch is LOCKED except for the upstream updates. All local development is based on the branch `jk-main` which acts as a fork-local trunk, and feature branches branched off `jk-main`. Destructive modifications of the branch `jk-main` (`git` forced `push`, `rebase`, hard `reset` etc.) are NOT ALLOWED. 
 
 ## Original goals of `Min`
 
