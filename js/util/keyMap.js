@@ -21,6 +21,10 @@ var defaultKeyMap = {
   toggleReaderView: 'shift+mod+r',
   switchToNextTab: ['option+mod+right', 'ctrl+tab', 'shift+mod+pagedown', 'shift+mod+]'],
   switchToPreviousTab: ['option+mod+left', 'shift+ctrl+tab', 'shift+mod+pageup', 'shift+mod+['],
+  switchToNextTile: 'shift+mod+down',
+  switchToPreviousTile: 'shift+mod+up',
+  moveTileLeft: 'option+mod+shift+up',
+  moveTileRight: 'option+mod+shift+down',
   moveTabLeft: 'option+mod+shift+left',
   moveTabRight: 'option+mod+shift+right',
   switchToNextTask: 'mod+]',
@@ -36,7 +40,7 @@ var defaultKeyMap = {
   showHistory: 'shift+mod+h'
 }
 /* Utility function to override default mapping with user settings */
-function userKeyMap (settings) {
+function userKeyMap(settings) {
   var keyMapCopy = Object.assign({}, defaultKeyMap)
   if (settings) {
     // override the default keymap by the user defined ones

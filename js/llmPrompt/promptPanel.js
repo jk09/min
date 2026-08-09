@@ -39,16 +39,7 @@ function applyPosition(panel, position) {
     document.body.classList.add('llm-prompt-panel-visible')
 }
 
-function isPanelVisibleForCurrentMode() {
-    // show the panel only when a page webview is active, not in the new-tab/address-selection UI mode
-    return !document.body.classList.contains('is-ntp')
-}
-
 function getTargetMargins(panelRect) {
-    if (!isPanelVisibleForCurrentMode()) {
-        return [0, 0, 0, 0]
-    }
-
     if (state.position === 'top') {
         return [Math.round(panelRect.height), 0, 0, 0]
     }

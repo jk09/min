@@ -7,6 +7,7 @@ var tabEditor = require('navbar/tabEditor.js')
 var urlParser = require('util/urlParser.js')
 var keyMapModule = require('util/keyMap.js')
 var settings = require('util/settings/settings.js')
+var layoutManager = require('layoutManager.js')
 
 var keyMap = keyMapModule.userKeyMap(settings.get('keyMap'))
 
@@ -84,6 +85,22 @@ const defaultKeybindings = {
 
     keybindings.defineShortcut('moveTabRight', function (e) {
       browserUI.moveTabRight(tabs.getSelected())
+    })
+
+    keybindings.defineShortcut('switchToPreviousTile', function () {
+      layoutManager.selectTileByOffset(-1)
+    })
+
+    keybindings.defineShortcut('switchToNextTile', function () {
+      layoutManager.selectTileByOffset(1)
+    })
+
+    keybindings.defineShortcut('moveTileLeft', function () {
+      layoutManager.moveTileLeft()
+    })
+
+    keybindings.defineShortcut('moveTileRight', function () {
+      layoutManager.moveTileRight()
     })
 
     keybindings.defineShortcut('restoreTab', function (e) {
@@ -248,7 +265,7 @@ const defaultKeybindings = {
       browserUI.addTab() // create a new, blank tab
     })
 
-    keybindings.defineShortcut('closeWindow', function() {
+    keybindings.defineShortcut('closeWindow', function () {
       ipc.invoke('close')
     })
 

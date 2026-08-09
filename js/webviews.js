@@ -9,7 +9,7 @@ var hasSeparateTitlebar = settings.get('useSeparateTitlebar')
 var windowIsMaximized = false // affects navbar height on Windows
 var windowIsFullscreen = false
 
-function captureCurrentTab (options) {
+function captureCurrentTab(options) {
   if (tabs.get(tabs.getSelected()).private) {
     // don't capture placeholders for private tabs
     return
@@ -28,7 +28,7 @@ function captureCurrentTab (options) {
 }
 
 // called whenever a new page starts loading, or an in-page navigation occurs
-function onPageURLChange (tab, url) {
+function onPageURLChange(tab, url) {
   if (url.indexOf('https://') === 0 || url.indexOf('about:') === 0 || url.indexOf('chrome:') === 0 || url.indexOf('file://') === 0 || url.indexOf('min://') === 0) {
     tabs.update(tab, {
       secure: true,
@@ -45,14 +45,14 @@ function onPageURLChange (tab, url) {
 }
 
 // called whenever a navigation finishes
-function onNavigate (tabId, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
+function onNavigate(tabId, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
   if (isMainFrame) {
     onPageURLChange(tabId, url)
   }
 }
 
 // called whenever the page finishes loading
-function onPageLoad (tabId) {
+function onPageLoad(tabId) {
   // capture a preview image if a new page has been loaded
   if (tabId === tabs.getSelected()) {
     setTimeout(function () {
@@ -62,7 +62,7 @@ function onPageLoad (tabId) {
   }
 }
 
-function scrollOnLoad (tabId, scrollPosition) {
+function scrollOnLoad(tabId, scrollPosition) {
   const listener = function (eTabId) {
     if (eTabId === tabId) {
       // the scrollable content may not be available until some time after the load event, so attempt scrolling several times
@@ -90,7 +90,7 @@ function scrollOnLoad (tabId, scrollPosition) {
   webviews.bindEvent('did-finish-load', listener)
 }
 
-function setAudioMutedOnCreate (tabId, muted) {
+function setAudioMutedOnCreate(tabId, muted) {
   const listener = function () {
     webviews.callAsync(tabId, 'setAudioMuted', muted)
     webviews.unbindEvent('did-navigate', listener)
@@ -108,7 +108,7 @@ const webviews = {
   },
   events: [],
   IPCEvents: [],
-  hasViewForTab: function(tabId) {
+  hasViewForTab: function (tabId) {
     return tabId && tasks.getTaskContainingTab(tabId) && tasks.getTaskContainingTab(tabId).tabs.get(tabId).hasWebContents
   },
   bindEvent: function (event, fn) {
@@ -149,6 +149,31 @@ const webviews = {
     }
     webviews.resize()
   },
+  getContentBounds: function () {
+    if (windowIsFullscreen) {
+      return {
+        x: 0,
+        y: 0,
+        width: window.innerWidth,
+        height: window.innerHeight
+      }
+    }
+
+    if (!hasSeparateTitlebar && (window.platformType === 'linux' || window.platformType === 'windows') && !windowIsMaximized) {
+      var navbarHeight = 48
+    } else {
+      var navbarHeight = 36
+    }
+
+    const viewMargins = webviews.viewMargins
+
+    return {
+      x: 0 + Math.round(viewMargins[3]),
+      y: 0 + Math.round(viewMargins[0]) + navbarHeight,
+      width: window.innerWidth - Math.round(viewMargins[1] + viewMargins[3]),
+      height: window.innerHeight - Math.round(viewMargins[0] + viewMargins[2]) - navbarHeight
+    }
+  },
   getViewBounds: function () {
     if (webviews.viewFullscreenMap[webviews.selectedId]) {
       return {
@@ -158,22 +183,7 @@ const webviews = {
         height: window.innerHeight
       }
     } else {
-      if (!hasSeparateTitlebar && (window.platformType === 'linux' || window.platformType === 'windows') && !windowIsMaximized && !windowIsFullscreen) {
-        var navbarHeight = 48
-      } else {
-        var navbarHeight = 36
-      }
-
-      const viewMargins = webviews.viewMargins
-
-      let position = {
-        x: 0 + Math.round(viewMargins[3]),
-        y: 0 + Math.round(viewMargins[0]) + navbarHeight,
-        width: window.innerWidth - Math.round(viewMargins[1] + viewMargins[3]),
-        height: window.innerHeight - Math.round(viewMargins[0] + viewMargins[2]) - navbarHeight
-      }
-
-      return position
+      return webviews.getContentBounds()
     }
   },
   add: function (tabId, existingViewId) {
@@ -235,10 +245,19 @@ const webviews = {
 
     ipc.send('setView', {
       id: id,
-      bounds: webviews.getViewBounds(),
+      bounds: (!options || options.skipBounds !== true) ? webviews.getViewBounds() : null,
       focus: !options || options.focus !== false
     })
     webviews.emitEvent('view-shown', id)
+  },
+  show: function (id) {
+    ipc.send('showView', id)
+  },
+  hide: function (id) {
+    ipc.send('hideView', id)
+  },
+  setBounds: function (id, bounds) {
+    ipc.send('setBounds', { id: id, bounds: bounds })
   },
   update: function (id, url) {
     ipc.send('loadURLInView', { id: id, url: urlParser.parse(url) })
@@ -318,6 +337,11 @@ const webviews = {
     }
   },
   resize: function () {
+    if (window.layoutManager && window.layoutManager.syncActiveTaskLayout) {
+      window.layoutManager.syncActiveTaskLayout()
+      return
+    }
+
     ipc.send('setBounds', { id: webviews.selectedId, bounds: webviews.getViewBounds() })
   },
   goBackIgnoringRedirects: async function (id) {
@@ -446,7 +470,7 @@ webviews.bindEvent('crashed', function (tabId, isKilled) {
   webviews.add(tabId)
 
   if (tabId === tabs.getSelected()) {
-    webviews.setSelected(tabId)
+    webviews.setSelected(tabId, { skipBounds: true })
   }
 })
 
