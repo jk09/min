@@ -40,7 +40,7 @@ var defaultKeyMap = {
   showHistory: 'shift+mod+h'
 }
 /* Utility function to override default mapping with user settings */
-function userKeyMap (settings) {
+function userKeyMap(settings) {
   var keyMapCopy = Object.assign({}, defaultKeyMap)
   if (settings) {
     // override the default keymap by the user defined ones

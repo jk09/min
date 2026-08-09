@@ -265,7 +265,7 @@ const defaultKeybindings = {
       browserUI.addTab() // create a new, blank tab
     })
 
-    keybindings.defineShortcut('closeWindow', function() {
+    keybindings.defineShortcut('closeWindow', function () {
       ipc.invoke('close')
     })
 

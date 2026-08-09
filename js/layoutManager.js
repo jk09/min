@@ -1,6 +1,6 @@
 var webviews = require('webviews.js')
 
-function splitBounds (bounds, columns, rows) {
+function splitBounds(bounds, columns, rows) {
     const cellWidth = bounds.width / columns
     const cellHeight = bounds.height / rows
     const frames = []
@@ -19,7 +19,7 @@ function splitBounds (bounds, columns, rows) {
     return frames
 }
 
-function getTileFrames (count) {
+function getTileFrames(count) {
     const bounds = webviews.getContentBounds()
 
     if (count <= 1) {
@@ -65,15 +65,15 @@ function getTileFrames (count) {
     return splitBounds(bounds, columns, rows)
 }
 
-function getTileBounds (count, index) {
+function getTileBounds(count, index) {
     return getTileFrames(count)[index]
 }
 
-function getBrowserUI () {
+function getBrowserUI() {
     return require('browserUI.js')
 }
 
-function getTaskLabel (task) {
+function getTaskLabel(task) {
     if (!task) {
         return ''
     }
@@ -81,7 +81,7 @@ function getTaskLabel (task) {
     return task.name || l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1)
 }
 
-function getActiveTileIndex (task) {
+function getActiveTileIndex(task) {
     if (!task || task.tabs.count() === 0) {
         return -1
     }
@@ -95,7 +95,7 @@ function getActiveTileIndex (task) {
     return selectedIndex < 0 ? 0 : selectedIndex
 }
 
-function getActiveTile (task) {
+function getActiveTile(task) {
     if (!task || task.tabs.count() === 0) {
         return null
     }
@@ -103,12 +103,12 @@ function getActiveTile (task) {
     return task.tabs.get(task.tabs.getSelected()) || task.tabs.getAtIndex(0)
 }
 
-function getTileLabel (tab, index) {
+function getTileLabel(tab, index) {
     const title = tab.title || l('newTabLabel')
     return (index + 1) + '. ' + title
 }
 
-function renderTaskSummary (task) {
+function renderTaskSummary(task) {
     const title = document.getElementById('task-layout-indicator-title')
     const detail = document.getElementById('task-layout-indicator-detail')
 
@@ -130,7 +130,7 @@ function renderTaskSummary (task) {
     detail.textContent = (activeIndex + 1) + ' / ' + tileCount + ' tiles' + (activeTile && activeTile.title ? ' · ' + activeTile.title : '')
 }
 
-function renderTileStrip (task) {
+function renderTileStrip(task) {
     const strip = document.getElementById('task-tile-strip')
 
     if (!strip) {
@@ -166,7 +166,7 @@ function renderTileStrip (task) {
     })
 }
 
-function updateActionButtons (task) {
+function updateActionButtons(task) {
     const splitButton = document.getElementById('task-layout-split')
     const mergeButton = document.getElementById('task-layout-merge')
     const moveLeftButton = document.getElementById('task-layout-move-left')
@@ -185,7 +185,7 @@ function updateActionButtons (task) {
     moveRightButton.disabled = activeIndex < 0 || activeIndex >= tileCount - 1
 }
 
-function updateTaskIndicator () {
+function updateTaskIndicator() {
     const task = tasks.getSelected()
 
     renderTaskSummary(task)
@@ -193,7 +193,7 @@ function updateTaskIndicator () {
     updateActionButtons(task)
 }
 
-function syncTaskViews (task) {
+function syncTaskViews(task) {
     if (!task) {
         return
     }
@@ -222,11 +222,11 @@ function syncTaskViews (task) {
     updateTaskIndicator()
 }
 
-function syncActiveTaskLayout () {
+function syncActiveTaskLayout() {
     syncTaskViews(tasks.getSelected())
 }
 
-function selectTileByOffset (offset) {
+function selectTileByOffset(offset) {
     const task = tasks.getSelected()
     if (!task || task.tabs.count() < 2) {
         return
@@ -241,11 +241,11 @@ function selectTileByOffset (offset) {
     }
 }
 
-function splitTile () {
+function splitTile() {
     getBrowserUI().addTab()
 }
 
-function mergeTile () {
+function mergeTile() {
     if (!tabs.getSelected()) {
         return
     }
@@ -253,7 +253,7 @@ function mergeTile () {
     getBrowserUI().closeTab(tabs.getSelected())
 }
 
-function moveTileLeft () {
+function moveTileLeft() {
     if (!tabs.getSelected()) {
         return
     }
@@ -261,7 +261,7 @@ function moveTileLeft () {
     getBrowserUI().moveTabLeft(tabs.getSelected())
 }
 
-function moveTileRight () {
+function moveTileRight() {
     if (!tabs.getSelected()) {
         return
     }
@@ -269,7 +269,7 @@ function moveTileRight () {
     getBrowserUI().moveTabRight(tabs.getSelected())
 }
 
-function initialize () {
+function initialize() {
     updateTaskIndicator()
 
     const indicator = document.getElementById('task-layout-indicator')
