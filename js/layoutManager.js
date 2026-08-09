@@ -1,38 +1,72 @@
 var webviews = require('webviews.js')
 
-function getGridDimensions(count) {
+function splitBounds (bounds, columns, rows) {
+    const cellWidth = bounds.width / columns
+    const cellHeight = bounds.height / rows
+    const frames = []
+
+    for (let row = 0; row < rows; row++) {
+        for (let column = 0; column < columns; column++) {
+            frames.push({
+                x: Math.round(bounds.x + column * cellWidth),
+                y: Math.round(bounds.y + row * cellHeight),
+                width: Math.round(column === columns - 1 ? bounds.width - cellWidth * column : cellWidth),
+                height: Math.round(row === rows - 1 ? bounds.height - cellHeight * row : cellHeight)
+            })
+        }
+    }
+
+    return frames
+}
+
+function getTileFrames (count) {
+    const bounds = webviews.getContentBounds()
+
     if (count <= 1) {
-        return { columns: 1, rows: 1 }
+        return [bounds]
     }
 
     if (count === 2) {
-        return { columns: 2, rows: 1 }
+        return splitBounds(bounds, 2, 1)
     }
 
-    if (count <= 4) {
-        return { columns: 2, rows: 2 }
+    if (count === 3) {
+        const topRowHeight = Math.round(bounds.height * 0.55)
+        const bottomRowHeight = bounds.height - topRowHeight
+
+        return [
+            {
+                x: bounds.x,
+                y: bounds.y,
+                width: bounds.width,
+                height: topRowHeight
+            },
+            {
+                x: bounds.x,
+                y: bounds.y + topRowHeight,
+                width: Math.round(bounds.width / 2),
+                height: bottomRowHeight
+            },
+            {
+                x: bounds.x + Math.round(bounds.width / 2),
+                y: bounds.y + topRowHeight,
+                width: bounds.width - Math.round(bounds.width / 2),
+                height: bottomRowHeight
+            }
+        ]
     }
 
-    return {
-        columns: 3,
-        rows: Math.ceil(count / 3)
+    if (count === 4) {
+        return splitBounds(bounds, 2, 2)
     }
+
+    const columns = 3
+    const rows = Math.ceil(count / columns)
+    return splitBounds(bounds, columns, rows)
 }
 
-function getTileBounds(count, index) {
-    const bounds = webviews.getContentBounds()
-    const grid = getGridDimensions(count)
-    const column = index % grid.columns
-    const row = Math.floor(index / grid.columns)
-    const tileWidth = bounds.width / grid.columns
-    const tileHeight = bounds.height / grid.rows
-
-    return {
-        x: Math.round(bounds.x + column * tileWidth),
-        y: Math.round(bounds.y + row * tileHeight),
-        width: Math.round(column === grid.columns - 1 ? bounds.width - tileWidth * column : tileWidth),
-        height: Math.round(row === grid.rows - 1 ? bounds.height - tileHeight * row : tileHeight)
-    }
+function getTileBounds (count, index) {
+    return getTileFrames(count)[index]
 }
 
 function getTaskLabel(task) {
