@@ -86,10 +86,23 @@
       </div>
       <div id="tabs-inner" role="tablist" class="has-thin-scrollbar"></div>
     </div>
-    <button id="task-layout-indicator" class="windowDragHandle" tabindex="-1" aria-label="Active task">
-      <span id="task-layout-indicator-title"></span>
-      <span id="task-layout-indicator-detail"></span>
-    </button>
+    <div id="task-layout-indicator" class="windowDragHandle" tabindex="-1" aria-label="Active task">
+      <div id="task-layout-summary">
+        <span id="task-layout-indicator-title"></span>
+        <span id="task-layout-indicator-detail"></span>
+      </div>
+      <div id="task-tile-strip" class="has-thin-scrollbar" role="tablist" aria-label="Tiles"></div>
+      <div id="task-layout-actions">
+        <button id="task-layout-split" class="layout-action-button i carbon:add" aria-label="Split tile"
+          tabindex="-1"></button>
+        <button id="task-layout-merge" class="layout-action-button i carbon:close" aria-label="Merge tile"
+          tabindex="-1"></button>
+        <button id="task-layout-move-left" class="layout-action-button i carbon:chevron-left"
+          aria-label="Move tile left" tabindex="-1"></button>
+        <button id="task-layout-move-right" class="layout-action-button i carbon:chevron-right"
+          aria-label="Move tile right" tabindex="-1"></button>
+      </div>
+    </div>
     <div class="navbar-right-actions">
       <button id="add-tab-button" class="navbar-action-button i carbon:add" data-label="newTabAction"
         tabindex="-1"></button>

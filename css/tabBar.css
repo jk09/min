@@ -335,18 +335,23 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   min-width: 0;
   margin: 0 0.5rem;
-  padding: 0 0.75rem;
-  border: 0;
-  background: transparent;
+  padding: 0 0.5rem;
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: pointer;
   overflow: hidden;
+}
+
+#task-layout-summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 8rem;
+  max-width: 14rem;
+  flex: 0 1 auto;
 }
 
 #task-layout-indicator-title {
@@ -357,7 +362,6 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
 }
 
 #task-layout-indicator-detail {
-  flex: 0 1 auto;
   opacity: 0.7;
   font-size: 0.9em;
   white-space: nowrap;
@@ -365,14 +369,79 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
   text-overflow: ellipsis;
 }
 
-body:not(.fullscreen) #task-layout-indicator:hover,
-body:not(.fullscreen) #task-layout-indicator:focus {
-  background-color: rgba(0, 0, 0, 0.05);
+#task-tile-strip {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
 }
 
-body.dark-theme:not(.fullscreen) #task-layout-indicator:hover,
-body.dark-theme:not(.fullscreen) #task-layout-indicator:focus {
-  background-color: rgba(255, 255, 255, 0.08);
+#task-tile-strip::-webkit-scrollbar {
+  height: 0;
+}
+
+.task-tile-chip {
+  flex: 0 0 auto;
+  min-width: 2.2rem;
+  height: 1.75rem;
+  padding: 0 0.65rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: inherit;
+  font: inherit;
+  opacity: 0.75;
+}
+
+.dark-theme .task-tile-chip {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.task-tile-chip.selected {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.dark-theme .task-tile-chip.selected {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+#task-layout-actions {
+  display: flex;
+  gap: 0.15rem;
+  flex: 0 0 auto;
+}
+
+.layout-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0;
+}
+
+.layout-action-button:hover,
+.layout-action-button:focus {
+  background: rgba(0, 0, 0, 0.08);
+  opacity: 1;
+}
+
+.dark-theme .layout-action-button:hover,
+.dark-theme .layout-action-button:focus {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .navbar-right-actions #add-tab-button {
