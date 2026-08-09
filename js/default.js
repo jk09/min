@@ -163,7 +163,11 @@ require('util/theme.js').initialize()
 require('userscripts.js').initialize()
 require('statistics.js').initialize()
 require('taskOverlay/taskOverlay.js').initialize()
-require('llmPrompt/promptPanel.js').initialize()
+try {
+  require('llmPrompt/promptPanel.js').initialize()
+} catch (e) {
+  console.error('failed to initialize LLM prompt panel', e)
+}
 require('sessionRestore.js').initialize()
 require('bookmarkConverter.js').initialize()
 require('newTabPage.js').initialize()

@@ -73,6 +73,18 @@ npm run build
 npm run startElectron
 ```
 
+To troubleshoot startup issues (such as a blank window), start with diagnostics enabled:
+
+```bash
+npm run startElectron -- --startup-diagnostics
+```
+
+You can also enable the same logs via environment variable:
+
+```bash
+MIN_STARTUP_DIAGNOSTICS=1 npm run startElectron
+```
+
 ### Building binaries
 
 In order to build Min from source, follow the installation instructions above, then use one of the following commands to create binaries:

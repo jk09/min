@@ -34,8 +34,16 @@ if (process.argv.some(arg => arg === '-v' || arg === '--version')) {
 let isInstallerRunning = false
 const isDevelopmentMode = process.argv.some(arg => arg === '--development-mode')
 const isDebuggingEnabled = process.argv.some(arg => arg === '--debug-browser')
+const isStartupDiagnosticsEnabled = process.argv.some(arg => arg === '--startup-diagnostics') || process.env.MIN_STARTUP_DIAGNOSTICS === '1'
 
-function clamp (n, min, max) {
+function startupDiagnosticsLog(...args) {
+  if (!isStartupDiagnosticsEnabled) {
+    return
+  }
+  console.log('[startup-diagnostics]', ...args)
+}
+
+function clamp(n, min, max) {
   return Math.max(Math.min(n, max), min)
 }
 
@@ -94,7 +102,7 @@ var saveWindowBounds = function () {
   }
 }
 
-function sendIPCToWindow (window, action, data) {
+function sendIPCToWindow(window, action, data) {
   if (window && window.isDestroyed()) {
     console.warn('ignoring message ' + action + ' sent to destroyed window')
     return
@@ -103,13 +111,13 @@ function sendIPCToWindow (window, action, data) {
   if (window && getWindowWebContents(window).isLoadingMainFrame()) {
     // immediately after a did-finish-load event, isLoading can still be true,
     // so wait a bit to confirm that the page is really loading
-    setTimeout(function() {
+    setTimeout(function () {
       if (getWindowWebContents(window).isLoadingMainFrame()) {
         getWindowWebContents(window).once('did-finish-load', function () {
           getWindowWebContents(window).send(action, data || {})
         })
       } else {
-         getWindowWebContents(window).send(action, data || {})
+        getWindowWebContents(window).send(action, data || {})
       }
     }, 0)
   } else if (window) {
@@ -122,13 +130,13 @@ function sendIPCToWindow (window, action, data) {
   }
 }
 
-function openTabInWindow (url) {
+function openTabInWindow(url) {
   sendIPCToWindow(windows.getCurrent(), 'addTab', {
     url: url
   })
 }
 
-function handleCommandLineArguments (argv) {
+function handleCommandLineArguments(argv) {
   // the "ready" event must occur before this function can be used
   if (argv) {
     argv.forEach(function (arg, idx) {
@@ -154,13 +162,13 @@ function handleCommandLineArguments (argv) {
   }
 }
 
-function createWindow (customArgs = {}) {
+function createWindow(customArgs = {}) {
   var bounds;
 
   try {
     var data = fs.readFileSync(path.join(userDataPath, 'windowBounds.json'), 'utf-8')
     bounds = JSON.parse(data)
-  } catch (e) {}
+  } catch (e) { }
 
   if (!bounds) { // there was an error, probably because the file doesn't exist
     var size = electron.screen.getPrimaryDisplay().workAreaSize
@@ -189,7 +197,9 @@ function createWindow (customArgs = {}) {
   return createWindowWithBounds(bounds, customArgs)
 }
 
-function createWindowWithBounds (bounds, customArgs) {
+function createWindowWithBounds(bounds, customArgs) {
+  const startupWindowId = windows.nextId
+
   const newWin = new BaseWindow({
     width: bounds.width,
     height: bounds.height,
@@ -228,7 +238,48 @@ function createWindowWithBounds (bounds, customArgs) {
       ]
     }
   })
+
+  startupDiagnosticsLog('creating window', {
+    windowId: startupWindowId,
+    bounds,
+    developmentMode: isDevelopmentMode
+  })
+
   mainView.webContents.loadURL(browserPage)
+
+  mainView.webContents.on('did-start-loading', function () {
+    startupDiagnosticsLog('main view did-start-loading', {
+      windowId: startupWindowId,
+      url: mainView.webContents.getURL()
+    })
+  })
+
+  mainView.webContents.on('did-finish-load', function () {
+    startupDiagnosticsLog('main view did-finish-load', {
+      windowId: startupWindowId,
+      url: mainView.webContents.getURL()
+    })
+  })
+
+  mainView.webContents.on('did-fail-load', function (event, errorCode, errorDescription, validatedURL, isMainFrame) {
+    if (!isMainFrame) {
+      return
+    }
+
+    startupDiagnosticsLog('main view did-fail-load', {
+      windowId: startupWindowId,
+      errorCode,
+      errorDescription,
+      validatedURL
+    })
+  })
+
+  mainView.webContents.on('render-process-gone', function (event, details) {
+    startupDiagnosticsLog('main view render-process-gone', {
+      windowId: startupWindowId,
+      details
+    })
+  })
 
   if (bounds.maximized) {
     newWin.maximize()
@@ -240,16 +291,16 @@ function createWindowWithBounds (bounds, customArgs) {
 
   const winBounds = newWin.getContentBounds()
 
-  mainView.setBounds({x: 0, y: 0, width: winBounds.width, height: winBounds.height})
+  mainView.setBounds({ x: 0, y: 0, width: winBounds.width, height: winBounds.height })
   newWin.contentView.addChildView(mainView)
 
   // sometimes getContentBounds doesn't provide correct bounds until after the window has finished loading
   mainView.webContents.once('did-finish-load', function () {
     const winBounds = newWin.getContentBounds()
-    mainView.setBounds({x: 0, y: 0, width: winBounds.width, height: winBounds.height})
+    mainView.setBounds({ x: 0, y: 0, width: winBounds.width, height: winBounds.height })
   })
 
-  mainView.webContents.ipc.on('set-window-title', function(e, title) {
+  mainView.webContents.ipc.on('set-window-title', function (e, title) {
     newWin.title = title
   })
 
@@ -257,13 +308,21 @@ function createWindowWithBounds (bounds, customArgs) {
     // The result of getContentBounds doesn't update until the next tick
     setTimeout(function () {
       const winBounds = newWin.getContentBounds()
-      mainView.setBounds({x: 0, y: 0, width: winBounds.width, height: winBounds.height})
+      mainView.setBounds({ x: 0, y: 0, width: winBounds.width, height: winBounds.height })
     }, 0)
   })
 
   newWin.on('close', function () {
     // save the window size for the next launch of the app
     saveWindowBounds()
+  })
+
+  newWin.on('unresponsive', function () {
+    startupDiagnosticsLog('window unresponsive', { windowId: startupWindowId })
+  })
+
+  newWin.on('responsive', function () {
+    startupDiagnosticsLog('window responsive', { windowId: startupWindowId })
   })
 
   newWin.on('focus', function () {
@@ -288,7 +347,7 @@ function createWindowWithBounds (bounds, customArgs) {
   newWin.on('unmaximize', function () {
     sendIPCToWindow(newWin, 'unmaximize')
   })
-  
+
   newWin.on('focus', function () {
     sendIPCToWindow(newWin, 'focus')
   })
@@ -343,7 +402,7 @@ function createWindowWithBounds (bounds, customArgs) {
     }
   })
 
-  mainView.webContents.on('before-input-event', function(e, input) {
+  mainView.webContents.on('before-input-event', function (e, input) {
     sendIPCToWindow(newWin, 'before-input-event', input)
   })
 
@@ -400,7 +459,7 @@ app.on('open-url', function (e, url) {
 })
 
 // handoff support for macOS
-app.on('continue-activity', function(e, type, userInfo, details) {
+app.on('continue-activity', function (e, type, userInfo, details) {
   if (type === 'NSUserActivityTypeBrowsingWeb' && details.webpageURL) {
     e.preventDefault()
     sendIPCToWindow(windows.getCurrent(), 'addTab', {
@@ -446,7 +505,7 @@ ipc.on('showSecondaryMenu', function (event, data) {
   })
 })
 
-ipc.on('handoffUpdate', function(e, data) {
+ipc.on('handoffUpdate', function (e, data) {
   if (app.setUserActivity && data.url && data.url.startsWith('http')) {
     app.setUserActivity('NSUserActivityTypeBrowsingWeb', {}, data.url)
   } else if (app.invalidateCurrentActivity) {
@@ -458,13 +517,13 @@ ipc.on('quit', function () {
   app.quit()
 })
 
-ipc.on('tab-state-change', function(e, events) {
+ipc.on('tab-state-change', function (e, events) {
   const sourceWindowId = windows.windowFromContents(e.sender)?.id
   if (!sourceWindowId) {
     console.warn('warning: received tab state update from window after destruction, ignoring')
     return
   }
-  windows.getAll().forEach(function(window) {
+  windows.getAll().forEach(function (window) {
     if (getWindowWebContents(window).id !== e.sender.id) {
       getWindowWebContents(window).send('tab-state-change-receive', {
         sourceWindowId,
@@ -474,12 +533,12 @@ ipc.on('tab-state-change', function(e, events) {
   })
 })
 
-ipc.on('request-tab-state', function(e) {
+ipc.on('request-tab-state', function (e) {
   const otherWindow = windows.getAll().find(w => getWindowWebContents(w).id !== e.sender.id)
   if (!otherWindow) {
     throw new Error('secondary window doesn\'t exist as source for tab state')
   }
-  ipc.once('return-tab-state', function(e2, data) {
+  ipc.once('return-tab-state', function (e2, data) {
     e.returnValue = data
   })
   getWindowWebContents(otherWindow).send('read-tab-state')
@@ -490,7 +549,7 @@ ipc.on('request-tab-state', function(e) {
 const placesPage = 'file://' + __dirname + '/js/places/placesService.html'
 
 let placesWindow = null
-app.once('ready', function() {
+app.once('ready', function () {
   placesWindow = new BrowserWindow({
     width: 300,
     height: 300,
@@ -508,7 +567,7 @@ ipc.on('places-connect', function (e) {
   placesWindow.webContents.postMessage('places-connect', null, e.ports)
 })
 
-function getWindowWebContents (win) {
+function getWindowWebContents(win) {
   return win.getContentView().children[0].webContents
 }
 
@@ -517,8 +576,8 @@ function getWindowWebContents (win) {
 const translatePage = 'min://app/pages/translateService/index.html'
 const translatePreload = __dirname + '/pages/translateService/translateServicePreload.js'
 
-app.on('ready', function() {
-  ipc.on('page-translation-session-create', function(e) {
+app.on('ready', function () {
+  ipc.on('page-translation-session-create', function (e) {
     let translateWindow = new BrowserWindow({
       width: 300,
       height: 300,
@@ -529,11 +588,11 @@ app.on('ready', function() {
         preload: translatePreload
       }
     })
-  
+
     translateWindow.loadURL(translatePage)
     // translateWindow.webContents.openDevTools({mode: 'detach'})
 
-    translateWindow.webContents.once('did-finish-load', function() {
+    translateWindow.webContents.once('did-finish-load', function () {
       translateWindow.webContents.postMessage('page-translation-session-create', null, e.ports)
     })
   })
