@@ -237,6 +237,7 @@ function switchToTab(id, options) {
     document.body.classList.remove('is-ntp')
   }
 
+  layoutManager.syncActiveTaskLayout()
   layoutManager.updateTaskIndicator()
 }
 
