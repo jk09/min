@@ -6,7 +6,7 @@ var temporaryPopupViews = {} // id: view
 // rate limit on "open in app" requests
 var globalLaunchRequests = 0
 
-function getDefaultViewWebPreferences () {
+function getDefaultViewWebPreferences() {
   return (
     {
       nodeIntegration: false,
@@ -29,7 +29,7 @@ function getDefaultViewWebPreferences () {
   )
 }
 
-function createView (existingViewId, id, webPreferences, boundsString, events) {
+function createView(existingViewId, id, webPreferences, boundsString, events) {
   if (viewStateMap[id]) {
     console.warn("Creating duplicate view")
   }
@@ -38,7 +38,8 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
 
   viewStateMap[id] = {
     loadedInitialURL: false,
-    hasJS: viewPrefs.javascript // need this later to see if we should swap the view for a JS-enabled one
+    hasJS: viewPrefs.javascript, // need this later to see if we should swap the view for a JS-enabled one
+    visible: false
   }
 
   let view
@@ -161,7 +162,7 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
     createPrompt({
       text: title,
       values: [{ placeholder: l('username'), id: 'username', type: 'text' },
-        { placeholder: l('password'), id: 'password', type: 'password' }],
+      { placeholder: l('password'), id: 'password', type: 'password' }],
       ok: l('dialogConfirmButton'),
       cancel: l('dialogSkipButton'),
       width: 400,
@@ -174,7 +175,7 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
 
   // show an "open in app" prompt for external protocols
 
-  function handleExternalProtocol (e, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
+  function handleExternalProtocol(e, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
     var knownProtocols = ['http', 'https', 'file', 'min', 'about', 'data', 'javascript', 'chrome'] // TODO anything else?
     if (!knownProtocols.includes(url.split(':')[0])) {
       var externalApp = app.getApplicationNameForProtocol(url)
@@ -241,15 +242,17 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
   return view
 }
 
-function destroyView (id) {
+function destroyView(id) {
   if (!viewMap[id]) {
     return
   }
 
   windows.getAll().forEach(function (window) {
-    if (windows.getState(window).selectedView === id) {
+    if (window.getContentView().children.includes(viewMap[id])) {
       window.getContentView().removeChildView(viewMap[id])
-      windows.getState(window).selectedView = null
+      if (windows.getState(window).selectedView === id) {
+        windows.getState(window).selectedView = null
+      }
     }
   })
   viewMap[id].webContents.destroy()
@@ -258,36 +261,63 @@ function destroyView (id) {
   delete viewStateMap[id]
 }
 
-function destroyAllViews () {
+function destroyAllViews() {
   for (const id in viewMap) {
     destroyView(id)
   }
 }
 
-function setView (id, senderContents) {
+function setView(id, senderContents) {
   const win = windows.windowFromContents(senderContents).win
 
-  // changing views can cause flickering, so we only want to call it if the view is actually changing
-  // see https://github.com/minbrowser/min/issues/1966
-  if (windows.getState(win).selectedView !== viewMap[id]) {
-    //remove all prior views
-    win.getContentView().children.slice(1).forEach(child => win.getContentView().removeChildView(child))
-    if (viewStateMap[id].loadedInitialURL) {
-      win.getContentView().addChildView(viewMap[id])
-    } else {
-      win.getContentView().removeChildView(viewMap[id])
-    }
-    windows.getState(win).selectedView = id
+  if (!viewMap[id]) {
+    return
+  }
+
+  viewStateMap[id].visible = true
+
+  if (viewStateMap[id].loadedInitialURL && !win.getContentView().children.includes(viewMap[id])) {
+    win.getContentView().addChildView(viewMap[id])
+  }
+
+  windows.getState(win).selectedView = id
+}
+
+function showView(id, senderContents) {
+  const win = windows.windowFromContents(senderContents)?.win
+  if (!win || !viewMap[id]) {
+    return
+  }
+
+  viewStateMap[id].visible = false
+
+  if (viewStateMap[id].loadedInitialURL && !win.getContentView().children.includes(viewMap[id])) {
+    win.getContentView().addChildView(viewMap[id])
   }
 }
 
-function setBounds (id, bounds) {
+function hideView(id, senderContents) {
+  const win = windows.windowFromContents(senderContents)?.win
+  if (!win || !viewMap[id]) {
+    return
+  }
+
+  if (win.getContentView().children.includes(viewMap[id])) {
+    win.getContentView().removeChildView(viewMap[id])
+  }
+
+  if (windows.getState(win).selectedView === id) {
+    windows.getState(win).selectedView = null
+  }
+}
+
+function setBounds(id, bounds) {
   if (viewMap[id]) {
     viewMap[id].setBounds(bounds)
   }
 }
 
-function focusView (id) {
+function focusView(id) {
   // empty views can't be focused because they won't propogate keyboard events correctly, see https://github.com/minbrowser/min/issues/616
   // also, make sure the view exists, since it might not if the app is shutting down
   if (viewMap[id] && (viewMap[id].webContents.getURL() !== '' || viewMap[id].webContents.isLoading())) {
@@ -299,23 +329,22 @@ function focusView (id) {
   }
 }
 
-function hideCurrentView (senderContents) {
+function hideCurrentView(senderContents) {
   const win = windows.windowFromContents(senderContents).win
   const currentId = windows.getState(win).selectedView
   if (currentId) {
-    win.getContentView().removeChildView(viewMap[currentId])
-    windows.getState(win).selectedView = null
+    hideView(currentId, senderContents)
     if (win.isFocused()) {
       getWindowWebContents(win).focus()
     }
   }
 }
 
-function getView (id) {
+function getView(id) {
   return viewMap[id]
 }
 
-function getTabIDFromWebContents (contents) {
+function getTabIDFromWebContents(contents) {
   for (var id in viewMap) {
     if (viewMap[id].webContents === contents) {
       return id
@@ -323,9 +352,9 @@ function getTabIDFromWebContents (contents) {
   }
 }
 
-function getWindowFromViewContents (webContents) {
+function getWindowFromViewContents(webContents) {
   const viewId = Object.keys(viewMap).find(id => viewMap[id].webContents === webContents)
-  return windows.getAll().find(win => windows.getState(win).selectedView === viewId)
+  return windows.getAll().find(win => windows.getState(win).selectedView === viewId || win.getContentView().children.includes(viewMap[viewId]))
 }
 
 ipc.on('createView', function (e, args) {
@@ -351,6 +380,14 @@ ipc.on('setView', function (e, args) {
   }
 })
 
+ipc.on('showView', function (e, id) {
+  showView(id, e.sender)
+})
+
+ipc.on('hideView', function (e, id) {
+  hideView(id, e.sender)
+})
+
 ipc.on('setBounds', function (e, args) {
   setBounds(args.id, args.bounds)
 })
@@ -363,15 +400,15 @@ ipc.on('hideCurrentView', function (e) {
   hideCurrentView(e.sender)
 })
 
-function loadURLInView (id, url, win) {
+function loadURLInView(id, url, win) {
   // wait until the first URL is loaded to set the background color so that new tabs can use a custom background
   if (!viewStateMap[id].loadedInitialURL) {
     // Give the site a chance to display something before setting the background, in case it has its own dark theme
-    viewMap[id].webContents.once('dom-ready', function() {
+    viewMap[id].webContents.once('dom-ready', function () {
       viewMap[id].setBackgroundColor('#fff')
     })
     // If the view has no URL, it won't be attached yet
-    if (win && id === windows.getState(win).selectedView) {
+    if (win && (id === windows.getState(win).selectedView || viewStateMap[id].visible)) {
       win.getContentView().addChildView(viewMap[id])
     }
   }

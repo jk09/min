@@ -10,10 +10,11 @@ var focusMode = require('focusMode.js')
 var tabBar = require('navbar/tabBar.js')
 var tabEditor = require('navbar/tabEditor.js')
 var searchbar = require('searchbar/searchbar.js')
+var layoutManager = require('layoutManager.js')
 
 /* creates a new task */
 
-function addTask () {
+function addTask() {
   // insert after current task
   let index
   if (tasks.getSelected()) {
@@ -22,6 +23,7 @@ function addTask () {
   tasks.setSelected(tasks.add({}, index))
 
   tabBar.updateAll()
+  layoutManager.updateTaskIndicator()
   addTab()
 }
 
@@ -32,7 +34,7 @@ options
   options.enterEditMode - whether to enter editing mode when the tab is created. Defaults to true.
   options.openInBackground - whether to open the tab without switching to it. Defaults to false.
 */
-function addTab (tabId = tabs.add(), options = {}) {
+function addTab(tabId = tabs.add(), options = {}) {
   /*
   adding a new tab should destroy the current one if either:
   * The current tab is an empty, non-private tab, and the new tab is private
@@ -45,6 +47,7 @@ function addTab (tabId = tabs.add(), options = {}) {
 
   tabBar.addTab(tabId)
   webviews.add(tabId)
+  layoutManager.syncActiveTaskLayout()
 
   if (!options.openInBackground) {
     switchToTab(tabId, {
@@ -58,19 +61,21 @@ function addTab (tabId = tabs.add(), options = {}) {
   }
 }
 
-function moveTabLeft (tabId = tabs.getSelected()) {
+function moveTabLeft(tabId = tabs.getSelected()) {
   tabs.moveBy(tabId, -1)
   tabBar.updateAll()
+  layoutManager.syncActiveTaskLayout()
 }
 
-function moveTabRight (tabId = tabs.getSelected()) {
+function moveTabRight(tabId = tabs.getSelected()) {
   tabs.moveBy(tabId, 1)
   tabBar.updateAll()
+  layoutManager.syncActiveTaskLayout()
 }
 
 /* destroys a task object and the associated webviews */
 
-function destroyTask (id) {
+function destroyTask(id) {
   var task = tasks.get(id)
 
   task.tabs.forEach(function (tab) {
@@ -78,18 +83,20 @@ function destroyTask (id) {
   })
 
   tasks.destroy(id)
+  layoutManager.updateTaskIndicator()
 }
 
 /* destroys the webview and tab element for a tab */
-function destroyTab (id) {
+function destroyTab(id) {
   tabBar.removeTab(id)
   tabs.destroy(id) // remove from state - returns the index of the destroyed tab
   webviews.destroy(id) // remove the webview
+  layoutManager.syncActiveTaskLayout()
 }
 
 /* destroys a task, and either switches to the next most-recent task or creates a new one */
 
-function closeTask (taskId) {
+function closeTask(taskId) {
   var previousCurrentTask = tasks.getSelected().id
 
   destroyTask(taskId)
@@ -118,7 +125,7 @@ function closeTask (taskId) {
 
 /* destroys a tab, and either switches to the next tab or creates a new one */
 
-function closeTab (tabId) {
+function closeTab(tabId) {
   /* disabled in focus mode */
   if (focusMode.enabled()) {
     focusMode.warn()
@@ -128,7 +135,7 @@ function closeTab (tabId) {
   if (tabId === tabs.getSelected()) {
     var currentIndex = tabs.getIndex(tabs.getSelected())
     var nextTab =
-    tabs.getAtIndex(currentIndex - 1) || tabs.getAtIndex(currentIndex + 1)
+      tabs.getAtIndex(currentIndex - 1) || tabs.getAtIndex(currentIndex + 1)
 
     destroyTab(tabId)
 
@@ -142,7 +149,7 @@ function closeTab (tabId) {
   }
 }
 
-function setWindowTitle () {
+function setWindowTitle() {
   const task = tasks.getSelected()
   const tab = task.tabs.get(task.tabs.getSelected())
 
@@ -168,7 +175,7 @@ function setWindowTitle () {
 
 /* changes the currently-selected task and updates the UI */
 
-function switchToTask (id) {
+function switchToTask(id) {
   tasks.setSelected(id)
 
   tabBar.updateAll()
@@ -192,6 +199,7 @@ function switchToTask (id) {
   }
 
   setWindowTitle(taskData)
+  layoutManager.syncActiveTaskLayout()
 }
 
 tasks.on('task-updated', function (id, key) {
@@ -212,7 +220,7 @@ tasks.on('tab-updated', function (id, key) {
 
 /* switches to a tab - update the webview, state, tabstrip, etc. */
 
-function switchToTab (id, options) {
+function switchToTab(id, options) {
   options = options || {}
 
   tabs.setSelected(id)
@@ -228,6 +236,8 @@ function switchToTab (id, options) {
   } else {
     document.body.classList.remove('is-ntp')
   }
+
+  layoutManager.updateTaskIndicator()
 }
 
 tasks.on('tab-updated', function (id, key) {
