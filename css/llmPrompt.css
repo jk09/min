@@ -21,7 +21,7 @@
     border-top-color: rgba(255, 255, 255, 0.15);
 }
 
-body:not(.is-ntp) #llm-prompt-panel {
+body.llm-prompt-panel-visible #llm-prompt-panel {
     display: flex;
 }
 

@@ -245,7 +245,7 @@ const webviews = {
 
     ipc.send('setView', {
       id: id,
-      bounds: webviews.getViewBounds(),
+      bounds: (!options || options.skipBounds !== true) ? webviews.getViewBounds() : null,
       focus: !options || options.focus !== false
     })
     webviews.emitEvent('view-shown', id)
@@ -470,7 +470,7 @@ webviews.bindEvent('crashed', function (tabId, isKilled) {
   webviews.add(tabId)
 
   if (tabId === tabs.getSelected()) {
-    webviews.setSelected(tabId)
+    webviews.setSelected(tabId, { skipBounds: true })
   }
 })
 

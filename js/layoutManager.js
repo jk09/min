@@ -216,7 +216,7 @@ function syncTaskViews(task) {
     })
 
     if (activeTabId) {
-        webviews.setSelected(activeTabId, { focus: true })
+        webviews.setSelected(activeTabId, { focus: true, skipBounds: true })
     }
 
     updateTaskIndicator()

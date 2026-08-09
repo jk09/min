@@ -289,7 +289,7 @@ function showView(id, senderContents) {
     return
   }
 
-  viewStateMap[id].visible = false
+  viewStateMap[id].visible = true
 
   if (viewStateMap[id].loadedInitialURL && !win.getContentView().children.includes(viewMap[id])) {
     win.getContentView().addChildView(viewMap[id])
@@ -301,6 +301,8 @@ function hideView(id, senderContents) {
   if (!win || !viewMap[id]) {
     return
   }
+
+  viewStateMap[id].visible = false
 
   if (win.getContentView().children.includes(viewMap[id])) {
     win.getContentView().removeChildView(viewMap[id])
@@ -371,7 +373,9 @@ ipc.on('destroyAllViews', function () {
 
 ipc.on('setView', function (e, args) {
   setView(args.id, e.sender)
-  setBounds(args.id, args.bounds)
+  if (args.bounds) {
+    setBounds(args.id, args.bounds)
+  }
   if (args.focus && BrowserWindow.fromWebContents(e.sender) && BrowserWindow.fromWebContents(e.sender).isFocused()) {
     const couldFocus = focusView(args.id)
     if (!couldFocus) {
