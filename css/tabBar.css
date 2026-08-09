@@ -379,6 +379,8 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
   overflow-y: hidden;
   white-space: nowrap;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 84%, transparent 100%);
+  mask-image: linear-gradient(to right, black 0%, black 84%, transparent 100%);
 }
 
 #task-tile-strip::-webkit-scrollbar {
@@ -386,10 +388,13 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
 }
 
 .task-tile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   flex: 0 0 auto;
-  min-width: 2.2rem;
-  height: 1.75rem;
-  padding: 0 0.65rem;
+  max-width: 10rem;
+  height: 1.65rem;
+  padding: 0 0.6rem;
   border: 0;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.06);
@@ -413,10 +418,78 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
 }
 
+.task-tile-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.task-tile-chip-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.2rem;
+}
+
+.task-tile-chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 #task-layout-actions {
   display: flex;
-  gap: 0.15rem;
+  align-items: center;
+  gap: 0.35rem;
   flex: 0 0 auto;
+}
+
+.layout-mode-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.15rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.dark-theme .layout-mode-switcher {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.layout-switcher-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.35rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.layout-switcher-button.selected {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.dark-theme .layout-switcher-button.selected {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.layout-switcher-button:hover,
+.layout-switcher-button:focus {
+  background: rgba(0, 0, 0, 0.08);
+  opacity: 1;
 }
 
 .layout-action-button {

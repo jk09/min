@@ -93,6 +93,16 @@
       </div>
       <div id="task-tile-strip" class="has-thin-scrollbar" role="tablist" aria-label="Tiles"></div>
       <div id="task-layout-actions">
+        <div class="layout-mode-switcher" role="group" aria-label="Tile layout">
+          <button class="layout-switcher-button selected" data-layout="single" aria-label="Single tile"
+            aria-pressed="true">1</button>
+          <button class="layout-switcher-button" data-layout="two-horizontal" aria-label="Two horizontal tiles"
+            aria-pressed="false">2H</button>
+          <button class="layout-switcher-button" data-layout="two-vertical" aria-label="Two vertical tiles"
+            aria-pressed="false">2V</button>
+          <button class="layout-switcher-button" data-layout="four-grid" aria-label="Four tile grid"
+            aria-pressed="false">4</button>
+        </div>
         <button id="task-layout-split" class="layout-action-button i carbon:add" aria-label="Split tile"
           tabindex="-1"></button>
         <button id="task-layout-merge" class="layout-action-button i carbon:close" aria-label="Merge tile"
