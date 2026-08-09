@@ -19,8 +19,8 @@ Describe the context, current limitations, and any related work.
 - **Related issues or references:**
   - Screenshot reference A: `pasted-image-1.png` (two-tile layout, red marks for tab indicators and desired switcher area).
   - Screenshot reference B: `pasted-image-2.png` (VS Code-like layout switcher inspiration).
-  - Source attachment URL A: https://github.com/github-copilot/chat/attachments/e21f96ed-3d91-49fc-b41c-bfb17ea46b12
-  - Source attachment URL B: https://github.com/github-copilot/chat/attachments/900f0566-e0d1-431f-b164-2a0400df0298
+  - Local file A: [pasted-image-1.png](./pasted-image-1.png)
+  - Local file B: [pasted-image-2.png](./pasted-image-2.png)
 
 ## 4. Goals
 List the primary outcomes this feature should achieve.
