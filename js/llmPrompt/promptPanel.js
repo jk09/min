@@ -50,7 +50,7 @@ function isPanelVisibleForCurrentMode() {
     return !document.body.classList.contains('is-ntp')
 }
 
-function getTargetMargins(panelRect) {
+function getTargetMargins(panelRect, history) {
     if (!isPanelVisibleForCurrentMode()) {
         return [0, 0, 0, 0]
     }
@@ -67,12 +67,15 @@ function getTargetMargins(panelRect) {
         return [0, Math.round(panelRect.width), 0, 0]
     }
 
-    return [0, 0, Math.round(panelRect.height), 0]
+    const historyHeight = history && !history.hidden
+        ? Math.max(0, Math.round(panelRect.top - history.getBoundingClientRect().top))
+        : 0
+    return [0, 0, Math.round(panelRect.height) + historyHeight, 0]
 }
 
 function syncWebviewMargins(els) {
     const panelRect = els.panel.getBoundingClientRect()
-    const nextMargins = getTargetMargins(panelRect)
+    const nextMargins = getTargetMargins(panelRect, els.history)
     const delta = nextMargins.map(function (value, idx) {
         return value - state.appliedMargins[idx]
     })
@@ -178,6 +181,7 @@ function clearHistorySuggestions(els) {
     state.selectedHistorySuggestion = -1
     els.history.replaceChildren()
     els.history.hidden = true
+    syncWebviewMargins(els)
 }
 
 function updateHistorySelection(els, index) {
@@ -187,6 +191,9 @@ function updateHistorySelection(els, index) {
         const selected = itemIndex === index
         item.classList.toggle('selected', selected)
         item.setAttribute('aria-selected', String(selected))
+        if (selected) {
+            item.scrollIntoView({ block: 'nearest' })
+        }
     })
 }
 
@@ -231,6 +238,7 @@ function renderHistorySuggestions(els, suggestions) {
     })
 
     els.history.hidden = suggestions.length === 0
+    syncWebviewMargins(els)
 }
 
 async function updateHistorySuggestions(els) {
