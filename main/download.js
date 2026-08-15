@@ -1,3 +1,8 @@
+const path = require('path')
+const { app, ipcMain: ipc, session } = require('electron')
+const { windows } = require('./windowManagement')
+const { sendIPCToWindow } = require('./windowUtils')
+
 const currrentDownloadItems = {}
 
 ipc.on('cancelDownload', function (e, path) {

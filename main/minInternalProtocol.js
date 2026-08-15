@@ -1,4 +1,7 @@
+const path = require('path')
 const { pathToFileURL } = require('url')
+const { app, protocol, net, session } = require('electron')
+const appState = require('./appState')
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -28,8 +31,8 @@ function registerBundleProtocol (ses) {
 
     // NB, this checks for paths that escape the bundle, e.g.
     // app://bundle/../../secret_file.txt
-    const pathToServe = path.resolve(__dirname, pathname)
-    const relativePath = path.relative(__dirname, pathToServe)
+    const pathToServe = path.resolve(appState.appRoot, pathname)
+    const relativePath = path.relative(appState.appRoot, pathToServe)
     const isSafe = relativePath && !relativePath.startsWith('..') && !path.isAbsolute(relativePath)
 
     if (!isSafe) {
@@ -48,3 +51,5 @@ app.on('session-created', (ses) => {
     registerBundleProtocol(ses)
   }
 })
+
+module.exports = { registerBundleProtocol }

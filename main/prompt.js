@@ -1,5 +1,11 @@
 /* Simple input prompt. */
 
+const path = require('path')
+const { BrowserWindow, ipcMain: ipc } = require('electron')
+const settings = require('../js/util/settings/settingsMain')
+const appState = require('./appState')
+const { windows } = require('./windowManagement')
+
 var promptAnswer
 var promptOptions
 
@@ -21,7 +27,7 @@ function createPrompt (options, callback) {
       nodeIntegration: false,
       sandbox: true,
       contextIsolation: true,
-      preload:  __dirname + '/pages/prompt/prompt.js'
+      preload: path.join(appState.appRoot, 'pages/prompt/prompt.js')
     }
   })
 
@@ -58,3 +64,5 @@ ipc.on('prompt', function (event, data) {
     event.returnValue = result
   })
 })
+
+module.exports = { createPrompt }

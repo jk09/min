@@ -1,4 +1,7 @@
+const fs = require('fs')
 const writeFileAtomic = require('write-file-atomic')
+const { ipcMain: ipc } = require('electron')
+const { windows, getWindowWebContents } = require('../../../main/windowManagement')
 
 var settings = {
   filePath: null,

@@ -1,3 +1,8 @@
+const { app, ipcMain: ipc, session } = require('electron')
+const { windows } = require('./windowManagement')
+const { sendIPCToWindow } = require('./windowUtils')
+const { getTabIDFromWebContents } = require('./viewManager')
+
 var pendingPermissions = []
 var grantedPermissions = []
 var nextPermissionId = 1

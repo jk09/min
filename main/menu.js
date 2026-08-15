@@ -1,3 +1,15 @@
+const electron = require('electron')
+const { app, webContents, Menu } = electron
+
+const settings = require('../js/util/settings/settingsMain')
+const appState = require('./appState')
+const { userKeyMap } = require('../js/util/keyMap')
+const { l } = require('./localizationMain')
+const { windows, getWindowWebContents } = require('./windowManagement')
+const { sendIPCToWindow, createWindow, openTabInWindow } = require('./windowUtils')
+const { destroyAllViews } = require('./viewManager')
+const { showFocusModeDialog1, showFocusModeDialog2 } = require('./remoteActions')
+
 function buildAppMenu (options = {}) {
   const keyMap = userKeyMap(settings.get('keyMap'))
 
@@ -49,7 +61,7 @@ function buildAppMenu (options = {}) {
       label: l('appMenuNewWindow'),
       accelerator: getFormattedKeyMapEntry('addWindow'),
       click: function () {
-        if (isFocusMode) {
+        if (appState.isFocusMode) {
           showFocusModeDialog2()
         } else {
           createWindow()
@@ -291,11 +303,11 @@ function buildAppMenu (options = {}) {
           type: 'checkbox',
           checked: false,
           click: function (item, window) {
-            if (isFocusMode) {
-              isFocusMode = false
+            if (appState.isFocusMode) {
+              appState.isFocusMode = false
               windows.getAll().forEach(win => sendIPCToWindow(win, 'exitFocusMode'))
             } else {
-              isFocusMode = true
+              appState.isFocusMode = true
               windows.getAll().forEach(win => sendIPCToWindow(win, 'enterFocusMode'))
 
               // wait to show the message until the tabs have been hidden, to make the message less confusing
@@ -335,14 +347,14 @@ function buildAppMenu (options = {}) {
             sendIPCToWindow(window, 'inspectPage')
           }
         },
-        ...(isDevelopmentMode || isDebuggingEnabled ?
+        ...(appState.isDevelopmentMode || appState.isDebuggingEnabled ?
           [
             {
               type: 'separator'
             },
             {
               label: l('appMenuReloadBrowser'),
-              accelerator: (isDevelopmentMode ? 'alt+CmdOrCtrl+R' : undefined),
+              accelerator: (appState.isDevelopmentMode ? 'alt+CmdOrCtrl+R' : undefined),
               click: function (item, focusedWindow) {
                 destroyAllViews()
                 windows.getAll().forEach(win => win.close())
@@ -361,7 +373,7 @@ function buildAppMenu (options = {}) {
             {
               label: 'Inspect Places Service',
               click: function (item, focusedWindow) {
-                placesWindow.webContents.openDevTools({ mode: 'detach' })
+                appState.placesWindow.webContents.openDevTools({ mode: 'detach' })
               }
             }
           ] : [])
@@ -470,8 +482,6 @@ function buildAppMenu (options = {}) {
 function createDockMenu () {
   // create the menu. based on example from https://github.com/electron/electron/blob/master/docs/tutorial/desktop-environment-integration.md#custom-dock-menu-macos
   if (process.platform === 'darwin') {
-    var Menu = electron.Menu
-
     var template = [
       {
         label: l('appMenuNewTab'),
@@ -494,7 +504,7 @@ function createDockMenu () {
       {
         label: l('appMenuNewWindow'),
         click: function () {
-          if (isFocusMode) {
+          if (appState.isFocusMode) {
             showFocusModeDialog2()
           } else {
             createWindow()
@@ -507,3 +517,5 @@ function createDockMenu () {
     app.dock.setMenu(dockMenu)
   }
 }
+
+module.exports = { buildAppMenu, createDockMenu }

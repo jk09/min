@@ -9,7 +9,7 @@
     "node": ">=22.12.0",
     "npm": ">=10"
   },
-  "main": "main.build.js",
+  "main": "main/main.js",
   "standard": {
     "globals": [
       "l",
@@ -71,11 +71,10 @@
     "watch": "node ./scripts/watch.js",
     "startElectron": "electron . --development-mode",
     "start": "npm run build && concurrently \"npm run watch\" \"npm run startElectron\"",
-    "buildMain": "node ./scripts/buildMain.js",
     "buildBrowser": "node ./scripts/buildBrowser.js",
     "buildBrowserStyles": "node ./scripts/buildBrowserStyles.js",
     "buildPreload": "node ./scripts/buildPreload.js",
-    "build": "npm run buildMain && npm run buildBrowser && npm run buildBrowserStyles && npm run buildPreload",
+    "build": "npm run buildBrowser && npm run buildBrowserStyles && npm run buildPreload",
     "buildWindows": "npm run build && node ./scripts/buildWindows.js",
     "buildMacIntel": "npm run build && node ./scripts/buildMac.js --platform=x86",
     "buildMacArm": "npm run build && node ./scripts/buildMac.js --platform=arm64",

@@ -16,8 +16,12 @@ function getCurrentLanguage () {
 
   if (typeof navigator !== 'undefined') { // renderer process
     language = navigator.language
-  } else if (typeof app !== 'undefined') { // main process
-    language = app.getLocale()
+  } else if (typeof require !== 'undefined') { // main process
+    try {
+      language = require('electron').app.getLocale()
+    } catch (e) {
+      // not running in the main process, fall back to default
+    }
   } else {
     // nothing worked, fall back to default
   }
@@ -89,4 +93,10 @@ if (typeof window !== 'undefined') {
   window.l = l
   window.userLanguage = userLanguage
   window.getCurrentLanguage = getCurrentLanguage
+}
+
+// allows main process modules to `require()` this file (via dist/localization.build.js,
+// which prepends the compiled `languages` data) instead of relying on a shared global scope
+if (typeof module !== 'undefined' && typeof languages !== 'undefined') {
+  module.exports = { l, getCurrentLanguage, languages }
 }

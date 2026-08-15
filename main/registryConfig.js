@@ -138,3 +138,5 @@ var registryInstaller = {
     })
   }
 }
+
+module.exports = { registryInstaller }

@@ -1,3 +1,9 @@
+const { app } = require('electron')
+
+function getWindowWebContents (win) {
+  return win.getContentView().children[0].webContents
+}
+
 const windows = {
   openWindows: [],
   hasEverCreatedWindow: false,
@@ -40,7 +46,8 @@ const windows = {
 
     //unload WebContentsViews when all windows are closed
     if (windows.openWindows.length === 0) {
-      destroyAllViews()
+      // lazy require to avoid a load-time circular dependency, since viewManager.js requires windows from this module
+      require('./viewManager').destroyAllViews()
     }
   },
   getCurrent: function () {
@@ -58,3 +65,5 @@ const windows = {
     return windows.openWindows.find(w => w.win === window).state
   }
 }
+
+module.exports = { windows, getWindowWebContents }
