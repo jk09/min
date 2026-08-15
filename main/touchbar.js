@@ -2,6 +2,13 @@ const TouchBar = require('electron').TouchBar
 const nativeImage = require('electron').nativeImage
 const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar
 
+const { l } = require('./localizationMain')
+const { windows } = require('./windowManagement')
+// windowUtils.js also depends on this module (for buildTouchBar), so this require is
+// part of a load-time circular pair. Access it as `windowUtils.sendIPCToWindow(...)`
+// (never destructured) and only inside function bodies, so it is safe regardless of require order.
+const windowUtils = require('./windowUtils')
+
 function buildTouchBar () {
   if (process.platform !== 'darwin') {
     return null
@@ -22,14 +29,14 @@ function buildTouchBar () {
         accessibilityLabel: l('goBack'),
         icon: getTouchBarIcon('NSImageNameTouchBarGoBackTemplate'),
         click: function () {
-          sendIPCToWindow(windows.getCurrent(), 'goBack')
+          windowUtils.sendIPCToWindow(windows.getCurrent(), 'goBack')
         }
       }),
       new TouchBarButton({
         accessibilityLabel: l('goForward'),
         icon: getTouchBarIcon('NSImageNameTouchBarGoForwardTemplate'),
         click: function () {
-          sendIPCToWindow(windows.getCurrent(), 'goForward')
+          windowUtils.sendIPCToWindow(windows.getCurrent(), 'goForward')
         }
       }),
       new TouchBarSpacer({ size: 'flexible' }),
@@ -39,7 +46,7 @@ function buildTouchBar () {
         // TODO this is really hacky, find a better way to set the size
         label: '    ' + l('searchbarPlaceholder') + '                     ',
         click: function () {
-          sendIPCToWindow(windows.getCurrent(), 'openEditor')
+          windowUtils.sendIPCToWindow(windows.getCurrent(), 'openEditor')
         }
       }),
       new TouchBarSpacer({ size: 'flexible' }),
@@ -47,16 +54,21 @@ function buildTouchBar () {
         icon: getTouchBarIcon('NSImageNameTouchBarAdd'),
         accessibilityLabel: l('newTabAction'),
         click: function () {
-          sendIPCToWindow(windows.getCurrent(), 'addTab')
+          windowUtils.sendIPCToWindow(windows.getCurrent(), 'addTab')
         }
       }),
       new TouchBarButton({
         accessibilityLabel: l('viewTasks'),
         icon: getTouchBarIcon('NSImageNameTouchBarListViewTemplate'),
         click: function () {
-          sendIPCToWindow(windows.getCurrent(), 'toggleTaskOverlay')
+          windowUtils.sendIPCToWindow(windows.getCurrent(), 'toggleTaskOverlay')
         }
       })
     ]
   })
 }
+
+// mutate the shared exports object in place (rather than reassigning module.exports)
+// since windowUtils.js may have already captured a reference to it as part of the
+// load-time circular require between these two modules
+module.exports.buildTouchBar = buildTouchBar

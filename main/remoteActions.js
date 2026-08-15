@@ -2,6 +2,11 @@
 Wraps APIs that are only available in the main process in IPC messages, so that the BrowserWindow can use them
 */
 
+const { app, ipcMain: ipc, dialog, session, shell } = require('electron')
+const { windows } = require('./windowManagement')
+const { createWindow } = require('./windowUtils')
+const { l } = require('./localizationMain')
+
 ipc.handle('startFileDrag', function (e, path) {
   app.getFileIcon(path, {}).then(function (icon) {
     e.sender.startDrag({
@@ -110,3 +115,5 @@ ipc.handle('showItemInFolder', function (e, path) {
 ipc.on('newWindow', function (e, customArgs) {
   createWindow(customArgs)
 })
+
+module.exports = { showFocusModeDialog1, showFocusModeDialog2 }

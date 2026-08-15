@@ -1,7 +1,11 @@
 /* Uses Electron's safeStorage to encrypt a password file - encryption key gets stored in the system keychain */
 
-const safeStorage = require('electron').safeStorage
-const passwordFilePath = path.join(userDataPath, 'passwordStore')
+const fs = require('fs')
+const path = require('path')
+const { ipcMain: ipc, safeStorage } = require('electron')
+const appState = require('./appState')
+
+const passwordFilePath = path.join(appState.userDataPath, 'passwordStore')
 
 /*
 file format:

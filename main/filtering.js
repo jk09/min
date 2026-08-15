@@ -1,3 +1,9 @@
+const path = require('path')
+const fs = require('fs')
+const { app, session, webContents } = require('electron')
+const settings = require('../js/util/settings/settingsMain')
+const appState = require('./appState')
+
 var defaultFilteringSettings = {
   blockingLevel: 1,
   contentTypes: [],
@@ -75,14 +81,14 @@ var electronABPElementTypeMap = {
   other: 'other' // ?
 }
 
-var parser = require('./ext/abp-filter-parser-modified/abp-filter-parser.js')
+var parser = require('../ext/abp-filter-parser-modified/abp-filter-parser.js')
 var parsedFilterData = {}
 
 function initFilterList () {
   // discard old data if the list is being re-initialized
   parsedFilterData = {}
 
-  fs.readFile(path.join(__dirname, 'ext/filterLists/easylist+easyprivacy-noelementhiding.txt'),
+  fs.readFile(path.join(appState.appRoot, 'ext/filterLists/easylist+easyprivacy-noelementhiding.txt'),
     'utf8', function (err, data) {
       if (err) {
         return
@@ -91,7 +97,7 @@ function initFilterList () {
     }
   )
 
-  fs.readFile(path.join(__dirname, 'ext/filterLists/minFilters.txt'),
+  fs.readFile(path.join(appState.appRoot, 'ext/filterLists/minFilters.txt'),
     'utf8', function (err, data) {
       if (err) {
         return
@@ -271,3 +277,5 @@ settings.listen('filtering', function (value) {
 
   setFilteringSettings(value)
 })
+
+module.exports = { filterPopups, registerFiltering, setFilteringSettings }

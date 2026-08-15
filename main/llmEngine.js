@@ -1,3 +1,7 @@
+const { app, ipcMain: ipc } = require('electron')
+const settings = require('../js/util/settings/settingsMain')
+const { windows } = require('./windowManagement')
+
 const LLM_ENGINE_SCOPES = ['read', 'mutate']
 
 const INTERNAL_ACTIONS = {

@@ -1,3 +1,14 @@
+const path = require('path')
+const electron = require('electron')
+const { app, ipcMain: ipc, BrowserWindow, WebContentsView } = electron
+
+const settings = require('../js/util/settings/settingsMain')
+const appState = require('./appState')
+const { windows, getWindowWebContents } = require('./windowManagement')
+const { filterPopups } = require('./filtering')
+const { createPrompt } = require('./prompt')
+const { l } = require('./localizationMain')
+
 var viewMap = {} // id: view
 var viewStateMap = {} // id: view state
 
@@ -14,7 +25,7 @@ function getDefaultViewWebPreferences () {
       scrollBounce: true,
       safeDialogs: true,
       safeDialogsMessage: 'Prevent this page from creating additional dialogs',
-      preload: __dirname + '/dist/preload.js',
+      preload: path.join(appState.appRoot, 'dist/preload.js'),
       contextIsolation: true,
       sandbox: true,
       enableRemoteModule: false,
@@ -466,3 +477,17 @@ ipc.on('saveViewCapture', function (e, data) {
 })
 
 global.getView = getView
+
+module.exports = {
+  createView,
+  destroyView,
+  destroyAllViews,
+  setView,
+  setBounds,
+  focusView,
+  hideCurrentView,
+  getView,
+  getTabIDFromWebContents,
+  getWindowFromViewContents,
+  loadURLInView
+}
