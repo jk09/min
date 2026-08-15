@@ -112,6 +112,60 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     gap: 0.5em;
 }
 
+.llm-prompt-input-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+}
+
+#llm-prompt-history {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 0.25em);
+    max-height: 10em;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.dark-mode #llm-prompt-history {
+    background: rgb(52, 58, 68);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.llm-prompt-history-item {
+    padding: 0.4em 0.7em;
+    cursor: pointer;
+    font-size: 0.85em;
+}
+
+.llm-prompt-history-item-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.llm-prompt-history-item-url {
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.llm-prompt-history-item-active,
+.llm-prompt-history-item:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.dark-mode .llm-prompt-history-item-active,
+.dark-mode .llm-prompt-history-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
 #llm-prompt-input {
     resize: none;
     flex: 1;

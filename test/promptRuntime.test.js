@@ -98,6 +98,19 @@ test('implicit skill invocation is resolved by trigger', function () {
     assert.strictEqual(skillRegistry.resolveImplicit('what is the capital of France'), null)
 })
 
+/*
+promptRouter.js itself pulls in Electron-only modules (webviews.js, browserUI.js) through
+browserTools.js, so it cannot be required in this Node test environment. These cases cover
+the deterministic decision the router relies on: plain text with no leading skill designator
+and no trigger match falls through to a default web search instead of the general LLM query.
+*/
+test('plain text with no skill designator or trigger match is not resolved as a skill', function () {
+    assert.strictEqual(skillRegistry.resolveExplicit('capital of France'), null)
+    assert.strictEqual(skillRegistry.resolveImplicit('capital of France'), null)
+
+    assert.strictEqual(skillRegistry.resolveExplicit('/not-a-real-skill').unknownSkillId, 'not-a-real-skill')
+})
+
 test('user skills override built-ins with the same id', function () {
     skillRegistry.register({ id: 'override', title: 'built-in', kind: 'deterministic', run: async () => ({}) })
     skillRegistry.register(skillRegistry.compileDeclarativeSkill({

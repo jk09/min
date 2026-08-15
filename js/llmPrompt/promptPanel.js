@@ -2,8 +2,13 @@ var settings = require('util/settings/settings.js')
 var engineClient = require('llmPrompt/engineClient.js')
 var promptRouter = require('llmPrompt/promptRouter.js')
 var webviews = require('webviews.js')
+var browserUI = require('browserUI.js')
+var places = require('places/places.js')
+var urlParser = require('util/urlParser.js')
 
 const ALLOWED_POSITIONS = ['bottom', 'top', 'left', 'right']
+const HISTORY_SUGGESTIONS_DEBOUNCE = 120
+const HISTORY_SUGGESTIONS_LIMIT = 6
 
 const state = {
     position: 'bottom',
@@ -11,7 +16,11 @@ const state = {
     sending: false,
     engineStatus: null,
     appliedMargins: [0, 0, 0, 0],
-    observer: null
+    observer: null,
+    historyResults: [],
+    historyActiveIndex: -1,
+    historyRequestToken: 0,
+    historyDebounceTimer: null
 }
 
 function getPanelElements() {
@@ -21,7 +30,8 @@ function getPanelElements() {
         send: document.getElementById('llm-prompt-send'),
         response: document.getElementById('llm-prompt-response'),
         guidance: document.getElementById('llm-prompt-guidance'),
-        engineState: document.getElementById('llm-prompt-engine-state')
+        engineState: document.getElementById('llm-prompt-engine-state'),
+        history: document.getElementById('llm-prompt-history')
     }
 }
 
@@ -123,6 +133,103 @@ function appendEntry(els, className, text) {
     return entry
 }
 
+/*
+Address-bar-style history suggestions. Purely advisory - selecting one navigates
+directly, typing past it and submitting still falls through to the prompt router.
+*/
+function hideHistoryDropdown(els) {
+    state.historyResults = []
+    state.historyActiveIndex = -1
+    els.history.hidden = true
+    els.history.innerHTML = ''
+    els.input.setAttribute('aria-expanded', 'false')
+}
+
+function openHistoryItem(els, item) {
+    var tabId = tabs.add({ url: urlParser.parse(item.url) })
+    browserUI.addTab(tabId, { enterEditMode: false, openInBackground: false })
+    els.input.value = ''
+    hideHistoryDropdown(els)
+}
+
+function setHistoryActiveIndex(els, index) {
+    var items = els.history.querySelectorAll('.llm-prompt-history-item')
+    items.forEach(function (item, idx) {
+        item.classList.toggle('llm-prompt-history-item-active', idx === index)
+    })
+    state.historyActiveIndex = index
+}
+
+function renderHistoryDropdown(els, results) {
+    state.historyResults = results
+    state.historyActiveIndex = -1
+    els.history.innerHTML = ''
+
+    if (results.length === 0) {
+        els.history.hidden = true
+        return
+    }
+
+    results.forEach(function (place, index) {
+        var item = document.createElement('div')
+        item.className = 'llm-prompt-history-item'
+        item.setAttribute('role', 'option')
+
+        var title = document.createElement('div')
+        title.className = 'llm-prompt-history-item-title'
+        title.textContent = place.title || urlParser.prettyURL(place.url)
+        item.appendChild(title)
+
+        var url = document.createElement('div')
+        url.className = 'llm-prompt-history-item-url'
+        url.textContent = urlParser.prettyURL(place.url)
+        item.appendChild(url)
+
+        item.addEventListener('mousedown', function (e) {
+            // mousedown, not click - fires before the input blurs the dropdown away
+            e.preventDefault()
+            openHistoryItem(els, place)
+        })
+
+        item.addEventListener('mouseenter', function () {
+            setHistoryActiveIndex(els, index)
+        })
+
+        els.history.appendChild(item)
+    })
+
+    els.history.hidden = false
+    els.input.setAttribute('aria-expanded', 'true')
+}
+
+function fetchHistorySuggestions(els, text) {
+    if (state.historyDebounceTimer) {
+        clearTimeout(state.historyDebounceTimer)
+    }
+
+    // '/' starts skill mode, not a search or history navigation
+    if (!text || text.indexOf('/') === 0) {
+        hideHistoryDropdown(els)
+        return
+    }
+
+    state.historyDebounceTimer = setTimeout(function () {
+        var requestToken = ++state.historyRequestToken
+
+        places.searchPlaces(text, { limit: HISTORY_SUGGESTIONS_LIMIT }).then(function (results) {
+            // ignore stale responses from a superseded keystroke
+            if (requestToken !== state.historyRequestToken) {
+                return
+            }
+            renderHistoryDropdown(els, (results || []).slice(0, HISTORY_SUGGESTIONS_LIMIT))
+        }).catch(function () {
+            if (requestToken === state.historyRequestToken) {
+                hideHistoryDropdown(els)
+            }
+        })
+    }, HISTORY_SUGGESTIONS_DEBOUNCE)
+}
+
 function describeTrace(trace) {
     if (!trace || trace.length === 0) {
         return ''
@@ -150,6 +257,7 @@ async function sendPrompt(els) {
     updateControls(els)
     appendEntry(els, 'llm-prompt-request', prompt)
     els.input.value = ''
+    hideHistoryDropdown(els)
 
     var pending = appendEntry(els, 'llm-prompt-detail', 'Working\u2026')
 
@@ -172,11 +280,44 @@ function bindEvents(els) {
     })
 
     els.input.addEventListener('keydown', function (e) {
-        // Enter submits; Shift+Enter inserts a newline
+        var hasSuggestions = !els.history.hidden && state.historyResults.length > 0
+
+        if (hasSuggestions && e.key === 'ArrowDown') {
+            e.preventDefault()
+            setHistoryActiveIndex(els, Math.min(state.historyActiveIndex + 1, state.historyResults.length - 1))
+            return
+        }
+
+        if (hasSuggestions && e.key === 'ArrowUp') {
+            e.preventDefault()
+            setHistoryActiveIndex(els, Math.max(state.historyActiveIndex - 1, 0))
+            return
+        }
+
+        if (hasSuggestions && e.key === 'Escape') {
+            e.preventDefault()
+            hideHistoryDropdown(els)
+            return
+        }
+
+        // Enter submits, or navigates to the highlighted suggestion; Shift+Enter inserts a newline
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
+            if (hasSuggestions && state.historyActiveIndex >= 0) {
+                openHistoryItem(els, state.historyResults[state.historyActiveIndex])
+                return
+            }
             sendPrompt(els)
         }
+    })
+
+    els.input.addEventListener('input', function () {
+        fetchHistorySuggestions(els, els.input.value.trim())
+    })
+
+    els.input.addEventListener('blur', function () {
+        // let mousedown on a suggestion register before the dropdown disappears
+        setTimeout(function () { hideHistoryDropdown(els) }, 100)
     })
 
     settings.listen('llmPromptPanelPosition', function (nextPosition) {

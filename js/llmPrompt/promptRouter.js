@@ -3,7 +3,7 @@ Routes prompt text to a skill or to the configured model.
 
   '/id args'          -> explicit skill invocation
   trigger match       -> implicit skill invocation
-  anything else       -> general LLM query, answered with a plan of tool calls
+  anything else       -> deterministic search with the default search engine
 
 The router never touches the browser directly: every effect goes through the tool
 registry, so the capability surface stays auditable.
@@ -13,17 +13,8 @@ const toolRegistry = require('llmPrompt/tools/toolRegistry.js')
 const browserTools = require('llmPrompt/tools/browserTools.js')
 const skillRegistry = require('llmPrompt/skills/skillRegistry.js')
 const builtinSkills = require('llmPrompt/skills/builtinSkills.js')
-const planParser = require('llmPrompt/planParser.js')
 const engineClient = require('llmPrompt/engineClient.js')
 const settings = require('util/settings/settings.js')
-
-const PLAN_SYSTEM_PROMPT = [
-    'You control the Min web browser. Answer the user by returning JSON only, with no prose outside the JSON.',
-    'Schema: {"message": string, "toolCalls": [{"tool": string, "args": object}]}.',
-    '"message" is a short answer shown to the user. "toolCalls" are executed in order and may be empty.',
-    'Only use tools from the catalog, and only pass parameters the catalog declares.',
-    'Prefer a single tool call. If the request is just a question, answer in "message" with no tool calls.'
-].join(' ')
 
 let initialized = false
 
@@ -106,50 +97,28 @@ async function runSkill (skill, argsText, prompt, scope) {
     }
 }
 
-function buildBrowserContext () {
-    const selectedTab = tabs && tabs.getSelected() ? tabs.get(tabs.getSelected()) : null
-
-    return {
-        activeTab: selectedTab && selectedTab.url ? { url: selectedTab.url, title: selectedTab.title || '' } : null,
-        openTabCount: tabs ? tabs.count() : 0
-    }
-}
-
-async function runGeneralQuery (prompt, scope) {
+/*
+Anything that isn't a skill designator (explicit or implicit) is treated as a plain
+search query, deterministically, without ever reaching the model - mirroring how an
+address bar falls back to a search engine.
+*/
+async function runDefaultSearch (prompt, scope) {
     const trace = []
     const context = createContext(scope, trace)
 
-    const answer = await llm.complete({
-        system: PLAN_SYSTEM_PROMPT,
-        prompt: [
-            'Tool catalog:\n' + JSON.stringify(toolRegistry.getCatalog()),
-            'Browser state:\n' + JSON.stringify(buildBrowserContext()),
-            'User request:\n' + prompt
-        ].join('\n\n'),
-        responseFormat: 'json'
-    })
+    const outcome = await context.runTool('search.web', { query: prompt })
 
-    if (!answer.ok) {
-        return { ok: false, route: 'llm', message: answer.errorMessage || 'The model could not be reached.', trace }
+    if (!outcome.ok) {
+        return { ok: false, route: 'search', message: outcome.errorMessage || 'The search could not be completed.', trace }
     }
 
-    const parsed = planParser.parsePlan(answer.output, toolRegistry.list().map(tool => tool.id))
-
-    if (!parsed.ok) {
-        return { ok: false, route: 'llm', message: parsed.errorMessage, trace }
-    }
-
-    const execution = await context.runPlan(parsed.plan.toolCalls)
-
-    if (!execution.ok) {
-        return { ok: false, route: 'llm', message: execution.errorMessage, trace }
-    }
+    const engineName = outcome.result && outcome.result.engine
 
     return {
         ok: true,
-        route: 'llm',
-        message: parsed.plan.message || 'Done.',
-        detail: parsed.plan.toolCalls.length > 0 ? '' : 'No browser actions were needed.',
+        route: 'search',
+        message: 'Searching for "' + prompt + '"\u2026',
+        detail: engineName ? ('Using ' + engineName) : '',
         trace
     }
 }
@@ -193,7 +162,7 @@ async function handlePrompt (rawPrompt, options = {}) {
         return runSkill(implicit.skill, implicit.argsText, prompt, scope)
     }
 
-    return runGeneralQuery(prompt, scope)
+    return runDefaultSearch(prompt, scope)
 }
 
 module.exports = {
