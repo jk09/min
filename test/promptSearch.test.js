@@ -1,0 +1,91 @@
+const test = require('node:test')
+const assert = require('node:assert')
+const Module = require('node:module')
+
+function loadPromptRouter () {
+    const registeredTools = new Map()
+    let llmCalls = 0
+    const searchCalls = []
+
+    const toolRegistry = {
+        registerAll: tools => tools.forEach(tool => registeredTools.set(tool.id, tool)),
+        run: async function (id, args) {
+            const tool = registeredTools.get(id)
+            return { ok: true, result: await tool.handler(args) }
+        }
+    }
+
+    const skill = {
+        id: 'known',
+        kind: 'deterministic',
+        run: async () => ({ message: 'skill completed' })
+    }
+
+    const skillRegistry = {
+        registerAll: () => {},
+        resolveExplicit: function (prompt) {
+            if (prompt === '/known args') {
+                return { skill, argsText: 'args' }
+            }
+            if (prompt.startsWith('/')) {
+                return { unknownSkillId: prompt.slice(1) }
+            }
+            return null
+        },
+        getCatalog: () => []
+    }
+
+    const modules = {
+        'llmPrompt/tools/toolRegistry.js': toolRegistry,
+        'llmPrompt/tools/browserTools.js': [{
+            id: 'search.web',
+            handler: async function (args) {
+                searchCalls.push(args)
+                return { engine: 'Test', url: 'https://search.test/?q=' + encodeURIComponent(args.query) }
+            }
+        }],
+        'llmPrompt/skills/skillRegistry.js': skillRegistry,
+        'llmPrompt/skills/builtinSkills.js': [],
+        'llmPrompt/engineClient.js': {
+            complete: async function () {
+                llmCalls++
+                return { ok: false }
+            }
+        },
+        'util/settings/settings.js': { get: () => null }
+    }
+    const originalLoad = Module._load
+
+    Module._load = function (request, parent, isMain) {
+        return modules[request] || originalLoad.call(this, request, parent, isMain)
+    }
+
+    const routerPath = require.resolve('../js/llmPrompt/promptRouter.js')
+    delete require.cache[routerPath]
+    const router = require(routerPath)
+    Module._load = originalLoad
+
+    return { router, searchCalls, getLlmCalls: () => llmCalls }
+}
+
+test('plain prompt text runs the default web search without an LLM call', async function () {
+    const runtime = loadPromptRouter()
+    const result = await runtime.router.handlePrompt('privacy focused browser', { scope: 'mutate' })
+
+    assert.strictEqual(result.ok, true)
+    assert.strictEqual(result.route, 'search')
+    assert.deepStrictEqual(runtime.searchCalls, [{ query: 'privacy focused browser' }])
+    assert.strictEqual(runtime.getLlmCalls(), 0)
+})
+
+test('unknown slash text is searched while known explicit skills still run', async function () {
+    const runtime = loadPromptRouter()
+    const searchResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate' })
+    const skillResult = await runtime.router.handlePrompt('/known args', { scope: 'mutate' })
+
+    assert.strictEqual(searchResult.route, 'search')
+    assert.deepStrictEqual(runtime.searchCalls, [{ query: '/not-a-skill' }])
+    assert.strictEqual(skillResult.route, 'skill')
+    assert.strictEqual(skillResult.skillId, 'known')
+    assert.strictEqual(runtime.getLlmCalls(), 0)
+})
