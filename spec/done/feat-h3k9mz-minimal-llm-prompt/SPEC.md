@@ -14,7 +14,7 @@ Simplify the LLM prompt panel by removing the scrolled history area that accumul
 ## 3. Background and Context
 Describe the context, current limitations, and any related work.
 
-- **Current behavior:** `promptPanel.js` maintains a `history` element (`#llm-prompt-history`) and `historySuggestions` state that accumulate entries above the prompt bar. `getTargetMargins` computes extra webview margin based on the history element's height, meaning the panel's effective footprint grows as history entries are added. The panel also shows a `response` region and `engineState`/`guidance` labels alongside the input.
+- **Current behavior:** `promptPanel.js` appends every request/trace/answer/detail into `#llm-prompt-response` via `appendEntry`, without ever clearing prior entries, so the log grows for the lifetime of the panel and only scrolls internally. This is distinct from `#llm-prompt-history`, which is a URL-suggestion dropdown (like address-bar autocomplete) unrelated to prompt/response history and out of scope for this change.
 - **Motivation:** Aligns with `Min`'s core goal of a focused, uncluttered browsing surface (see [AGENTS.md](../../../AGENTS.md)) and avoids the prompt panel behaving like a full chat transcript UI, which is out of scope for a minimalistic browser.
 - **Related issues or references:** [spec/done/feat-x7q2f9-llm-prompt-plaintext-search/SPEC.md](../../done/feat-x7q2f9-llm-prompt-plaintext-search/SPEC.md) (prior related prompt work); [js/llmPrompt/promptPanel.js](../../../js/llmPrompt/promptPanel.js); [css/llmPrompt.css](../../../css/llmPrompt.css); [pages/prompt/](../../../pages/prompt/). See the annotated screenshot below showing the accumulated history area to be removed: [history-panel-example.png](history-panel-example.png).
 
@@ -41,7 +41,7 @@ Capture the expected user experience.
 ## 7. Functional Requirements
 Define the expected behavior in clear, testable terms.
 
-1. Requirement 1: The `#llm-prompt-history` element (and any logic that appends accumulated entries to it) is removed from the prompt panel markup and script.
+1. Requirement 1: The `#llm-prompt-response` log element (and `appendEntry`/multi-entry accumulation logic) is removed from the prompt panel markup and script; `#llm-prompt-history` (URL autocomplete) is unaffected.
 2. Requirement 2: Submitting a prompt replaces any previously shown result/status with the current one, rather than appending to a growing list.
 3. Requirement 3: `getTargetMargins`/`syncWebviewMargins` compute the panel's occupied space using only the current fixed-height panel bounds, no longer factoring in a history element's height.
 4. Requirement 4: The panel retains its existing configurable positions (`top`, `bottom`, `left`, `right`) and skill-listing behavior (`/` to list skills), unaffected by the history removal.
@@ -65,8 +65,8 @@ Describe any interface expectations or user interaction details.
 ## 10. Technical Notes
 Capture implementation guidance, architecture, and dependencies.
 
-- Proposed approach: Remove the `history` element wiring in [promptPanel.js](../../../js/llmPrompt/promptPanel.js) (state fields `historySuggestions`, `selectedHistorySuggestion`, `historyRequestId`, and the `history` element lookup/margin calculations), remove or simplify the corresponding markup in [pages/prompt/index.html](../../../pages/prompt/index.html), and simplify related styles in [css/llmPrompt.css](../../../css/llmPrompt.css). Replace the `response` region usage so it only ever reflects the latest result.
-- Dependencies: [js/llmPrompt/promptPanel.js](../../../js/llmPrompt/promptPanel.js), [pages/prompt/index.html](../../../pages/prompt/index.html), [pages/prompt/prompt.js](../../../pages/prompt/prompt.js), [css/llmPrompt.css](../../../css/llmPrompt.css).
+- Proposed approach: Replace `#llm-prompt-response` and `#llm-prompt-guidance` with a single-line `#llm-prompt-status` row (`#llm-prompt-engine-state` + `#llm-prompt-result`) in [pages markup](../../../index.html). `sendPrompt`/`renderResult` in [promptPanel.js](../../../js/llmPrompt/promptPanel.js) set `#llm-prompt-result` text directly instead of appending entries, so each submission replaces the prior one. Shrink `--llm-panel-height` in [css/llmPrompt.css](../../../css/llmPrompt.css) to match the smaller markup. `#llm-prompt-history` (URL suggestions) is left as-is.
+- Dependencies: [js/llmPrompt/promptPanel.js](../../../js/llmPrompt/promptPanel.js), [index.html](../../../index.html), [css/llmPrompt.css](../../../css/llmPrompt.css).
 - Risks / unknowns: Need to confirm no other module reads `#llm-prompt-history` or the `historySuggestions`/`selectedHistorySuggestion` state before removal.
 - Open questions: Should the compact status/result line auto-hide after a timeout, or persist until the next submission?
 

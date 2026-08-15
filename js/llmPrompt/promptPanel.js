@@ -10,6 +10,7 @@ const state = {
     position: 'bottom',
     providerConfigured: false,
     sending: false,
+    hasResult: false,
     engineStatus: null,
     appliedMargins: [0, 0, 0, 0],
     observer: null,
@@ -23,8 +24,7 @@ function getPanelElements() {
         panel: document.getElementById('llm-prompt-panel'),
         input: document.getElementById('llm-prompt-input'),
         send: document.getElementById('llm-prompt-send'),
-        response: document.getElementById('llm-prompt-response'),
-        guidance: document.getElementById('llm-prompt-guidance'),
+        result: document.getElementById('llm-prompt-result'),
         engineState: document.getElementById('llm-prompt-engine-state'),
         history: document.getElementById('llm-prompt-history')
     }
@@ -87,12 +87,14 @@ function syncWebviewMargins(els) {
 }
 
 function updateGuidance(els) {
-    if (!state.providerConfigured) {
-        els.guidance.textContent = 'Search and skills work without a model.'
+    // the result line doubles as guidance until the first prompt is sent
+    if (state.hasResult) {
         return
     }
 
-    els.guidance.textContent = 'Type / to list skills.'
+    els.result.textContent = state.providerConfigured
+        ? 'Type / to list skills.'
+        : 'Search and skills work without a model.'
 }
 
 function updateEngineStateLabel(els) {
@@ -118,19 +120,6 @@ function updateControls(els) {
     updateGuidance(els)
 }
 
-function appendEntry(els, className, text) {
-    if (!text) {
-        return null
-    }
-
-    var entry = document.createElement('div')
-    entry.className = 'llm-prompt-entry ' + className
-    entry.textContent = text
-    els.response.appendChild(entry)
-    els.response.scrollTop = els.response.scrollHeight
-    return entry
-}
-
 function describeTrace(trace) {
     if (!trace || trace.length === 0) {
         return ''
@@ -141,10 +130,15 @@ function describeTrace(trace) {
     }).join(' \u2192 ')
 }
 
+function setResult(els, text, isError) {
+    state.hasResult = true
+    els.result.textContent = text
+    els.result.classList.toggle('llm-prompt-error', Boolean(isError))
+}
+
 function renderResult(els, result) {
-    appendEntry(els, 'llm-prompt-trace', describeTrace(result.trace))
-    appendEntry(els, result.ok ? 'llm-prompt-answer' : 'llm-prompt-error', result.message)
-    appendEntry(els, 'llm-prompt-detail', result.detail)
+    var text = [describeTrace(result.trace), result.message, result.detail].filter(Boolean).join(' \u2014 ')
+    setResult(els, text, !result.ok)
 }
 
 async function sendPrompt(els) {
@@ -157,18 +151,14 @@ async function sendPrompt(els) {
     state.sending = true
     updateControls(els)
     clearHistorySuggestions(els)
-    appendEntry(els, 'llm-prompt-request', prompt)
     els.input.value = ''
-
-    var pending = appendEntry(els, 'llm-prompt-detail', 'Working\u2026')
+    setResult(els, 'Working\u2026', false)
 
     try {
         const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate' })
-        pending.remove()
         renderResult(els, result)
     } catch (e) {
-        pending.remove()
-        appendEntry(els, 'llm-prompt-error', 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'))
+        setResult(els, 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'), true)
     }
 
     state.sending = false
