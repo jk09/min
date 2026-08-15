@@ -10,8 +10,8 @@
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 0.25em;
-    padding: 0.5em 0.75em;
+    gap: 0.15em;
+    padding: 0.3em 0.5em;
     display: none;
 }
 
@@ -137,8 +137,8 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     border-radius: 8px;
     background: #fff;
     color: inherit;
-    line-height: 1.35;
-    padding: 0.55em 0.7em;
+    line-height: 1.2;
+    padding: 0.35em 0.6em;
 }
 
 .dark-mode #llm-prompt-input {
@@ -149,8 +149,8 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
 #llm-prompt-send {
     border: 1px solid rgba(0, 0, 0, 0.22);
     border-radius: 8px;
-    padding: 0.5em 0.8em;
-    min-width: 70px;
+    padding: 0.35em 0.7em;
+    min-width: 60px;
     background: rgba(0, 0, 0, 0.05);
 }
 
@@ -175,8 +175,9 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     display: flex;
     align-items: baseline;
     gap: 0.5em;
-    font-size: 0.78em;
-    min-height: 1em;
+    font-size: 0.72em;
+    line-height: 1.2;
+    min-height: 0;
 }
 
 #llm-prompt-engine-state {
