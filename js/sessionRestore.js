@@ -3,7 +3,6 @@ var webviews = require('webviews.js')
 var tabEditor = require('navbar/tabEditor.js')
 var tabState = require('tabState.js')
 var settings = require('util/settings/settings.js')
-var taskOverlay = require('taskOverlay/taskOverlay.js')
 const writeFileAtomic = require('write-file-atomic')
 const statistics = require('js/statistics.js')
 
@@ -223,9 +222,6 @@ const sessionRestore = {
       sessionRestore.restoreFromFile()
     } else {
       sessionRestore.syncWithWindow()
-    }
-    if (settings.get('newWindowOption') === 2 && !Object.hasOwn(window.globalArgs, 'launch-window') && !Object.hasOwn(window.globalArgs, 'initial-task')) {
-      taskOverlay.show()
     }
   },
   initialize: function () {

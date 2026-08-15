@@ -17,26 +17,6 @@ const tabContextMenu = {
 
             browserUI.addTab(newTab, { enterEditMode: false })
           }
-        },
-        {
-          label: l('tabMenuNewWindow'),
-          click: function () {
-            // insert after current task
-            let index
-            if (tasks.getSelected()) {
-              index = tasks.getIndex(tasks.getSelected().id) + 1
-            }
-            const newTask = tasks.get(tasks.add({}, index))
-
-            const targetTab = tabs.get(tabId)
-            tabs.destroy(targetTab.id)
-
-            newTask.tabs.add(targetTab)
-
-            ipc.send('newWindow', { initialTask: newTask.id })
-
-            browserUI.switchToTask(tasks.getSelected().id)
-          }
         }
       ]
     ]

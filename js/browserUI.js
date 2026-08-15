@@ -156,7 +156,6 @@ function setWindowTitle () {
 
   const title = [
     truncateString(tab.title || '', 100),
-    truncateString(task.name || '', 100),
     'Min'
   ].filter(str => !!str).join(' | ')
 

@@ -145,52 +145,6 @@ const browserTools = [
         }
     },
     {
-        id: 'tasks.list',
-        scope: 'read',
-        description: 'List the tasks (tab groups) in this window.',
-        parameters: {},
-        handler: function () {
-            const selected = tasks.getSelected()
-            return {
-                tasks: tasks.map(task => ({
-                    id: task.id,
-                    name: task.name || '',
-                    tabCount: task.tabs.count(),
-                    selected: Boolean(selected && task.id === selected.id)
-                }))
-            }
-        }
-    },
-    {
-        id: 'tasks.createWithTabs',
-        scope: 'mutate',
-        description: 'Group a set of URLs into a new task and switch to it.',
-        parameters: {
-            name: { type: 'string', description: 'name for the new task' },
-            urls: { type: 'array', required: true, description: 'URLs to open in the new task' }
-        },
-        handler: function (args) {
-            const urls = args.urls.filter(url => typeof url === 'string' && url)
-
-            if (urls.length === 0) {
-                throw new Error('no URLs to group')
-            }
-
-            const currentTask = tasks.getSelected()
-            const index = currentTask ? tasks.getIndex(currentTask.id) + 1 : undefined
-            const taskId = tasks.add({ name: args.name || null }, index)
-
-            browserUI.switchToTask(taskId)
-
-            urls.forEach(function (url, i) {
-                // the first tab replaces the empty tab switchToTask created
-                openTab(url, i > 0)
-            })
-
-            return { taskId, name: args.name || '', tabCount: urls.length }
-        }
-    },
-    {
         id: 'settings.get',
         scope: 'read',
         description: 'Read a browser setting. Allowed keys: ' + READABLE_SETTINGS.join(', ') + '.',

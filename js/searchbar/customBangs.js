@@ -2,98 +2,15 @@
 
 const { ipcRenderer } = require('electron')
 const fs = require('fs')
-const quickScore = require('quick-score').quickScore
 
 const bangsPlugin = require('searchbar/bangsPlugin.js')
 
 const webviews = require('webviews.js')
-const browserUI = require('browserUI.js')
-const focusMode = require('focusMode.js')
 const places = require('places/places.js')
 const contentBlockingToggle = require('navbar/contentBlockingToggle.js')
-const taskOverlay = require('taskOverlay/taskOverlay.js')
 const bookmarkConverter = require('bookmarkConverter.js')
 const searchbarPlugins = require('searchbar/searchbarPlugins.js')
 const tabEditor = require('navbar/tabEditor.js')
-const formatRelativeDate = require('util/relativeDate.js')
-
-function moveToTaskCommand (taskId) {
-  // remove the tab from the current task
-
-  const currentTab = tabs.get(tabs.getSelected())
-  tabs.destroy(currentTab.id)
-
-  // make sure the task has at least one tab in it
-  if (tabs.count() === 0) {
-    tabs.add()
-  }
-
-  const newTask = tasks.get(taskId)
-
-  newTask.tabs.add(currentTab, { atEnd: true })
-
-  browserUI.switchToTask(newTask.id)
-  browserUI.switchToTab(currentTab.id)
-
-  taskOverlay.show()
-
-  setTimeout(function () {
-    taskOverlay.hide()
-  }, 600)
-}
-
-function switchToTaskCommand (taskId) {
-  /* disabled in focus mode */
-  if (focusMode.enabled()) {
-    focusMode.warn()
-    return
-  }
-
-  // no task was specified, show all of the tasks
-  if (!taskId) {
-    taskOverlay.show()
-    return
-  }
-
-  browserUI.switchToTask(taskId)
-}
-
-// returns a task with the same name or index ("1" returns the first task, etc.)
-function getTaskByNameOrNumber (text) {
-  const textAsNumber = parseInt(text)
-
-  return tasks.find((task, index) => (task.name && task.name.toLowerCase() === text) || index + 1 === textAsNumber
-  )
-}
-
-// return an array of tasks sorted by last activity
-// if a search string is present, filter the results with a basic fuzzy search
-function searchAndSortTasks (text) {
-  let taskResults = tasks
-    .filter(t => t.id !== tasks.getSelected().id)
-    .map(t => Object.assign({}, { task: t }, { lastActivity: tasks.getLastActivity(t.id) }))
-
-  taskResults = taskResults.sort(function (a, b) {
-    return b.lastActivity - a.lastActivity
-  })
-
-  if (text !== '') {
-    // fuzzy search
-    const searchText = text.toLowerCase()
-
-    taskResults = taskResults.filter(function (t) {
-      const task = t.task
-      const taskName = (task.name ? task.name : l('defaultTaskName').replace('%n', tasks.getIndex(task.id) + 1)).toLowerCase()
-      const exactMatch = taskName.indexOf(searchText) !== -1
-      const fuzzyTitleScore = quickScore(taskName, searchText)
-
-      return (exactMatch || fuzzyTitleScore > 0.4)
-    })
-  }
-
-  return taskResults
-}
-
 function initialize () {
   bangsPlugin.registerCustomBang({
     phrase: '!settings',
@@ -166,6 +83,9 @@ function initialize () {
     }
   })
 
+  /* eslint-disable */
+  if (false) {
+    // Tasks are no longer exposed as custom prompt commands.
   bangsPlugin.registerCustomBang({
     phrase: '!movetotask',
     snippet: l('moveToTask'),
@@ -321,6 +241,9 @@ function initialize () {
       tasks.update(tasks.getSelected().id, {name: text})
     }
   })
+
+  }
+  /* eslint-enable */
 
   bangsPlugin.registerCustomBang({
     phrase: '!importbookmarks',

@@ -233,28 +233,6 @@ siteThemeCheckbox.addEventListener('change', function (e) {
 
 /* startup settings */
 
-var startupSettingInput = document.getElementById('startup-options')
-
-settings.get('startupTabOption', function(value = 2) {
-  startupSettingInput.value = value
-})
-
-startupSettingInput.addEventListener('change', function() {
-  settings.set('startupTabOption', parseInt(this.value))
-})
-
-/* new window settings */
-
-var newWindowSettingInput = document.getElementById('new-window-options')
-
-settings.get('newWindowOption', function(value = 1) {
-  newWindowSettingInput.value = value
-})
-
-newWindowSettingInput.addEventListener('change', function() {
-  settings.set('newWindowOption', parseInt(this.value))
-})
-
 /* userscripts setting */
 
 settings.get('userscriptsEnabled', function (value) {
