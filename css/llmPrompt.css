@@ -72,13 +72,14 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     overflow-y: auto;
     border: 1px solid rgba(0, 0, 0, 0.22);
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(6px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
 }
 
 .dark-mode #llm-prompt-history {
     border-color: rgba(255, 255, 255, 0.22);
-    background: rgba(52, 58, 68, 0.92);
+    background: rgba(52, 58, 68, 0.75);
 }
 
 .llm-prompt-history-item {

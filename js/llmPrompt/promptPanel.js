@@ -50,7 +50,7 @@ function isPanelVisibleForCurrentMode() {
     return !document.body.classList.contains('is-ntp')
 }
 
-function getTargetMargins(panelRect, history) {
+function getTargetMargins(panelRect) {
     if (!isPanelVisibleForCurrentMode()) {
         return [0, 0, 0, 0]
     }
@@ -67,15 +67,13 @@ function getTargetMargins(panelRect, history) {
         return [0, Math.round(panelRect.width), 0, 0]
     }
 
-    const historyHeight = history && !history.hidden
-        ? Math.max(0, Math.round(panelRect.top - history.getBoundingClientRect().top))
-        : 0
-    return [0, 0, Math.round(panelRect.height) + historyHeight, 0]
+    // the suggestion dropdown floats above the panel and should not reserve extra webview margin
+    return [0, 0, Math.round(panelRect.height), 0]
 }
 
 function syncWebviewMargins(els) {
     const panelRect = els.panel.getBoundingClientRect()
-    const nextMargins = getTargetMargins(panelRect, els.history)
+    const nextMargins = getTargetMargins(panelRect)
     const delta = nextMargins.map(function (value, idx) {
         return value - state.appliedMargins[idx]
     })
