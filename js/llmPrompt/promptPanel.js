@@ -1,5 +1,6 @@
 var settings = require('util/settings/settings.js')
 var engineClient = require('llmPrompt/engineClient.js')
+var promptRouter = require('llmPrompt/promptRouter.js')
 var webviews = require('webviews.js')
 
 const ALLOWED_POSITIONS = ['bottom', 'top', 'left', 'right']
@@ -79,15 +80,11 @@ function syncWebviewMargins(els) {
 
 function updateGuidance(els) {
     if (!state.providerConfigured) {
-        els.guidance.textContent = 'No LLM provider configured. Set MIN_LLM_PROVIDER and MIN_LLM_MODEL or configure llmProvider in settings.'
+        els.guidance.textContent = 'Skills work without a model. For general questions, configure llmProvider, llmModel and llmApiKey.'
         return
     }
 
-    if (state.engineStatus && state.engineStatus.capabilities) {
-        els.guidance.textContent = 'Engine scopes available: ' + state.engineStatus.capabilities.join(', ')
-    } else {
-        els.guidance.textContent = ''
-    }
+    els.guidance.textContent = 'Type / to list skills.'
 }
 
 function updateEngineStateLabel(els) {
@@ -97,7 +94,7 @@ function updateEngineStateLabel(els) {
     }
 
     if (!state.providerConfigured) {
-        els.engineState.textContent = 'Provider unavailable'
+        els.engineState.textContent = 'Skills only'
         return
     }
 
@@ -107,33 +104,39 @@ function updateEngineStateLabel(els) {
 }
 
 function updateControls(els) {
-    els.send.disabled = !state.providerConfigured || state.sending
+    // deterministic skills run without a provider, so the panel is never fully disabled
+    els.send.disabled = state.sending
     updateEngineStateLabel(els)
     updateGuidance(els)
 }
 
-function setResponse(els, value) {
-    els.response.textContent = value || ''
+function appendEntry(els, className, text) {
+    if (!text) {
+        return null
+    }
+
+    var entry = document.createElement('div')
+    entry.className = 'llm-prompt-entry ' + className
+    entry.textContent = text
+    els.response.appendChild(entry)
+    els.response.scrollTop = els.response.scrollHeight
+    return entry
 }
 
-function normalizeResponse(response) {
-    if (!response) {
+function describeTrace(trace) {
+    if (!trace || trace.length === 0) {
         return ''
     }
 
-    if (response.output) {
-        return response.output
-    }
+    return trace.map(function (step) {
+        return (step.ok ? '' : '\u2717 ') + step.tool
+    }).join(' \u2192 ')
+}
 
-    if (response.message) {
-        return response.message
-    }
-
-    if (response.errorMessage) {
-        return response.errorMessage
-    }
-
-    return ''
+function renderResult(els, result) {
+    appendEntry(els, 'llm-prompt-trace', describeTrace(result.trace))
+    appendEntry(els, result.ok ? 'llm-prompt-answer' : 'llm-prompt-error', result.message)
+    appendEntry(els, 'llm-prompt-detail', result.detail)
 }
 
 async function sendPrompt(els) {
@@ -145,24 +148,18 @@ async function sendPrompt(els) {
 
     state.sending = true
     updateControls(els)
-    setResponse(els, 'Sending prompt...')
+    appendEntry(els, 'llm-prompt-request', prompt)
+    els.input.value = ''
+
+    var pending = appendEntry(els, 'llm-prompt-detail', 'Working\u2026')
 
     try {
-        const result = await engineClient.submitPrompt({
-            prompt,
-            capabilityScope: 'read',
-            metadata: {
-                panelPosition: state.position
-            }
-        })
-
-        if (result && result.ok === false) {
-            setResponse(els, result.errorMessage || 'Request failed')
-        } else {
-            setResponse(els, normalizeResponse(result) || 'Prompt sent.')
-        }
+        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate' })
+        pending.remove()
+        renderResult(els, result)
     } catch (e) {
-        setResponse(els, 'Unable to reach LLM engine bridge.')
+        pending.remove()
+        appendEntry(els, 'llm-prompt-error', 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'))
     }
 
     state.sending = false
@@ -175,7 +172,8 @@ function bindEvents(els) {
     })
 
     els.input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        // Enter submits; Shift+Enter inserts a newline
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
             sendPrompt(els)
         }
@@ -232,6 +230,7 @@ var promptPanel = {
         }
 
         applyPosition(els.panel, getConfiguredPosition())
+        promptRouter.initialize()
         bindEvents(els)
         updateControls(els)
         syncWebviewMargins(els)

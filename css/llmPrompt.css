@@ -1,5 +1,5 @@
 #llm-prompt-panel {
-    --llm-panel-height: 152px;
+    --llm-panel-height: 200px;
     --llm-panel-width: 360px;
     position: fixed;
     left: 0;
@@ -77,9 +77,33 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     font-size: 0.85em;
     line-height: 1.35;
     min-height: 2.2em;
-    max-height: 4.2em;
+    max-height: 9em;
+    flex: 1;
     overflow-y: auto;
     padding-right: 0.25em;
+}
+
+.llm-prompt-entry {
+    white-space: pre-wrap;
+    margin-bottom: 0.2em;
+}
+
+.llm-prompt-request {
+    font-weight: 600;
+}
+
+.llm-prompt-trace,
+.llm-prompt-detail {
+    opacity: 0.6;
+    font-size: 0.92em;
+}
+
+.llm-prompt-error {
+    color: #b3261e;
+}
+
+.dark-mode .llm-prompt-error {
+    color: #f2b8b5;
 }
 
 .llm-prompt-composer {
@@ -136,7 +160,7 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
 
 @media all and (max-width: 780px) {
     #llm-prompt-panel {
-        --llm-panel-height: 172px;
+        --llm-panel-height: 220px;
     }
 
     body.llm-prompt-panel-visible[data-llm-panel-position="left"] #llm-prompt-panel,

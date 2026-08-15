@@ -6,7 +6,8 @@ module.exports = {
     getStatus: function () {
         return callEngine('llmEngine:getStatus')
     },
-    submitPrompt: function (request) {
-        return callEngine('llmEngine:submitPrompt', request)
+    /* request: { system, prompt, responseFormat } -> { ok, output } | { ok: false, errorCode, errorMessage } */
+    complete: function (request) {
+        return callEngine('llmEngine:complete', request)
     }
 }
