@@ -1,11 +1,10 @@
 #llm-prompt-panel {
-    --llm-panel-height: 84px;
     --llm-panel-width: 320px;
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    height: var(--llm-panel-height);
+    height: auto;
     border-top: 1px solid rgba(0, 0, 0, 0.12);
     background: rgb(251, 251, 251);
     z-index: 2;
@@ -41,7 +40,6 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     top: calc(36px + var(--control-space-top));
     bottom: 0;
     width: var(--llm-panel-width);
-    height: auto;
     border-top: none;
     border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
@@ -70,7 +68,7 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     right: 0;
     bottom: calc(100% + 0.35em);
     left: 0;
-    max-height: min(20rem, calc(100vh - var(--llm-panel-height) - 2rem));
+    max-height: min(20rem, calc(100vh - 6rem));
     overflow-y: auto;
     border: 1px solid rgba(0, 0, 0, 0.22);
     border-radius: 4px;
@@ -201,10 +199,6 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
 }
 
 @media all and (max-width: 780px) {
-    #llm-prompt-panel {
-        --llm-panel-height: 96px;
-    }
-
     body.llm-prompt-panel-visible[data-llm-panel-position="left"] #llm-prompt-panel,
     body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel {
         --llm-panel-width: 260px;
