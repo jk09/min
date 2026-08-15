@@ -25,7 +25,7 @@ Create a new Markdown feature specification file in the backlog folder using the
    - Created on: use the current date and time.
    - Owner: use the current git author/committer identity from the repository.
 5. Save the generated specification in a new folder under [spec/backlog](../../../spec/backlog) by default; only use a different location if the user explicitly requests one.
-6. Use a folder name that exactly follows this pattern: `<type>-<alpha>-<desc>` where:Pr
+6. Use a folder name that exactly follows this pattern: `<type>-<alpha>-<desc>` where:
    - `<type>` is `feat`, `fix`, or another short type label matching the nature of the work.
    - `<alpha>` is a random lowercase alphanumeric string of at least 6 characters.
    - `<desc>` is a short description inferred from the feature input.
