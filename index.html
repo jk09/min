@@ -123,9 +123,12 @@
       <button id="llm-prompt-send">Send</button>
       <div id="llm-prompt-history" role="listbox" aria-label="Browsing history suggestions" hidden></div>
     </div>
-    <div id="llm-prompt-status" class="light-fade" aria-live="polite">
-      <span id="llm-prompt-engine-state"></span>
-      <span id="llm-prompt-result"></span>
+    <div id="llm-prompt-status" class="light-fade">
+      <div id="llm-prompt-status-messages" aria-live="polite">
+        <span id="llm-prompt-engine-state"></span>
+        <span id="llm-prompt-result"></span>
+      </div>
+      <span id="llm-prompt-build-info" role="note"></span>
     </div>
   </section>
 

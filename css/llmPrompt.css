@@ -180,9 +180,24 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
     min-height: 1em;
 }
 
+#llm-prompt-status-messages {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    flex: 1;
+    min-width: 0;
+}
+
 #llm-prompt-engine-state {
     flex: none;
     opacity: 0.75;
+}
+
+#llm-prompt-build-info {
+    flex: none;
+    opacity: 0.6;
+    font-family: monospace;
+    white-space: nowrap;
 }
 
 #llm-prompt-result {
@@ -198,6 +213,12 @@ body.llm-prompt-panel-visible[data-llm-panel-position="right"] #llm-prompt-panel
 
 .dark-mode #llm-prompt-result.llm-prompt-error {
     color: #f2b8b5;
+}
+
+@media all and (max-width: 480px) {
+    #llm-prompt-build-info {
+        display: none;
+    }
 }
 
 @media all and (max-width: 780px) {
