@@ -1,5 +1,7 @@
 var settings = require('util/settings/settings.js')
 var engineClient = require('llmPrompt/engineClient.js')
+var buildInfoView = require('llmPrompt/buildInfo.js')
+var buildInfoData = require('dist/buildInfo.build.js')
 var promptRouter = require('llmPrompt/promptRouter.js')
 var webviews = require('webviews.js')
 var places = require('places/places.js')
@@ -26,6 +28,7 @@ function getPanelElements() {
         send: document.getElementById('llm-prompt-send'),
         result: document.getElementById('llm-prompt-result'),
         engineState: document.getElementById('llm-prompt-engine-state'),
+        buildInfo: document.getElementById('llm-prompt-build-info'),
         history: document.getElementById('llm-prompt-history')
     }
 }
@@ -343,6 +346,7 @@ var promptPanel = {
         }
 
         applyPosition(els.panel, getConfiguredPosition())
+        buildInfoView.render(els.buildInfo, buildInfoData)
         promptRouter.initialize()
         bindEvents(els)
         updateControls(els)

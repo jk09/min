@@ -18,6 +18,9 @@ function buildBrowser () {
   // build localization support first, since it is included in the browser bundle
   require('./buildLocalization.js')()
 
+  // generated build metadata is required by the bundle, so it has to exist before bundling
+  require('./buildInfo.js')()
+
   /* concatenate legacy modules */
   let output = ''
   fileList.forEach(function (script) {
