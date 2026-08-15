@@ -32,6 +32,7 @@ Create a new Markdown feature specification file in the backlog folder using the
    - The full folder name must be filename-safe for both Windows and POSIX systems.
 7. Place the main document in the folder as `SPEC.md`.
 8. Preserve the structure and placeholders from the template so the spec remains easy to refine later.
+9. If the prompt contains attached files, include them in the spec folder and reference them in the spec content.
 
 ## Quality bar
 - The generated document should follow the repository template closely.
