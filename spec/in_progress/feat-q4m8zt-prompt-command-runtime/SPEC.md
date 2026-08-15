@@ -89,23 +89,23 @@ Capture implementation guidance, architecture, and dependencies.
   - Tools wrap existing modules rather than reimplementing them: `browserUI` for tabs/tasks, `places` for history, reader/readability extraction for page content, `settings` for configuration, `viewManager`/window management for layout.
 - Dependencies: Existing renderer/main IPC bridge; existing search engine setting; existing places database; readability extraction already bundled in `ext/readability-master`; an HTTP call to the configured LLM provider (no heavyweight SDK preferred).
 - Risks / unknowns: Reliability of model-produced plans without a formal function-calling API; latency of page content extraction on large pages; scope creep of the tool catalog; how much browser state to include as context per prompt; privacy expectations when page content leaves the device.
-- Open questions: Which provider is the reference implementation for the MVP? Where do user skills live on disk and in what format (JSON/YAML/JS)? Should trigger matching be lexical only, or model-assisted with a cache? Does the prompt replace or coexist with the existing searchbar long-term?
+- Open questions: Which provider is the reference implementation for the MVP? **Resolved: any OpenAI-compatible chat-completions endpoint (OpenAI, OpenRouter, Ollama, LM Studio), selected with `llmProvider` / `llmModel` / `llmApiKey` / `llmBaseURL`.** Where do user skills live on disk and in what format (JSON/YAML/JS)? **Resolved for the MVP: declarative JSON definitions in the `llmSkills` setting; a dedicated skills directory is follow-up work.** Should trigger matching be lexical only, or model-assisted with a cache? **Resolved for the MVP: lexical only, so implicit invocation stays as fast as explicit.** Does the prompt replace or coexist with the existing searchbar long-term?
 
 ## 11. Acceptance Criteria
 Define how success will be measured.
 
-- [ ] Criterion 1: Typing a web-search prompt in the bottom prompt bar opens search results in a tab, with no LLM provider configured.
-- [ ] Criterion 2: At least one UI manipulation skill (grouping/tiling/opening a tab set) is invocable from the prompt and executes deterministically.
-- [ ] Criterion 3: A history-search prompt returns matching visited pages and can open them.
-- [ ] Criterion 4: With a provider configured, a general query and a page-summary prompt produce an answer, and any resulting actions are executed only via registered tools.
-- [ ] Criterion 5: Tools and skills are discoverable at runtime (`/` lists skills) and a new tool or skill can be added by adding one module plus a registry entry, with no router or panel changes.
-- [ ] Criterion 6: Invalid or malformed model output produces a clear panel error and performs no browser action.
+- [x] Criterion 1: Typing a web-search prompt in the bottom prompt bar opens search results in a tab, with no LLM provider configured.
+- [x] Criterion 2: At least one UI manipulation skill (grouping/tiling/opening a tab set) is invocable from the prompt and executes deterministically.
+- [x] Criterion 3: A history-search prompt returns matching visited pages and can open them.
+- [ ] Criterion 4: With a provider configured, a general query and a page-summary prompt produce an answer, and any resulting actions are executed only via registered tools. *(implemented; needs manual verification against a live provider)*
+- [x] Criterion 5: Tools and skills are discoverable at runtime (`/` lists skills) and a new tool or skill can be added by adding one module plus a registry entry, with no router or panel changes.
+- [x] Criterion 6: Invalid or malformed model output produces a clear panel error and performs no browser action.
 
 ## 12. Testing / Verification
 Describe how the feature will be validated.
 
 - Manual test plan: Run each MVP skill with and without a provider configured; verify unknown skill, empty prompt, ambiguous trigger, provider timeout, and zero-result history query; confirm tab bar, tasks, focus mode, and keybindings are unaffected.
-- Automated test coverage: Unit tests for the tool dispatcher (schema validation, scope enforcement, error shapes), the skill registry (loading, override precedence), the router (explicit vs implicit vs LLM routing), and the plan parser (valid, malformed, unknown tool id).
+- Automated test coverage: Unit tests for the tool dispatcher (schema validation, scope enforcement, error shapes), the skill registry (loading, override precedence), the router (explicit vs implicit vs LLM routing), and the plan parser (valid, malformed, unknown tool id). Implemented in [test/promptRuntime.test.js](test/promptRuntime.test.js), run with `npm run test:unit` (Node's built-in test runner, no new dependencies).
 - Regression considerations: Existing searchbar behavior, session restore, task overlay, window layout, and prompt panel visibility must be unchanged.
 
 ## 13. Rollout / Follow-up
