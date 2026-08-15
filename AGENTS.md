@@ -42,6 +42,9 @@ The `Min` browser session should resemble vibe coding (vibe browsing?).
 - Preserve deterministic behavior and make external dependencies injectable where practical.
 - When introducing new packages, prefer widely supported JavaScript libraries and keep dependencies minimal.
 
+## Specifications
+
+The specifications for individual features are in the [specification folder](./spec/). Its subfolders contain `SPEC.md` files, along with possible supplemental files. The names of the subfolders refer to the workflow status of the specified features: `backlog`, `in_progress`, `done`, `blocked`. The subfolder `done` expecially can be used to determine the rationale for certain features. The commits which contain the implementation of features may have the spec references in their commit messages.
 
 ## Agent commit behavior
 - Automatically commit (`git commit ...`) the changes produced by each agentic run.
