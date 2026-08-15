@@ -49,15 +49,6 @@ function buildAppMenu (options = {}) {
       }
     },
     {
-      label: l('appMenuNewTask'),
-      accelerator: getFormattedKeyMapEntry('addTask'),
-      click: function (item, window, event) {
-        if (!event.triggeredByAccelerator) {
-          sendIPCToWindow(window, 'addTask')
-        }
-      }
-    },
-    {
       label: l('appMenuNewWindow'),
       accelerator: getFormattedKeyMapEntry('addWindow'),
       click: function () {
@@ -493,12 +484,6 @@ function createDockMenu () {
         label: l('appMenuNewPrivateTab'),
         click: function (item, window) {
           sendIPCToWindow(window, 'addPrivateTab')
-        }
-      },
-      {
-        label: l('appMenuNewTask'),
-        click: function (item, window) {
-          sendIPCToWindow(window, 'addTask')
         }
       },
       {

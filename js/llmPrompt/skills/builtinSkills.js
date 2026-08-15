@@ -60,39 +60,6 @@ const builtinSkills = [
         }
     },
     {
-        id: 'collect',
-        title: 'Collect history into a task',
-        description: 'Search history and group the matching pages into a new task.',
-        kind: 'deterministic',
-        usage: '/collect <query>',
-        triggers: [/^collect /i, /^group pages about /i],
-        run: async function (input, context) {
-            const query = requireArgs(input.argsText, '/collect <query>')
-            const found = await context.runTool('history.search', { query, limit: 8 })
-
-            if (!found.ok) {
-                throw new Error(found.errorMessage)
-            }
-
-            const results = found.result.results
-
-            if (results.length === 0) {
-                return { message: 'No visited pages match "' + query + '", nothing to collect.' }
-            }
-
-            const grouped = await context.runTool('tasks.createWithTabs', {
-                name: query,
-                urls: results.map(place => place.url)
-            })
-
-            if (!grouped.ok) {
-                throw new Error(grouped.errorMessage)
-            }
-
-            return { message: 'Opened ' + grouped.result.tabCount + ' page(s) about "' + query + '" in a new task.' }
-        }
-    },
-    {
         id: 'tabs',
         title: 'List open tabs',
         description: 'Show the tabs open in the current task.',
