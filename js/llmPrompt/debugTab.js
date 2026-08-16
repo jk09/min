@@ -5,6 +5,7 @@ Reuses an already-open debug tab instead of opening a new one each run.
 
 const browserUI = require('browserUI.js')
 const urlParser = require('util/urlParser.js')
+const webviews = require('webviews.js')
 
 const DEBUG_PAGE_URL = 'min://app/pages/llmPromptDebug/index.html'
 
