@@ -320,11 +320,6 @@ body:not(.touch)
   opacity: 0;
 }
 
-/* hide the lock icon unless its the current tab */
-
-.tab-item:not(.active) .icon-tab-not-secure {
-  display: none;
-}
 .tab-item .title-container {
   display: inline-block;
   position: relative;
@@ -489,9 +484,9 @@ body.windows.dark-theme .navbar-action-button:not(:disabled):hover {
   background-color: var(--tab-accent-display);
 }
 
-/* when the tab is hovered, hide info buttons and show the close button */
+/* when the tab is hovered, hide non-security info buttons and show the close button */
 
-body:not(.touch) .tab-item:hover .tab-info-icon {
+body:not(.touch) .tab-item:hover .tab-info-icon:not(.icon-tab-not-secure) {
   display: none;
 }
 body:not(.touch) .tab-item .tab-close-button {
