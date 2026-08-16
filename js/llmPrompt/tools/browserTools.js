@@ -7,8 +7,8 @@ const places = require('places/places.js')
 const webviews = require('webviews.js')
 const settings = require('util/settings/settings.js')
 
-const READABLE_SETTINGS = ['searchEngine', 'llmProvider', 'llmModel', 'llmPromptPanelPosition']
-const WRITABLE_SETTINGS = ['llmPromptPanelPosition', 'llmProvider', 'llmModel']
+const READABLE_SETTINGS = ['searchEngine', 'llmProvider', 'llmModel']
+const WRITABLE_SETTINGS = ['llmProvider', 'llmModel']
 const MAX_PAGE_TEXT_LENGTH = 12000
 
 function buildSearchURL (query) {
