@@ -20,7 +20,7 @@ Describe the context, current limitations, and any related work.
   - The empty region left of the overflow label inside `#tabs` has no `-webkit-app-region: drag`, so mouse presses there do nothing.
 - **Motivation:** Window movement is a basic OS interaction; requiring a pixel-precise strip contradicts the minimal, low-friction character of Min.
 - **Related issues or references:**
-  - Screenshot with the affected area circled in red: [tabbar-empty-drag-area-reference.png](spec/backlog/feat-p4x9qw-draggable-tabbar-empty-area/tabbar-empty-drag-area-reference.png)
+  - Screenshot with the affected area circled in red: [tabbar-empty-drag-area-reference.png](spec/done/feat-p4x9qw-draggable-tabbar-empty-area/tabbar-empty-drag-area-reference.png)
   - Existing drag-region styles: [css/windowControls.css](css/windowControls.css)
   - Tab bar layout: [css/tabBar.css](css/tabBar.css)
   - Overflow indicator: [js/navbar/tabOverflowPanel.js](js/navbar/tabOverflowPanel.js)
@@ -57,7 +57,7 @@ Describe the context, current limitations, and any related work.
 
 ## 9. UX / UI Notes
 - User flow: Press the left mouse button on the empty tab bar area → move the pointer → the window follows → release to drop.
-- Visual considerations: No visual change is expected; the area stays visually identical to today. See the circled region in [tabbar-empty-drag-area-reference.png](spec/backlog/feat-p4x9qw-draggable-tabbar-empty-area/tabbar-empty-drag-area-reference.png).
+- Visual considerations: No visual change is expected; the area stays visually identical to today. See the circled region in [tabbar-empty-drag-area-reference.png](spec/done/feat-p4x9qw-draggable-tabbar-empty-area/tabbar-empty-drag-area-reference.png).
 - Edge cases:
   - On Windows, `-webkit-app-region: drag` elements are not clickable; ensure the change does not swallow clicks intended for the overflow label or tabs.
   - Tab drag-and-drop reordering and drag-to-detach must still work.
