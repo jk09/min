@@ -11,6 +11,7 @@ const modules = [
   'js/util/settings/settingsPreload.js',
   'js/preload/passwordFill.js',
   'js/preload/translate.js',
+  'js/llmPrompt/llmDebugPreload.js',
 ]
 
 function buildPreload() {

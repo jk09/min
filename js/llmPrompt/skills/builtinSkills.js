@@ -6,6 +6,7 @@ const ownModelRegistry = require('llmPrompt/ownModels/ownModelRegistry.js')
 const toolRegistry = require('llmPrompt/tools/toolRegistry.js')
 const planParser = require('llmPrompt/planParser.js')
 const planningSkill = require('llmPrompt/planningSkill.js')
+const debugTab = require('llmPrompt/debugTab.js')
 
 function requireArgs (argsText, usage) {
     if (!argsText) {
@@ -136,39 +137,62 @@ const builtinSkills = [
             const instruction = requireArgs(input.argsText, '/b <instruction>')
             const ownModel = ownModelRegistry.get(context.ownModelId) || ownModelRegistry.getDefault()
 
+            const record = { instruction, ownModelId: ownModel.id }
+            const publishDebug = function () {
+                if (context.debug) {
+                    debugTab.publish(planningSkill.buildDebugRecord(record))
+                }
+            }
+
             if (!ownModel.functional) {
+                record.failureMessage = ownModel.title + ' is not wired up yet.'
+                publishDebug()
                 return { message: ownModel.title + ' is not wired up yet. Try ' + ownModelRegistry.getDefault().title + ' instead.' }
             }
 
             const catalog = toolRegistry.getCatalog()
             const knownToolIds = catalog.map(tool => tool.id)
+            record.systemPrompt = planningSkill.buildSystemPrompt(catalog)
 
             const answer = await context.llm.complete({
-                system: planningSkill.buildSystemPrompt(catalog),
+                system: record.systemPrompt,
                 prompt: instruction,
                 responseFormat: 'json'
             })
 
             if (!answer.ok) {
+                record.failureMessage = answer.errorMessage
+                publishDebug()
                 throw new Error(answer.errorMessage)
             }
+
+            record.modelResponse = answer.output
 
             const parsed = planParser.parsePlan(answer.output, knownToolIds)
 
             if (!parsed.ok) {
+                record.failureMessage = parsed.errorMessage
+                publishDebug()
                 throw new Error(parsed.errorMessage)
             }
 
+            record.parsedPlan = parsed.plan
+
             if (parsed.plan.toolCalls.length === 0) {
+                publishDebug()
                 return { message: parsed.plan.message || 'Nothing to do.' }
             }
 
             const planResult = await context.runPlan(parsed.plan.toolCalls)
+            record.trace = planResult.steps
 
             if (!planResult.ok) {
+                record.failureMessage = planResult.errorMessage
+                publishDebug()
                 throw new Error(planResult.errorMessage)
             }
 
+            publishDebug()
             return { message: planningSkill.describePlanOutcome(parsed.plan, planResult) }
         }
     },

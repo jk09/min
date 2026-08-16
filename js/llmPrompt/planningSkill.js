@@ -38,4 +38,21 @@ function describePlanOutcome (plan, planResult) {
     return (plan.message ? plan.message + ' ' : '') + summary
 }
 
-module.exports = { MAX_TOOL_CALLS_HINT, buildSystemPrompt, describePlanOutcome }
+/*
+Builds the /b debug record shown in the debug tab. Only ever includes values
+already computed by the /b skill (instruction, prompts, parsed plan, tool trace)
+- never provider credentials, which never reach this module in the first place.
+*/
+function buildDebugRecord (input) {
+    return {
+        instruction: input.instruction || '',
+        ownModelId: input.ownModelId || '',
+        systemPrompt: input.systemPrompt || '',
+        modelResponse: input.modelResponse || '',
+        parsedPlan: input.parsedPlan || null,
+        trace: input.trace || [],
+        failureMessage: input.failureMessage || null
+    }
+}
+
+module.exports = { MAX_TOOL_CALLS_HINT, buildSystemPrompt, describePlanOutcome, buildDebugRecord }

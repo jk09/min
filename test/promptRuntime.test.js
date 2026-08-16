@@ -179,3 +179,37 @@ test('a well-formed /b-style plan executes through the tool registry end to end'
     assert.strictEqual(planResult.ok, true)
     assert.strictEqual(planningSkill.describePlanOutcome(parsed.plan, planResult), 'Reading it back. 1 step completed.')
 })
+
+test('the /b debug record captures a successful run and nothing else', function () {
+    const record = planningSkill.buildDebugRecord({
+        instruction: 'open example.com',
+        ownModelId: 'configured',
+        systemPrompt: 'You turn a browser instruction into a short plan of tool calls.',
+        modelResponse: '{"message":"ok","toolCalls":[{"tool":"tabs.open","args":{"url":"example.com"}}]}',
+        parsedPlan: { message: 'ok', toolCalls: [{ tool: 'tabs.open', args: { url: 'example.com' } }] },
+        trace: [{ tool: 'tabs.open', args: { url: 'example.com' }, ok: true, result: { tabId: '1' } }]
+    })
+
+    assert.strictEqual(record.instruction, 'open example.com')
+    assert.strictEqual(record.ownModelId, 'configured')
+    assert.strictEqual(record.failureMessage, null)
+    assert.strictEqual(record.trace.length, 1)
+    assert.strictEqual(JSON.parse(JSON.stringify(record)).trace[0].ok, true)
+})
+
+test('the /b debug record captures a failure reason and never carries credential-shaped fields', function () {
+    const record = planningSkill.buildDebugRecord({
+        instruction: 'do something',
+        ownModelId: 'configured',
+        failureMessage: 'The model provider returned status 401.',
+        llmApiKey: 'sk-should-not-appear',
+        Authorization: 'Bearer sk-should-not-appear'
+    })
+
+    assert.strictEqual(record.failureMessage, 'The model provider returned status 401.')
+    assert.strictEqual(record.systemPrompt, '')
+    assert.strictEqual(record.modelResponse, '')
+    assert.deepStrictEqual(record.trace, [])
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(record, 'llmApiKey'), false)
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(record, 'Authorization'), false)
+})

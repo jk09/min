@@ -49,10 +49,10 @@ const llm = {
     }
 }
 
-function createContext (scope, trace, agentId, ownModelId) {
+function createContext (scope, trace, agentId, ownModelId, debug) {
     async function runTool (id, args) {
         const outcome = await toolRegistry.run(id, args, { scope })
-        trace.push({ tool: id, args: args || {}, ok: outcome.ok })
+        trace.push({ tool: id, args: args || {}, ok: outcome.ok, result: outcome.result, errorMessage: outcome.errorMessage })
         return outcome
     }
 
@@ -66,12 +66,12 @@ function createContext (scope, trace, agentId, ownModelId) {
         return { ok: true, steps: trace.slice() }
     }
 
-    return { scope, agentId: agentId || null, ownModelId: ownModelId || null, runTool, runPlan, llm }
+    return { scope, agentId: agentId || null, ownModelId: ownModelId || null, debug: Boolean(debug), runTool, runPlan, llm }
 }
 
-async function runSkill (skill, argsText, prompt, scope, agentId, ownModelId) {
+async function runSkill (skill, argsText, prompt, scope, agentId, ownModelId, debug) {
     const trace = []
-    const context = createContext(scope, trace, agentId, ownModelId)
+    const context = createContext(scope, trace, agentId, ownModelId, debug)
 
     try {
         const result = await skill.run({ prompt, argsText }, context)
@@ -139,10 +139,11 @@ async function handlePrompt (rawPrompt, options = {}) {
 
     const agentId = typeof options.agentId === 'string' ? options.agentId : null
     const ownModelId = typeof options.ownModelId === 'string' ? options.ownModelId : null
+    const debug = Boolean(options.debug)
     const explicit = skillRegistry.resolveExplicit(prompt)
 
     if (explicit && !explicit.unknownSkillId) {
-        return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId, ownModelId)
+        return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId, ownModelId, debug)
     }
 
     return runSearch(prompt, scope)
