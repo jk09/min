@@ -32,13 +32,19 @@ Create a new Markdown feature specification file in the backlog folder using the
    - The full folder name must be filename-safe for both Windows and POSIX systems.
 7. Place the main document in the folder as `SPEC.md`.
 8. Preserve the structure and placeholders from the template so the spec remains easy to refine later.
-9. If the prompt contains attached files, include them in the spec folder and reference them in the spec content.
+9. If the prompt contains attached files of any kind (documents, screenshots, pasted images, logs), copy every one of them into the spec folder and reference each from the spec content. This step is mandatory and must not be skipped.
+   - Pasted images are not part of the workspace, but they are written to disk by VS Code. On Windows look in `%APPDATA%\Code\User\workspaceStorage\vscode-chat-images` (macOS: `~/Library/Application Support/Code/User/workspaceStorage/vscode-chat-images`, Linux: `~/.config/Code/User/workspaceStorage/vscode-chat-images`) and pick the most recently modified file(s) matching the conversation time.
+   - Verify the candidate file is the intended attachment (for images, view it) before copying.
+   - Copy the file into the spec folder with a descriptive, filename-safe name (for example `vscode-copilot-composer-reference.png`) rather than keeping the generated name.
+   - Reference the copied file from the most relevant spec section, typically `Related issues or references` and/or `UX / UI Notes`.
+   - If an attachment genuinely cannot be located on disk, state this explicitly in the spec and in the response instead of silently omitting it.
 
 ## Quality bar
 - The generated document should follow the repository template closely.
 - It should be readable, structured, and suitable for further editing.
 - It should include realistic placeholders when the prompt is sparse.
 - It should not invent unsupported implementation details unless they are clearly implied by the request.
+- Every file attached to the prompt must exist in the spec folder and be linked from the spec.
 
 ## Example prompt
 Create a feature specification for a browser action that lets users save a tab as a reusable workspace.
