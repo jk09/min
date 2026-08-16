@@ -129,8 +129,12 @@
             <div id="llm-prompt-agent-menu" class="llm-prompt-agent-menu" role="listbox" aria-label="AI agent" hidden>
             </div>
           </div>
-          <button id="llm-prompt-model" class="llm-prompt-toolbar-button" type="button" disabled
-            title="Model selection (not configurable yet)">Model</button>
+          <div class="llm-prompt-search-engine-picker">
+            <button id="llm-prompt-search-engine" class="llm-prompt-toolbar-button" type="button"
+              aria-haspopup="listbox" aria-expanded="false" title="Choose a search engine">Search engine</button>
+            <div id="llm-prompt-search-engine-menu" class="llm-prompt-search-engine-menu" role="listbox"
+              aria-label="Search engine" hidden></div>
+          </div>
           <button id="llm-prompt-settings" class="llm-prompt-toolbar-button" type="button" disabled
             title="Prompt settings (not configurable yet)"><i class="i carbon:settings"></i></button>
         </div>

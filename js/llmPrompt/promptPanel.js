@@ -3,6 +3,7 @@ var buildInfoView = require('llmPrompt/buildInfo.js')
 var buildInfoData = require('dist/buildInfo.build.js')
 var promptRouter = require('llmPrompt/promptRouter.js')
 var agentRegistry = require('llmPrompt/agents/agentRegistry.js')
+var searchEngineRegistry = require('llmPrompt/searchEngines/searchEngineRegistry.js')
 var webviews = require('webviews.js')
 var places = require('places/places.js')
 
@@ -20,7 +21,9 @@ const state = {
     selectedHistorySuggestion: -1,
     historyRequestId: 0,
     selectedAgent: agentRegistry.DEFAULT_AGENT_ID,
-    agentMenuOpen: false
+    agentMenuOpen: false,
+    selectedSearchEngine: searchEngineRegistry.DEFAULT_SEARCH_ENGINE_ID,
+    searchEngineMenuOpen: false
 }
 
 function getPanelElements() {
@@ -37,7 +40,9 @@ function getPanelElements() {
         buildInfo: document.getElementById('llm-prompt-build-info'),
         history: document.getElementById('llm-prompt-history'),
         agentMode: document.getElementById('llm-prompt-mode'),
-        agentMenu: document.getElementById('llm-prompt-agent-menu')
+        agentMenu: document.getElementById('llm-prompt-agent-menu'),
+        searchEngineMode: document.getElementById('llm-prompt-search-engine'),
+        searchEngineMenu: document.getElementById('llm-prompt-search-engine-menu')
     }
 }
 
@@ -90,6 +95,7 @@ function closePanel(els) {
     state.open = false
     clearHistorySuggestions(els)
     closeAgentMenu(els)
+    closeSearchEngineMenu(els)
     els.overlay.hidden = true
     document.body.classList.remove('llm-prompt-overlay-open')
     webviews.hidePlaceholder(PLACEHOLDER_REASON)
@@ -346,7 +352,69 @@ function toggleAgentMenu(els) {
     if (state.agentMenuOpen) {
         closeAgentMenu(els)
     } else {
+        closeSearchEngineMenu(els)
         openAgentMenu(els)
+    }
+}
+
+function updateSearchEngineButtonLabel(els) {
+    const searchEngine = searchEngineRegistry.get(state.selectedSearchEngine) || searchEngineRegistry.getDefault()
+    els.searchEngineMode.textContent = searchEngine.shortTitle || searchEngine.title
+    els.searchEngineMode.title = 'Search engine: ' + searchEngine.title + (searchEngine.functional ? '' : ' (coming soon)')
+}
+
+function closeSearchEngineMenu(els) {
+    state.searchEngineMenuOpen = false
+    els.searchEngineMenu.hidden = true
+    els.searchEngineMode.setAttribute('aria-expanded', 'false')
+}
+
+function renderSearchEngineMenu(els) {
+    els.searchEngineMenu.replaceChildren()
+
+    searchEngineRegistry.list().forEach(function (searchEngine) {
+        const item = document.createElement('button')
+        item.type = 'button'
+        item.className = 'llm-prompt-search-engine-item'
+        item.setAttribute('role', 'option')
+        item.setAttribute('aria-selected', String(searchEngine.id === state.selectedSearchEngine))
+        item.classList.toggle('selected', searchEngine.id === state.selectedSearchEngine)
+
+        const title = document.createElement('span')
+        title.textContent = searchEngine.shortTitle || searchEngine.title
+        item.appendChild(title)
+
+        if (!searchEngine.functional) {
+            const badge = document.createElement('span')
+            badge.className = 'llm-prompt-search-engine-badge'
+            badge.textContent = 'soon'
+            item.appendChild(badge)
+        }
+
+        item.addEventListener('click', function () {
+            state.selectedSearchEngine = searchEngine.id
+            updateSearchEngineButtonLabel(els)
+            closeSearchEngineMenu(els)
+            els.searchEngineMode.focus()
+        })
+
+        els.searchEngineMenu.appendChild(item)
+    })
+}
+
+function openSearchEngineMenu(els) {
+    renderSearchEngineMenu(els)
+    state.searchEngineMenuOpen = true
+    els.searchEngineMenu.hidden = false
+    els.searchEngineMode.setAttribute('aria-expanded', 'true')
+}
+
+function toggleSearchEngineMenu(els) {
+    if (state.searchEngineMenuOpen) {
+        closeSearchEngineMenu(els)
+    } else {
+        closeAgentMenu(els)
+        openSearchEngineMenu(els)
     }
 }
 
@@ -368,9 +436,17 @@ function bindEvents(els) {
         toggleAgentMenu(els)
     })
 
+    els.searchEngineMode.addEventListener('click', function (e) {
+        e.stopPropagation()
+        toggleSearchEngineMenu(els)
+    })
+
     els.panel.addEventListener('click', function (e) {
         if (state.agentMenuOpen && !els.agentMenu.contains(e.target) && e.target !== els.agentMode) {
             closeAgentMenu(els)
+        }
+        if (state.searchEngineMenuOpen && !els.searchEngineMenu.contains(e.target) && e.target !== els.searchEngineMode) {
+            closeSearchEngineMenu(els)
         }
     })
 
@@ -397,6 +473,8 @@ function bindEvents(els) {
             e.preventDefault()
             if (state.agentMenuOpen) {
                 closeAgentMenu(els)
+            } else if (state.searchEngineMenuOpen) {
+                closeSearchEngineMenu(els)
             } else if (state.historySuggestions.length > 0) {
                 clearHistorySuggestions(els)
             } else {
@@ -472,6 +550,7 @@ var promptPanel = {
         bindEvents(els)
         updateControls(els)
         updateAgentButtonLabel(els)
+        updateSearchEngineButtonLabel(els)
         syncWebviewMargins(els)
         initializeEngineState(els)
     }

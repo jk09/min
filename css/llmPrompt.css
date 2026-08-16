@@ -158,11 +158,13 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     gap: 0.35em;
 }
 
-.llm-prompt-agent-picker {
+.llm-prompt-agent-picker,
+.llm-prompt-search-engine-picker {
     position: relative;
 }
 
-.llm-prompt-agent-menu {
+.llm-prompt-agent-menu,
+.llm-prompt-search-engine-menu {
     position: absolute;
     bottom: calc(100% + 0.4em);
     left: 0;
@@ -177,12 +179,14 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
 }
 
-.dark-mode .llm-prompt-agent-menu {
+.dark-mode .llm-prompt-agent-menu,
+.dark-mode .llm-prompt-search-engine-menu {
     border-color: rgba(255, 255, 255, 0.22);
     background: rgba(52, 58, 68, 0.98);
 }
 
-.llm-prompt-agent-item {
+.llm-prompt-agent-item,
+.llm-prompt-search-engine-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -197,16 +201,21 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
 }
 
 .llm-prompt-agent-item:hover,
-.llm-prompt-agent-item.selected {
+.llm-prompt-agent-item.selected,
+.llm-prompt-search-engine-item:hover,
+.llm-prompt-search-engine-item.selected {
     background: rgba(0, 0, 0, 0.08);
 }
 
 .dark-mode .llm-prompt-agent-item:hover,
-.dark-mode .llm-prompt-agent-item.selected {
+.dark-mode .llm-prompt-agent-item.selected,
+.dark-mode .llm-prompt-search-engine-item:hover,
+.dark-mode .llm-prompt-search-engine-item.selected {
     background: rgba(255, 255, 255, 0.12);
 }
 
-.llm-prompt-agent-badge {
+.llm-prompt-agent-badge,
+.llm-prompt-search-engine-badge {
     opacity: 0.6;
     font-size: 0.85em;
 }
