@@ -6,6 +6,9 @@
   font-family: ".SFNSText-Regular", "BlinkMacSystemFont", "Helvetica Neue",
     "Segoe UI", "Arial", sans-serif;
 }
+:root {
+  --status-bar-height: 22px;
+}
 /* TODO figure out why the default focus color in Electron is orange */
 *:focus {
   outline-color: rgb(0, 117, 255);

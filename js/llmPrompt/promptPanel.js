@@ -1,4 +1,3 @@
-var settings = require('util/settings/settings.js')
 var engineClient = require('llmPrompt/engineClient.js')
 var buildInfoView = require('llmPrompt/buildInfo.js')
 var buildInfoData = require('dist/buildInfo.build.js')
@@ -6,16 +5,16 @@ var promptRouter = require('llmPrompt/promptRouter.js')
 var webviews = require('webviews.js')
 var places = require('places/places.js')
 
-const ALLOWED_POSITIONS = ['bottom', 'top', 'left', 'right']
+const PLACEHOLDER_REASON = 'llmPrompt'
 
 const state = {
-    position: 'bottom',
+    open: false,
     providerConfigured: false,
     sending: false,
     hasResult: false,
     engineStatus: null,
     appliedMargins: [0, 0, 0, 0],
-    observer: null,
+    previouslyFocused: null,
     historySuggestions: [],
     selectedHistorySuggestion: -1,
     historyRequestId: 0
@@ -23,7 +22,11 @@ const state = {
 
 function getPanelElements() {
     return {
+        overlay: document.getElementById('llm-prompt-overlay'),
+        scrim: document.getElementById('llm-prompt-scrim'),
         panel: document.getElementById('llm-prompt-panel'),
+        statusBar: document.getElementById('status-bar'),
+        promptButton: document.getElementById('status-bar-prompt-button'),
         input: document.getElementById('llm-prompt-input'),
         send: document.getElementById('llm-prompt-send'),
         result: document.getElementById('llm-prompt-result'),
@@ -33,52 +36,13 @@ function getPanelElements() {
     }
 }
 
-function getConfiguredPosition() {
-    var configuredPosition = settings.get('llmPromptPanelPosition') || 'bottom'
-    if (!ALLOWED_POSITIONS.includes(configuredPosition)) {
-        configuredPosition = 'bottom'
-    }
-    return configuredPosition
-}
-
-function applyPosition(panel, position) {
-    state.position = position
-    panel.setAttribute('data-position', position)
-    document.body.setAttribute('data-llm-panel-position', position)
-    document.body.classList.add('llm-prompt-panel-visible')
-}
-
-function isPanelVisibleForCurrentMode() {
-    // show the panel only when a page webview is active, not in the new-tab/address-selection UI mode
-    return !document.body.classList.contains('is-ntp')
-}
-
-function getTargetMargins(panelRect, history) {
-    if (!isPanelVisibleForCurrentMode()) {
-        return [0, 0, 0, 0]
-    }
-
-    if (state.position === 'top') {
-        return [Math.round(panelRect.height), 0, 0, 0]
-    }
-
-    if (state.position === 'left') {
-        return [0, 0, 0, Math.round(panelRect.width)]
-    }
-
-    if (state.position === 'right') {
-        return [0, Math.round(panelRect.width), 0, 0]
-    }
-
-    const historyHeight = history && !history.hidden
-        ? Math.max(0, Math.round(panelRect.top - history.getBoundingClientRect().top))
-        : 0
-    return [0, 0, Math.round(panelRect.height) + historyHeight, 0]
+// the overlay floats above the page, so only the status bar reduces the webview area
+function getTargetMargins(statusBarRect) {
+    return [0, 0, Math.round(statusBarRect.height), 0]
 }
 
 function syncWebviewMargins(els) {
-    const panelRect = els.panel.getBoundingClientRect()
-    const nextMargins = getTargetMargins(panelRect, els.history)
+    const nextMargins = getTargetMargins(els.statusBar.getBoundingClientRect())
     const delta = nextMargins.map(function (value, idx) {
         return value - state.appliedMargins[idx]
     })
@@ -86,6 +50,69 @@ function syncWebviewMargins(els) {
     if (delta.some(value => value !== 0)) {
         webviews.adjustMargin(delta)
         state.appliedMargins = nextMargins
+    }
+}
+
+function isOverlayAvailable() {
+    // the overlay dims a page, so it is unavailable while the new-tab/address-selection UI is shown
+    return !document.body.classList.contains('is-ntp')
+}
+
+function autoGrowInput(input) {
+    input.style.height = 'auto'
+    input.style.height = input.scrollHeight + 'px'
+}
+
+function openPanel(els) {
+    if (state.open || !isOverlayAvailable()) {
+        return
+    }
+
+    state.open = true
+    state.previouslyFocused = document.activeElement
+    els.overlay.hidden = false
+    document.body.classList.add('llm-prompt-overlay-open')
+    webviews.requestPlaceholder(PLACEHOLDER_REASON)
+    autoGrowInput(els.input)
+    els.input.focus()
+}
+
+function closePanel(els) {
+    if (!state.open) {
+        return
+    }
+
+    state.open = false
+    clearHistorySuggestions(els)
+    els.overlay.hidden = true
+    document.body.classList.remove('llm-prompt-overlay-open')
+    webviews.hidePlaceholder(PLACEHOLDER_REASON)
+
+    const restoreTarget = state.previouslyFocused
+    state.previouslyFocused = null
+
+    if (restoreTarget && restoreTarget !== document.body && restoreTarget.focus && document.contains(restoreTarget)) {
+        restoreTarget.focus()
+    } else {
+        webviews.focus()
+    }
+}
+
+function trapFocus(els, e) {
+    const focusable = Array.from(els.panel.querySelectorAll('textarea, button:not([disabled])'))
+    if (focusable.length === 0) {
+        return
+    }
+
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+
+    if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
     }
 }
 
@@ -153,9 +180,11 @@ async function sendPrompt(els) {
 
     state.sending = true
     updateControls(els)
-    clearHistorySuggestions(els)
     els.input.value = ''
+    autoGrowInput(els.input)
     setResult(els, 'Working\u2026', false)
+    // results are reported in the status bar, so the overlay gets out of the way immediately
+    closePanel(els)
 
     try {
         const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate' })
@@ -174,7 +203,6 @@ function clearHistorySuggestions(els) {
     state.selectedHistorySuggestion = -1
     els.history.replaceChildren()
     els.history.hidden = true
-    syncWebviewMargins(els)
 }
 
 function updateHistorySelection(els, index) {
@@ -195,8 +223,9 @@ async function openHistorySuggestion(els, suggestion) {
         return
     }
 
-    clearHistorySuggestions(els)
     els.input.value = ''
+    autoGrowInput(els.input)
+    closePanel(els)
     await promptRouter.toolRegistry.run('tabs.open', { url: suggestion.url }, { scope: 'mutate' })
 }
 
@@ -231,7 +260,6 @@ function renderHistorySuggestions(els, suggestions) {
     })
 
     els.history.hidden = suggestions.length === 0
-    syncWebviewMargins(els)
 }
 
 async function updateHistorySuggestions(els) {
@@ -261,6 +289,20 @@ function bindEvents(els) {
         sendPrompt(els)
     })
 
+    els.promptButton.addEventListener('click', function () {
+        openPanel(els)
+    })
+
+    els.scrim.addEventListener('click', function () {
+        closePanel(els)
+    })
+
+    els.panel.addEventListener('keydown', function (e) {
+        if (e.key === 'Tab') {
+            trapFocus(els, e)
+        }
+    })
+
     els.input.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowDown' && state.historySuggestions.length > 0) {
             e.preventDefault()
@@ -274,9 +316,13 @@ function bindEvents(els) {
             return
         }
 
-        if (e.key === 'Escape' && state.historySuggestions.length > 0) {
+        if (e.key === 'Escape') {
             e.preventDefault()
-            clearHistorySuggestions(els)
+            if (state.historySuggestions.length > 0) {
+                clearHistorySuggestions(els)
+            } else {
+                closePanel(els)
+            }
             return
         }
 
@@ -292,34 +338,13 @@ function bindEvents(els) {
     })
 
     els.input.addEventListener('input', function () {
+        autoGrowInput(els.input)
         updateHistorySuggestions(els)
-    })
-
-    settings.listen('llmPromptPanelPosition', function (nextPosition) {
-        if (!nextPosition) {
-            return
-        }
-
-        if (ALLOWED_POSITIONS.includes(nextPosition)) {
-            applyPosition(els.panel, nextPosition)
-            syncWebviewMargins(els)
-        }
     })
 
     window.addEventListener('resize', function () {
         syncWebviewMargins(els)
     })
-
-    if (!state.observer) {
-        state.observer = new MutationObserver(function () {
-            syncWebviewMargins(els)
-        })
-
-        state.observer.observe(document.body, {
-            attributes: true,
-            attributeFilter: ['class']
-        })
-    }
 }
 
 async function initializeEngineState(els) {
@@ -339,13 +364,30 @@ async function initializeEngineState(els) {
 }
 
 var promptPanel = {
+    getTargetMargins,
+    isOpen: function () {
+        return state.open
+    },
+    open: function () {
+        openPanel(getPanelElements())
+    },
+    close: function () {
+        closePanel(getPanelElements())
+    },
+    toggle: function () {
+        const els = getPanelElements()
+        if (state.open) {
+            closePanel(els)
+        } else {
+            openPanel(els)
+        }
+    },
     initialize: function () {
         const els = getPanelElements()
         if (!els.panel) {
             return
         }
 
-        applyPosition(els.panel, getConfiguredPosition())
         buildInfoView.render(els.buildInfo, buildInfoData)
         promptRouter.initialize()
         bindEvents(els)

@@ -1,8 +1,7 @@
 #webviews {
-  height: calc(100vh - 36px - var(--control-space-top));
+  height: calc(100vh - 36px - var(--control-space-top) - var(--status-bar-height));
   position: relative;
 }
-
 .arrow-indicator {
   width: 140px;
   height: 140px;

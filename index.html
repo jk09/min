@@ -115,14 +115,34 @@
     </div>
   </div>
 
-  <section id="llm-prompt-panel" class="theme-background-color theme-text-color" data-position="bottom"
-    aria-label="LLM prompt panel">
-    <div class="llm-prompt-composer">
-      <textarea id="llm-prompt-input" rows="1" spellcheck="true" placeholder="Ask, or type / for skills"
-        aria-label="Prompt"></textarea>
-      <button id="llm-prompt-send">Send</button>
-      <div id="llm-prompt-history" role="listbox" aria-label="Browsing history suggestions" hidden></div>
-    </div>
+  <div id="llm-prompt-overlay" hidden>
+    <div id="llm-prompt-scrim"></div>
+    <section id="llm-prompt-panel" class="theme-background-color theme-text-color" role="dialog" aria-modal="true"
+      aria-label="LLM prompt">
+      <div class="llm-prompt-composer">
+        <textarea id="llm-prompt-input" rows="2" spellcheck="true" placeholder="Ask, or type / for skills"
+          aria-label="Prompt"></textarea>
+        <div id="llm-prompt-history" role="listbox" aria-label="Browsing history suggestions" hidden></div>
+      </div>
+      <div class="llm-prompt-toolbar">
+        <div class="llm-prompt-toolbar-group">
+          <button id="llm-prompt-mode" class="llm-prompt-toolbar-button" type="button" disabled
+            title="Prompt mode (not configurable yet)">Agent</button>
+          <button id="llm-prompt-model" class="llm-prompt-toolbar-button" type="button" disabled
+            title="Model selection (not configurable yet)">Model</button>
+          <button id="llm-prompt-settings" class="llm-prompt-toolbar-button" type="button" disabled
+            title="Prompt settings (not configurable yet)"><i class="i carbon:settings"></i></button>
+        </div>
+        <div class="llm-prompt-toolbar-group">
+          <button id="llm-prompt-send" type="button" title="Send prompt"><i class="i carbon:arrow-up"></i></button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer id="status-bar" class="theme-background-color theme-text-color">
+    <button id="status-bar-prompt-button" type="button" aria-label="Open the LLM prompt"
+      title="Open the LLM prompt">Ask</button>
     <div id="llm-prompt-status" class="light-fade">
       <div id="llm-prompt-status-messages" aria-live="polite">
         <span id="llm-prompt-engine-state"></span>
@@ -130,7 +150,7 @@
       </div>
       <span id="llm-prompt-build-info" role="note"></span>
     </div>
-  </section>
+  </footer>
 
   <!-- findinpage ui -->
 

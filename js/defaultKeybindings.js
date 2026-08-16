@@ -4,6 +4,7 @@ var browserUI = require('browserUI.js')
 var focusMode = require('focusMode.js')
 var modalMode = require('modalMode.js')
 var tabEditor = require('navbar/tabEditor.js')
+var promptPanel = require('llmPrompt/promptPanel.js')
 var urlParser = require('util/urlParser.js')
 var keyMapModule = require('util/keyMap.js')
 var settings = require('util/settings/settings.js')
@@ -111,6 +112,14 @@ const defaultKeybindings = {
 
     keybindings.defineShortcut('showBookmarks', function () {
       tabEditor.show(tabs.getSelected(), '!bookmarks ')
+    })
+
+    keybindings.defineShortcut('toggleLLMPrompt', function () {
+      if (modalMode.enabled()) {
+        return
+      }
+
+      promptPanel.toggle()
     })
 
     // cmd+x should switch to tab x. Cmd+9 should switch to the last tab
