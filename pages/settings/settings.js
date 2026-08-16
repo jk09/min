@@ -263,6 +263,23 @@ showDividerCheckbox.addEventListener('change', function (e) {
   settings.set('showDividerBetweenTabs', this.checked)
 })
 
+/* tab width setting */
+
+var tabWidthInput = document.getElementById('input-tab-width')
+
+settings.get('tabWidth', function (value) {
+  tabWidthInput.value = value || 140
+})
+
+tabWidthInput.addEventListener('change', function () {
+  var width = Math.min(400, Math.max(80, Math.round(Number(this.value))))
+  if (!Number.isFinite(width)) {
+    width = 140
+  }
+  this.value = width
+  settings.set('tabWidth', width)
+})
+
 /* language setting*/
 
 var languagePicker = document.getElementById('setting-language-picker')

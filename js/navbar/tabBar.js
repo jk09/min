@@ -11,18 +11,34 @@ const urlParser = require('util/urlParser.js')
 const tabEditor = require('navbar/tabEditor.js')
 const progressBar = require('navbar/progressBar.js')
 const permissionRequests = require('navbar/permissionRequests.js')
+const tabOverflow = require('navbar/tabOverflow.js')
+const tabOverflowPanel = require('navbar/tabOverflowPanel.js')
+const tabLabel = require('navbar/tabLabel.js')
 
 var lastTabDeletion = 0 // TODO get rid of this
+
+// width reserved for the "... n more tabs" label
+const overflowLabelWidth = 120
 
 const tabBar = {
   navBar: document.getElementById('navbar'),
   container: document.getElementById('tabs'),
   containerInner: document.getElementById('tabs-inner'),
+  overflowLabel: document.getElementById('tab-overflow-label'),
+  tabWidth: tabOverflow.DEFAULT_TAB_WIDTH,
+  useSiteTheme: true,
+  hiddenTabIds: [],
   tabElementMap: {}, // tabId: tab element
   events: new EventEmitter(),
   dragulaInstance: null,
   getTab: function (tabId) {
     return tabBar.tabElementMap[tabId]
+  },
+  getTabDomain: function (tabData) {
+    if (!tabData.url || urlParser.isInternalURL(tabData.url)) {
+      return ''
+    }
+    return tabLabel.abbreviateDomain(urlParser.getDomain(tabData.url))
   },
   getTabInput: function (tabId) {
     return tabBar.getTab(tabId).querySelector('.tab-input')
@@ -39,9 +55,7 @@ const tabBar = {
     el.classList.add('active')
     el.setAttribute('aria-selected', 'true')
 
-    requestAnimationFrame(function () {
-      el.scrollIntoView()
-    })
+    tabBar.handleSizeChange()
   },
   createTab: function (data) {
     var tabEl = document.createElement('div')
@@ -76,6 +90,13 @@ const tabBar = {
     iconArea.appendChild(closeTabButton)
 
     tabEl.appendChild(iconArea)
+
+    // page icon
+
+    var faviconElement = document.createElement('img')
+    faviconElement.className = 'tab-favicon'
+    faviconElement.setAttribute('aria-hidden', 'true')
+    tabEl.appendChild(faviconElement)
 
     // title
 
@@ -151,17 +172,22 @@ const tabBar = {
 
     tabTitle = (tabTitle || l('newTabLabel')).substring(0, 500)
 
+    var tabUrl = tabBar.getTabDomain(tabData)
+
+    var label = tabLabel.getTabLabel({
+      abbreviation: tabData.pageAbbreviation,
+      domain: isNewTab ? '' : tabUrl,
+      title: tabTitle,
+      isNewTab,
+      defaultLabel: l('newTabLabel')
+    })
+
     var titleEl = tabEl.querySelector('.title')
-    titleEl.textContent = tabTitle
+    titleEl.textContent = label
 
     tabEl.title = tabTitle
     if (tabData.private) {
       tabEl.title += ' (' + l('privateTab') + ')'
-    }
-
-    var tabUrl = urlParser.getDomain(tabData.url)
-    if (tabUrl.startsWith('www.') && tabUrl.split('.').length > 2) {
-      tabUrl = tabUrl.replace('www.', '')
     }
 
     tabEl.querySelector('.url-element').textContent = tabUrl
@@ -170,6 +196,29 @@ const tabBar = {
       tabEl.classList.add('has-url')
     } else {
       tabEl.classList.remove('has-url')
+    }
+
+    // page icon
+
+    var faviconElement = tabEl.querySelector('.tab-favicon')
+    var faviconURL = tabLabel.getFaviconURL(tabData)
+    if (faviconURL) {
+      faviconElement.src = faviconURL
+      faviconElement.hidden = false
+    } else {
+      faviconElement.removeAttribute('src')
+      faviconElement.hidden = true
+    }
+
+    // color coding based on the page's own colors
+
+    var accentColor = tabBar.useSiteTheme ? tabLabel.getAccentColor(tabData) : null
+    if (accentColor) {
+      tabEl.style.setProperty('--tab-accent-color', accentColor)
+      tabEl.classList.add('has-accent-color')
+    } else {
+      tabEl.style.removeProperty('--tab-accent-color')
+      tabEl.classList.remove('has-accent-color')
     }
 
     // update tab audio icon
@@ -258,18 +307,107 @@ const tabBar = {
       }
 
       tabs.splice(newIdx, 0, oldTab)
+      tabBar.handleSizeChange()
     })
   },
   handleSizeChange: function () {
-    if (window.innerWidth / tabBar.containerInner.childNodes.length < 190) {
+    if (tabBar.tabWidth < 190) {
       tabBar.container.classList.add('compact-tabs')
     } else {
       tabBar.container.classList.remove('compact-tabs')
     }
+    tabBar.updateOverflow()
+  },
+  updateOverflow: function () {
+    var tabElements = Array.from(tabBar.containerInner.children)
+    var activeIndex = tabElements.findIndex(el => el.classList.contains('active'))
+
+    var layout = tabOverflow.computeVisibleTabs({
+      tabCount: tabElements.length,
+      activeIndex: Math.max(0, activeIndex),
+      containerWidth: tabBar.container.getBoundingClientRect().width,
+      tabWidth: tabBar.tabWidth,
+      labelWidth: overflowLabelWidth
+    })
+
+    var hiddenTabIds = []
+
+    tabElements.forEach(function (el, index) {
+      var isVisible = index >= layout.startIndex && index < layout.startIndex + layout.visibleCount
+      if (isVisible) {
+        el.classList.remove('overflowed')
+      } else {
+        el.classList.add('overflowed')
+        hiddenTabIds.push(el.getAttribute('data-tab'))
+      }
+    })
+
+    tabBar.hiddenTabIds = hiddenTabIds
+    tabBar.updateOverflowLabel()
+  },
+  updateOverflowLabel: function () {
+    var count = tabBar.hiddenTabIds.length
+
+    if (count === 0) {
+      tabBar.overflowLabel.hidden = true
+      tabOverflowPanel.hide()
+      return
+    }
+
+    var text = count === 1
+      ? l('tabOverflowLabelSingular')
+      : l('tabOverflowLabelPlural').replace('%n', count)
+
+    tabBar.overflowLabel.textContent = text
+    tabBar.overflowLabel.setAttribute('aria-label', text)
+    tabBar.overflowLabel.hidden = false
+  },
+  getHiddenTabsInfo: function () {
+    return tabBar.hiddenTabIds
+      .map(id => tabs.get(id))
+      .filter(tabData => !!tabData)
+      .map(function (tabData) {
+        var domain = tabBar.getTabDomain(tabData)
+        return {
+          id: tabData.id,
+          domain,
+          title: tabData.title,
+          label: tabLabel.getTabLabel({
+            abbreviation: tabData.pageAbbreviation,
+            domain,
+            title: tabData.title,
+            isNewTab: !tabData.url,
+            defaultLabel: l('newTabLabel')
+          }),
+          loaded: tabData.loaded,
+          hasWebContents: tabData.hasWebContents
+        }
+      })
   }
 }
 
-window.addEventListener('resize', tabBar.handleSizeChange)
+settings.listen('tabWidth', function (value) {
+  tabBar.tabWidth = tabOverflow.clampTabWidth(value === undefined ? tabOverflow.DEFAULT_TAB_WIDTH : value)
+  document.body.style.setProperty('--tab-width', tabBar.tabWidth + 'px')
+  tabBar.handleSizeChange()
+})
+
+/* the browser chrome stays uniform - the site theme is only used to color the individual tabs */
+settings.listen('siteTheme', function (value) {
+  tabBar.useSiteTheme = value !== false
+  Object.keys(tabBar.tabElementMap).forEach(tabId => tabBar.updateTab(tabId))
+})
+
+tabOverflowPanel.initialize()
+
+tabBar.overflowLabel.addEventListener('click', function (e) {
+  e.stopPropagation()
+  tabOverflowPanel.toggle(tabBar.getHiddenTabsInfo(), function (tabId) {
+    tabBar.events.emit('tab-selected', tabId)
+  })
+})
+
+window.addEventListener('resize', debounce(tabBar.handleSizeChange, 100))
 
 settings.listen('showDividerBetweenTabs', function (dividerPreference) {
   tabBar.handleDividerPreference(dividerPreference)
@@ -288,7 +426,7 @@ webviews.bindEvent('did-stop-loading', function (tabId) {
 })
 
 tasks.on('tab-updated', function (id, key) {
-  var updateKeys = ['title', 'secure', 'url', 'muted', 'hasAudio']
+  var updateKeys = ['title', 'secure', 'url', 'muted', 'hasAudio', 'favicon', 'themeColor', 'backgroundColor', 'pageAbbreviation']
   if (updateKeys.includes(key)) {
     tabBar.updateTab(id)
   }

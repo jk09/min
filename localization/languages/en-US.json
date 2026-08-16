@@ -64,6 +64,10 @@
     "connectionNotSecure": "Your connection to this website is not secure.",
     "searchbarPlaceholder": "Search or enter address",
     "privateTab": "Private tab",
+    "tabOverflowLabelSingular": "... 1 more tab", //shown at the end of the tab bar when tabs don't fit
+    "tabOverflowLabelPlural": "... %n more tabs", //%n is replaced with the number of tabs that don't fit
+    "tabOverflowHeading": "%n tabs not shown",
+    "tabOverflowStatus": "%l loading, %u not loaded", //%l is the number of loading tabs, %u the number of tabs without a loaded page
     "newTabAction": "New Tab", //this is a verb, used to label a button that adds a tab to the tabstrip when clicked
     /* find in page toolbar */
     "searchInPage": "Search in Page", //this is used as the placeholder text for the textbox in the find in page toolbar
@@ -140,10 +144,11 @@
     "settingsDarkModeNight": "At night",
     "settingsDarkModeAlways": "Always",
     "settingsDarkModeSystem": "Follow system theme",
-    "settingsSiteThemeToggle": "Enable site theme",
+    "settingsSiteThemeToggle": "Color tabs using site colors",
     "settingsAdditionalFeaturesHeading": "Additional Features",
     "settingsUserscriptsToggle": "Enable user scripts",
     "settingsShowDividerToggle": "Show divider between tabs",
+    "settingsTabWidth": "Tab width (pixels): ",
     "settingsLanguageSelection": "Language: ",
     "settingsSeparateTitlebarToggle": "Use separate title bar",
     "settingsAutoplayToggle": "Enable Autoplay",

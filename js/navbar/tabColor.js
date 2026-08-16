@@ -1,5 +1,5 @@
 var webviews = require('webviews.js')
-var settings = require('util/settings/settings.js')
+var urlParser = require('util/urlParser.js')
 
 const colorExtractorImage = document.createElement('img')
 colorExtractorImage.crossOrigin = 'anonymous'
@@ -13,18 +13,6 @@ const defaultColors = {
   lightMode: ['rgb(255, 255, 255)', 'black'],
   darkMode: ['rgb(33, 37, 43)', 'white']
 }
-
-function getHours () {
-  const date = new Date()
-  return date.getHours() + (date.getMinutes() / 60)
-}
-
-let hours = getHours()
-
-// we cache the hours so we don't have to query every time we change the color
-setInterval(function () {
-  hours = getHours()
-}, 5 * 60 * 1000)
 
 function getColorFromImage (image) {
   const w = colorExtractorImage.width
@@ -123,31 +111,6 @@ function isLowContrast (color) {
   return color.filter(i => (i > 235 || i < 15)).length === 3
 }
 
-function adjustColorForTheme (color) {
-  // dim the colors late at night or early in the morning if automatic dark mode is enabled
-  const darkMode = settings.get('darkMode')
-  const isAuto = (darkMode === undefined || darkMode === true || darkMode >= 0)
-
-  let colorChange = 1
-  if (isAuto) {
-    if (hours > 20) {
-      colorChange = 1.01 / (1 + 0.9 * Math.pow(Math.E, 1.5 * (hours - 22.75)))
-    } else if (hours < 6.5) {
-      colorChange = 1.04 / (1 + 0.9 * Math.pow(Math.E, -2 * (hours - 5)))
-    }
-  }
-
-  if (window.isDarkMode) {
-    colorChange = Math.min(colorChange, 0.6)
-  }
-
-  return [
-    Math.round(color[0] * colorChange),
-    Math.round(color[1] * colorChange),
-    Math.round(color[2] * colorChange)
-  ]
-}
-
 // https://stackoverflow.com/a/596243
 function getLuminance (c) {
   return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
@@ -180,8 +143,19 @@ function setColor (bg, fg, isLowContrast) {
   }
 }
 
+// domain the current color of each tab was taken from, so the color stays the same while browsing a site
+const colorSourceDomains = {}
+
+function getTabDomain (tabId) {
+  const tab = tabs.get(tabId)
+  return tab ? urlParser.getDomain(tab.url) : ''
+}
+
+function hasColorForCurrentSite (tabId) {
+  return !!colorSourceDomains[tabId] && colorSourceDomains[tabId] === getTabDomain(tabId)
+}
+
 const tabColor = {
-  useSiteTheme: true,
   initialize: function () {
     webviews.bindEvent('page-favicon-updated', function (tabId, favicons) {
       tabColor.updateFromImage(favicons, tabId, function () {
@@ -199,17 +173,27 @@ const tabColor = {
     })
 
     /*
-    Reset the icon color when the page changes, so that if the new page has no icon it won't inherit the old one
-    But don't actually render anything here because the new icon won't have been received yet
-    and we want to go from old color > new color, rather than old color > default > new color
+    Reset the color when the tab moves to a different site, so that it won't inherit the color of the previous one.
+    Navigating within the same site keeps the color that was picked when the site was first loaded.
      */
     webviews.bindEvent('did-start-navigation', function (tabId, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
-      if (isMainFrame) {
-        tabs.update(tabId, {
-          backgroundColor: null,
-          favicon: null
-        })
+      if (!isMainFrame || isInPlace) {
+        return
       }
+      if (colorSourceDomains[tabId] === urlParser.getDomain(url)) {
+        return
+      }
+
+      delete colorSourceDomains[tabId]
+      tabs.update(tabId, {
+        themeColor: null,
+        backgroundColor: null,
+        favicon: null
+      })
+    })
+
+    tasks.on('tab-destroyed', function (tabId) {
+      delete colorSourceDomains[tabId]
     })
 
     /*
@@ -225,30 +209,22 @@ const tabColor = {
       tabColor.updateColors()
     })
 
-    settings.listen('siteTheme', function (value) {
-      if (value !== undefined) {
-        tabColor.useSiteTheme = value
-      }
-    })
-
     tasks.on('tab-selected', this.updateColors)
   },
   updateFromThemeColor: function (color, tabId) {
-    if (!color) {
-      tabs.update(tabId, {
-        themeColor: null
-      })
+    if (!color || hasColorForCurrentSite(tabId)) {
       return
     }
 
     const rgb = getColorFromString(color)
-    const rgbAdjusted = adjustColorForTheme(rgb)
+
+    colorSourceDomains[tabId] = getTabDomain(tabId)
 
     tabs.update(tabId, {
       themeColor: {
-        color: getRGBString(rgbAdjusted),
-        textColor: getTextColor(rgbAdjusted),
-        isLowContrast: isLowContrast(rgbAdjusted)
+        color: getRGBString(rgb),
+        textColor: getTextColor(rgb),
+        isLowContrast: isLowContrast(rgb)
       }
     })
   },
@@ -258,16 +234,33 @@ const tabColor = {
       return
     }
 
+    const existingFavicon = tabs.get(tabId).favicon
+
+    // the icon is shown on the tab even if the color can't be extracted from it
+    if (!existingFavicon || existingFavicon.url !== favicons[0]) {
+      tabs.update(tabId, {
+        favicon: {
+          url: favicons[0],
+          luminance: null
+        }
+      })
+    }
+
+    if (hasColorForCurrentSite(tabId)) {
+      return
+    }
+
     requestIdleCallback(function () {
       colorExtractorImage.onload = function (e) {
         const backgroundColor = getColorFromImage(colorExtractorImage)
-        const backgroundColorAdjusted = adjustColorForTheme(backgroundColor)
+
+        colorSourceDomains[tabId] = getTabDomain(tabId)
 
         tabs.update(tabId, {
           backgroundColor: {
-            color: getRGBString(backgroundColorAdjusted),
-            textColor: getTextColor(backgroundColorAdjusted),
-            isLowContrast: isLowContrast(backgroundColorAdjusted)
+            color: getRGBString(backgroundColor),
+            textColor: getTextColor(backgroundColor),
+            isLowContrast: isLowContrast(backgroundColor)
           },
           favicon: {
             url: favicons[0],
@@ -287,24 +280,13 @@ const tabColor = {
   updateColors: function () {
     const tab = tabs.get(tabs.getSelected())
 
+    /* the browser chrome keeps a uniform color - page colors are only shown on the individual tabs */
+
     // private tabs have their own color scheme
     if (tab.private) {
       return setColor(defaultColors.private[0], defaultColors.private[1])
     }
 
-    if (tabColor.useSiteTheme) {
-      // use the theme color
-      if (tab.themeColor && tab.themeColor.color) {
-        return setColor(tab.themeColor.color, tab.themeColor.textColor, tab.themeColor.isLowContrast)
-      }
-
-      // use the colors extracted from the page icon
-      if (tab.backgroundColor && tab.backgroundColor.color) {
-        return setColor(tab.backgroundColor.color, tab.backgroundColor.textColor, tab.backgroundColor.isLowContrast)
-      }
-    }
-
-    // otherwise use the default colors
     if (window.isDarkMode) {
       return setColor(defaultColors.darkMode[0], defaultColors.darkMode[1])
     }
