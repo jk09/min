@@ -4,6 +4,7 @@ const assert = require('node:assert')
 const toolRegistry = require('../js/llmPrompt/tools/toolRegistry.js')
 const skillRegistry = require('../js/llmPrompt/skills/skillRegistry.js')
 const planParser = require('../js/llmPrompt/planParser.js')
+const planningSkill = require('../js/llmPrompt/planningSkill.js')
 
 toolRegistry.register({
     id: 'test.read',
@@ -147,4 +148,34 @@ test('plan parser rejects malformed and unsafe output', function () {
 
     const tooMany = { message: 'a', toolCalls: new Array(planParser.MAX_TOOL_CALLS + 1).fill({ tool: 'test.read' }) }
     assert.strictEqual(planParser.parsePlan(JSON.stringify(tooMany), ['test.read']).errorCode, 'plan_too_long')
+})
+
+test('/b system prompt lists the tool catalog and instructs JSON-only replies', function () {
+    const catalog = toolRegistry.getCatalog().filter(tool => tool.id === 'test.read')
+    const system = planningSkill.buildSystemPrompt(catalog)
+
+    assert.match(system, /test\.read/)
+    assert.match(system, /value:string/)
+    assert.match(system, /count:number\?/)
+    assert.match(system, /JSON only/)
+})
+
+test('/b outcome summary combines the plan message with a step count', function () {
+    const plan = { message: 'Opened 2 tabs.', toolCalls: [{ tool: 'tabs.open', args: {} }, { tool: 'tabs.open', args: {} }] }
+    const planResult = { ok: true, steps: [{ tool: 'tabs.open' }, { tool: 'tabs.open' }] }
+
+    assert.strictEqual(planningSkill.describePlanOutcome(plan, planResult), 'Opened 2 tabs. 2 steps completed.')
+})
+
+test('a well-formed /b-style plan executes through the tool registry end to end', async function () {
+    const raw = '{"message":"Reading it back.","toolCalls":[{"tool":"test.read","args":{"value":"hi"}}]}'
+    const catalog = toolRegistry.getCatalog().map(tool => tool.id)
+    const parsed = planParser.parsePlan(raw, catalog)
+
+    assert.strictEqual(parsed.ok, true)
+
+    const planResult = await toolRegistry.runPlan(parsed.plan.toolCalls, { scope: 'read' })
+
+    assert.strictEqual(planResult.ok, true)
+    assert.strictEqual(planningSkill.describePlanOutcome(parsed.plan, planResult), 'Reading it back. 1 step completed.')
 })

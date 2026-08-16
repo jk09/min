@@ -135,6 +135,12 @@
             <div id="llm-prompt-search-engine-menu" class="llm-prompt-search-engine-menu" role="listbox"
               aria-label="Search engine" hidden></div>
           </div>
+          <div class="llm-prompt-own-model-picker">
+            <button id="llm-prompt-own-model" class="llm-prompt-toolbar-button" type="button"
+              aria-haspopup="listbox" aria-expanded="false" title="Choose an own model for /b">Own model</button>
+            <div id="llm-prompt-own-model-menu" class="llm-prompt-own-model-menu" role="listbox"
+              aria-label="Own model for /b" hidden></div>
+          </div>
           <button id="llm-prompt-settings" class="llm-prompt-toolbar-button" type="button" disabled
             title="Prompt settings (not configurable yet)"><i class="i carbon:settings"></i></button>
         </div>
@@ -144,6 +150,7 @@
       </div>
     </section>
   </div>
+
 
   <footer id="status-bar" class="theme-background-color theme-text-color">
     <button id="status-bar-prompt-button" type="button" aria-label="Open the LLM prompt"

@@ -10,6 +10,7 @@ const settings = require('util/settings/settings.js')
 const READABLE_SETTINGS = ['searchEngine', 'llmProvider', 'llmModel']
 const WRITABLE_SETTINGS = ['llmProvider', 'llmModel']
 const MAX_PAGE_TEXT_LENGTH = 12000
+const MAX_TABS_OPEN_MANY = 10
 
 function buildSearchURL (query) {
     const engine = searchEngine.getCurrent()
@@ -78,6 +79,26 @@ const browserTools = [
             }
             browserUI.closeTab(args.tabId)
             return { closed: args.tabId }
+        }
+    },
+    {
+        id: 'tabs.openMany',
+        scope: 'mutate',
+        description: 'Open several URLs at once, each in its own new tab.',
+        parameters: {
+            urls: { type: 'array', required: true, description: 'list of URLs or search terms to open' },
+            background: { type: 'boolean', default: false, description: 'open without switching to the tabs' }
+        },
+        handler: function (args) {
+            if (!Array.isArray(args.urls) || args.urls.length === 0) {
+                throw new Error('urls must be a non-empty list')
+            }
+            if (args.urls.length > MAX_TABS_OPEN_MANY) {
+                throw new Error('cannot open more than ' + MAX_TABS_OPEN_MANY + ' tabs at once')
+            }
+
+            const tabIds = args.urls.map(url => openTab(url, args.background))
+            return { tabIds, count: tabIds.length }
         }
     },
     {
