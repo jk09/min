@@ -1,6 +1,7 @@
 /* Built-in skills. Everything here is expressed as tool calls plus, for llm skills, a model call. */
 
 const skillRegistry = require('llmPrompt/skills/skillRegistry.js')
+const agentRegistry = require('llmPrompt/agents/agentRegistry.js')
 
 function requireArgs (argsText, usage) {
     if (!argsText) {
@@ -118,6 +119,34 @@ const builtinSkills = [
         run: async function () {
             const lines = skillRegistry.getCatalog().map(skill => skill.usage + ' — ' + skill.description)
             return { message: lines.join('\n') }
+        }
+    },
+    {
+        id: 'ai',
+        title: 'Ask an AI agent',
+        description: 'Open the selected AI agent with this prompt and the current page as context.',
+        kind: 'deterministic',
+        usage: '/ai <prompt>',
+        triggers: [/^ask (claude|the ai)\s+/i],
+        run: async function (input, context) {
+            const prompt = requireArgs(input.argsText, '/ai <prompt>')
+            const agent = agentRegistry.get(context.agentId) || agentRegistry.getDefault()
+
+            if (!agent.functional) {
+                return { message: agent.title + ' is not wired up yet. Try Claude.ai instead.' }
+            }
+
+            const tabsOutcome = await context.runTool('tabs.list', {})
+            const selectedTab = tabsOutcome.ok ? tabsOutcome.result.tabs.find(tab => tab.selected && tab.url) : null
+            const contextURL = selectedTab ? selectedTab.url : ''
+
+            const outcome = await context.runTool('tabs.open', { url: agent.buildURL(prompt, contextURL) })
+
+            if (!outcome.ok) {
+                throw new Error(outcome.errorMessage)
+            }
+
+            return { message: 'Opening ' + agent.title + ' with your prompt.' }
         }
     }
 ]

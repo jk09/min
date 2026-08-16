@@ -158,6 +158,59 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     gap: 0.35em;
 }
 
+.llm-prompt-agent-picker {
+    position: relative;
+}
+
+.llm-prompt-agent-menu {
+    position: absolute;
+    bottom: calc(100% + 0.4em);
+    left: 0;
+    z-index: 3;
+    display: flex;
+    min-width: 160px;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+}
+
+.dark-mode .llm-prompt-agent-menu {
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(52, 58, 68, 0.98);
+}
+
+.llm-prompt-agent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.82em;
+    padding: 0.4em 0.6em;
+    text-align: left;
+}
+
+.llm-prompt-agent-item:hover,
+.llm-prompt-agent-item.selected {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.dark-mode .llm-prompt-agent-item:hover,
+.dark-mode .llm-prompt-agent-item.selected {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.llm-prompt-agent-badge {
+    opacity: 0.6;
+    font-size: 0.85em;
+}
+
 .llm-prompt-toolbar-button {
     border: 1px solid transparent;
     border-radius: 6px;

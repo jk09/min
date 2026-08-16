@@ -2,6 +2,7 @@ var engineClient = require('llmPrompt/engineClient.js')
 var buildInfoView = require('llmPrompt/buildInfo.js')
 var buildInfoData = require('dist/buildInfo.build.js')
 var promptRouter = require('llmPrompt/promptRouter.js')
+var agentRegistry = require('llmPrompt/agents/agentRegistry.js')
 var webviews = require('webviews.js')
 var places = require('places/places.js')
 
@@ -17,7 +18,9 @@ const state = {
     previouslyFocused: null,
     historySuggestions: [],
     selectedHistorySuggestion: -1,
-    historyRequestId: 0
+    historyRequestId: 0,
+    selectedAgent: agentRegistry.DEFAULT_AGENT_ID,
+    agentMenuOpen: false
 }
 
 function getPanelElements() {
@@ -32,7 +35,9 @@ function getPanelElements() {
         result: document.getElementById('llm-prompt-result'),
         engineState: document.getElementById('llm-prompt-engine-state'),
         buildInfo: document.getElementById('llm-prompt-build-info'),
-        history: document.getElementById('llm-prompt-history')
+        history: document.getElementById('llm-prompt-history'),
+        agentMode: document.getElementById('llm-prompt-mode'),
+        agentMenu: document.getElementById('llm-prompt-agent-menu')
     }
 }
 
@@ -84,6 +89,7 @@ function closePanel(els) {
 
     state.open = false
     clearHistorySuggestions(els)
+    closeAgentMenu(els)
     els.overlay.hidden = true
     document.body.classList.remove('llm-prompt-overlay-open')
     webviews.hidePlaceholder(PLACEHOLDER_REASON)
@@ -187,7 +193,7 @@ async function sendPrompt(els) {
     closePanel(els)
 
     try {
-        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate' })
+        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate', agentId: state.selectedAgent })
         renderResult(els, result)
     } catch (e) {
         setResult(els, 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'), true)
@@ -284,6 +290,66 @@ async function updateHistorySuggestions(els) {
     }
 }
 
+function updateAgentButtonLabel(els) {
+    const agent = agentRegistry.get(state.selectedAgent) || agentRegistry.getDefault()
+    els.agentMode.textContent = agent.shortTitle || agent.title
+    els.agentMode.title = 'AI agent: ' + agent.title + (agent.functional ? '' : ' (coming soon)')
+}
+
+function closeAgentMenu(els) {
+    state.agentMenuOpen = false
+    els.agentMenu.hidden = true
+    els.agentMode.setAttribute('aria-expanded', 'false')
+}
+
+function renderAgentMenu(els) {
+    els.agentMenu.replaceChildren()
+
+    agentRegistry.list().forEach(function (agent) {
+        const item = document.createElement('button')
+        item.type = 'button'
+        item.className = 'llm-prompt-agent-item'
+        item.setAttribute('role', 'option')
+        item.setAttribute('aria-selected', String(agent.id === state.selectedAgent))
+        item.classList.toggle('selected', agent.id === state.selectedAgent)
+
+        const title = document.createElement('span')
+        title.textContent = agent.shortTitle || agent.title
+        item.appendChild(title)
+
+        if (!agent.functional) {
+            const badge = document.createElement('span')
+            badge.className = 'llm-prompt-agent-badge'
+            badge.textContent = 'soon'
+            item.appendChild(badge)
+        }
+
+        item.addEventListener('click', function () {
+            state.selectedAgent = agent.id
+            updateAgentButtonLabel(els)
+            closeAgentMenu(els)
+            els.agentMode.focus()
+        })
+
+        els.agentMenu.appendChild(item)
+    })
+}
+
+function openAgentMenu(els) {
+    renderAgentMenu(els)
+    state.agentMenuOpen = true
+    els.agentMenu.hidden = false
+    els.agentMode.setAttribute('aria-expanded', 'true')
+}
+
+function toggleAgentMenu(els) {
+    if (state.agentMenuOpen) {
+        closeAgentMenu(els)
+    } else {
+        openAgentMenu(els)
+    }
+}
+
 function bindEvents(els) {
     els.send.addEventListener('click', function () {
         sendPrompt(els)
@@ -295,6 +361,17 @@ function bindEvents(els) {
 
     els.scrim.addEventListener('click', function () {
         closePanel(els)
+    })
+
+    els.agentMode.addEventListener('click', function (e) {
+        e.stopPropagation()
+        toggleAgentMenu(els)
+    })
+
+    els.panel.addEventListener('click', function (e) {
+        if (state.agentMenuOpen && !els.agentMenu.contains(e.target) && e.target !== els.agentMode) {
+            closeAgentMenu(els)
+        }
     })
 
     els.panel.addEventListener('keydown', function (e) {
@@ -318,7 +395,9 @@ function bindEvents(els) {
 
         if (e.key === 'Escape') {
             e.preventDefault()
-            if (state.historySuggestions.length > 0) {
+            if (state.agentMenuOpen) {
+                closeAgentMenu(els)
+            } else if (state.historySuggestions.length > 0) {
                 clearHistorySuggestions(els)
             } else {
                 closePanel(els)
@@ -392,6 +471,7 @@ var promptPanel = {
         promptRouter.initialize()
         bindEvents(els)
         updateControls(els)
+        updateAgentButtonLabel(els)
         syncWebviewMargins(els)
         initializeEngineState(els)
     }

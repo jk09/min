@@ -123,8 +123,12 @@
       </div>
       <div class="llm-prompt-toolbar">
         <div class="llm-prompt-toolbar-group">
-          <button id="llm-prompt-mode" class="llm-prompt-toolbar-button" type="button" disabled
-            title="Prompt mode (not configurable yet)">Agent</button>
+          <div class="llm-prompt-agent-picker">
+            <button id="llm-prompt-mode" class="llm-prompt-toolbar-button" type="button" aria-haspopup="listbox"
+              aria-expanded="false" title="Choose an AI agent">Agent</button>
+            <div id="llm-prompt-agent-menu" class="llm-prompt-agent-menu" role="listbox" aria-label="AI agent" hidden>
+            </div>
+          </div>
           <button id="llm-prompt-model" class="llm-prompt-toolbar-button" type="button" disabled
             title="Model selection (not configurable yet)">Model</button>
           <button id="llm-prompt-settings" class="llm-prompt-toolbar-button" type="button" disabled
