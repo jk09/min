@@ -49,7 +49,7 @@ const llm = {
     }
 }
 
-function createContext (scope, trace) {
+function createContext (scope, trace, agentId) {
     async function runTool (id, args) {
         const outcome = await toolRegistry.run(id, args, { scope })
         trace.push({ tool: id, args: args || {}, ok: outcome.ok })
@@ -66,12 +66,12 @@ function createContext (scope, trace) {
         return { ok: true, steps: trace.slice() }
     }
 
-    return { scope, runTool, runPlan, llm }
+    return { scope, agentId: agentId || null, runTool, runPlan, llm }
 }
 
-async function runSkill (skill, argsText, prompt, scope) {
+async function runSkill (skill, argsText, prompt, scope, agentId) {
     const trace = []
-    const context = createContext(scope, trace)
+    const context = createContext(scope, trace, agentId)
 
     try {
         const result = await skill.run({ prompt, argsText }, context)
@@ -137,10 +137,11 @@ async function handlePrompt (rawPrompt, options = {}) {
         }
     }
 
+    const agentId = typeof options.agentId === 'string' ? options.agentId : null
     const explicit = skillRegistry.resolveExplicit(prompt)
 
     if (explicit && !explicit.unknownSkillId) {
-        return runSkill(explicit.skill, explicit.argsText, prompt, scope)
+        return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId)
     }
 
     return runSearch(prompt, scope)

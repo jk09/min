@@ -4,6 +4,7 @@ const Module = require('node:module')
 
 function createElement (id) {
   const classes = new Set()
+  const attributes = {}
   return {
     id,
     hidden: false,
@@ -20,6 +21,8 @@ function createElement (id) {
       contains: name => classes.has(name),
       toggle: (name, force) => (force ? classes.add(name) : classes.delete(name))
     },
+    setAttribute: function (name, value) { attributes[name] = String(value) },
+    getAttribute: function (name) { return attributes[name] !== undefined ? attributes[name] : null },
     addEventListener: function (name, fn) {
       this.listeners[name] = this.listeners[name] || []
       this.listeners[name].push(fn)
@@ -29,6 +32,8 @@ function createElement (id) {
     },
     querySelectorAll: () => [],
     replaceChildren: () => {},
+    appendChild: function (child) { return child },
+    contains: () => false,
     getBoundingClientRect: () => ({ height: 22, width: 800, top: 0 }),
     focus: function () { this.focused = true }
   }
@@ -38,7 +43,8 @@ function loadPromptPanel () {
   const ids = [
     'llm-prompt-overlay', 'llm-prompt-scrim', 'llm-prompt-panel', 'status-bar',
     'status-bar-prompt-button', 'llm-prompt-input', 'llm-prompt-send', 'llm-prompt-result',
-    'llm-prompt-engine-state', 'llm-prompt-build-info', 'llm-prompt-history'
+    'llm-prompt-engine-state', 'llm-prompt-build-info', 'llm-prompt-history',
+    'llm-prompt-mode', 'llm-prompt-agent-menu'
   ]
   const elements = new Map(ids.map(id => [id, createElement(id)]))
   const bodyClasses = new Set()
@@ -67,6 +73,7 @@ function loadPromptPanel () {
     'llmPrompt/buildInfo.js': { render: () => {} },
     'dist/buildInfo.build.js': { shortCommit: 'abc1234' },
     'llmPrompt/promptRouter.js': { initialize: () => {}, handlePrompt: async () => ({ ok: true, message: 'done' }), toolRegistry: { run: async () => {} } },
+    'llmPrompt/agents/agentRegistry.js': require('../js/llmPrompt/agents/agentRegistry.js'),
     'webviews.js': {
       adjustMargin: delta => margins.push(delta),
       requestPlaceholder: reason => placeholderRequests.push(reason),
