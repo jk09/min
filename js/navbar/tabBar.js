@@ -26,6 +26,7 @@ const tabBar = {
   containerInner: document.getElementById('tabs-inner'),
   overflowLabel: document.getElementById('tab-overflow-label'),
   tabWidth: tabOverflow.DEFAULT_TAB_WIDTH,
+  useSiteTheme: true,
   hiddenTabIds: [],
   tabElementMap: {}, // tabId: tab element
   events: new EventEmitter(),
@@ -211,7 +212,7 @@ const tabBar = {
 
     // color coding based on the page's own colors
 
-    var accentColor = tabLabel.getAccentColor(tabData)
+    var accentColor = tabBar.useSiteTheme ? tabLabel.getAccentColor(tabData) : null
     if (accentColor) {
       tabEl.style.setProperty('--tab-accent-color', accentColor)
       tabEl.classList.add('has-accent-color')
@@ -389,6 +390,12 @@ settings.listen('tabWidth', function (value) {
   tabBar.tabWidth = tabOverflow.clampTabWidth(value === undefined ? tabOverflow.DEFAULT_TAB_WIDTH : value)
   document.body.style.setProperty('--tab-width', tabBar.tabWidth + 'px')
   tabBar.handleSizeChange()
+})
+
+/* the browser chrome stays uniform - the site theme is only used to color the individual tabs */
+settings.listen('siteTheme', function (value) {
+  tabBar.useSiteTheme = value !== false
+  Object.keys(tabBar.tabElementMap).forEach(tabId => tabBar.updateTab(tabId))
 })
 
 tabOverflowPanel.initialize()

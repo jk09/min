@@ -181,7 +181,6 @@ function setColor (bg, fg, isLowContrast) {
 }
 
 const tabColor = {
-  useSiteTheme: true,
   initialize: function () {
     webviews.bindEvent('page-favicon-updated', function (tabId, favicons) {
       tabColor.updateFromImage(favicons, tabId, function () {
@@ -223,12 +222,6 @@ const tabColor = {
     // theme changes can affect the tab colors
     window.addEventListener('themechange', function (e) {
       tabColor.updateColors()
-    })
-
-    settings.listen('siteTheme', function (value) {
-      if (value !== undefined) {
-        tabColor.useSiteTheme = value
-      }
     })
 
     tasks.on('tab-selected', this.updateColors)
@@ -287,24 +280,13 @@ const tabColor = {
   updateColors: function () {
     const tab = tabs.get(tabs.getSelected())
 
+    /* the browser chrome keeps a uniform color - page colors are only shown on the individual tabs */
+
     // private tabs have their own color scheme
     if (tab.private) {
       return setColor(defaultColors.private[0], defaultColors.private[1])
     }
 
-    if (tabColor.useSiteTheme) {
-      // use the theme color
-      if (tab.themeColor && tab.themeColor.color) {
-        return setColor(tab.themeColor.color, tab.themeColor.textColor, tab.themeColor.isLowContrast)
-      }
-
-      // use the colors extracted from the page icon
-      if (tab.backgroundColor && tab.backgroundColor.color) {
-        return setColor(tab.backgroundColor.color, tab.backgroundColor.textColor, tab.backgroundColor.isLowContrast)
-      }
-    }
-
-    // otherwise use the default colors
     if (window.isDarkMode) {
       return setColor(defaultColors.darkMode[0], defaultColors.darkMode[1])
     }

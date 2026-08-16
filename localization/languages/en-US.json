@@ -144,7 +144,7 @@
     "settingsDarkModeNight": "At night",
     "settingsDarkModeAlways": "Always",
     "settingsDarkModeSystem": "Follow system theme",
-    "settingsSiteThemeToggle": "Enable site theme",
+    "settingsSiteThemeToggle": "Color tabs using site colors",
     "settingsAdditionalFeaturesHeading": "Additional Features",
     "settingsUserscriptsToggle": "Enable user scripts",
     "settingsShowDividerToggle": "Show divider between tabs",
