@@ -5,6 +5,7 @@ var promptRouter = require('llmPrompt/promptRouter.js')
 var agentRegistry = require('llmPrompt/agents/agentRegistry.js')
 var searchEngineRegistry = require('llmPrompt/searchEngines/searchEngineRegistry.js')
 var ownModelRegistry = require('llmPrompt/ownModels/ownModelRegistry.js')
+var debugTab = require('llmPrompt/debugTab.js')
 var webviews = require('webviews.js')
 var places = require('places/places.js')
 
@@ -49,7 +50,8 @@ function getPanelElements() {
         searchEngineMenu: document.getElementById('llm-prompt-search-engine-menu'),
         ownModelMode: document.getElementById('llm-prompt-own-model'),
         ownModelMenu: document.getElementById('llm-prompt-own-model-menu'),
-        debugToggle: document.getElementById('llm-prompt-debug')
+        debugToggle: document.getElementById('llm-prompt-debug'),
+        debugLink: document.getElementById('llm-prompt-debug-link')
     }
 }
 
@@ -440,6 +442,7 @@ function updateDebugToggleLabel(els) {
     els.debugToggle.title = state.debugEnabled
         ? 'Debug: on - /b opens a debug tab with the full model exchange'
         : 'Debug: off - turn on to inspect /b runs in a dedicated tab'
+    els.debugLink.hidden = !state.debugEnabled
 }
 
 function closeOwnModelMenu(els) {
@@ -529,6 +532,11 @@ function bindEvents(els) {
     els.debugToggle.addEventListener('click', function () {
         state.debugEnabled = !state.debugEnabled
         updateDebugToggleLabel(els)
+    })
+
+    els.debugLink.addEventListener('click', function (e) {
+        e.stopPropagation()
+        debugTab.open()
     })
 
     els.panel.addEventListener('click', function (e) {

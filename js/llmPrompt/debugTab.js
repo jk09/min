@@ -20,6 +20,17 @@ function openDebugTab () {
     return tabId
 }
 
+/* opens the debug tab, or switches to it if it's already open - used by the toolbar link */
+function open () {
+    const existingTab = findDebugTab()
+
+    if (existingTab) {
+        browserUI.switchToTab(existingTab.id)
+    } else {
+        openDebugTab()
+    }
+}
+
 /* record: see planningSkill.buildDebugRecord */
 function publish (record) {
     latestRecord = record
@@ -40,4 +51,4 @@ webviews.bindIPC('getLlmDebugData', function (tabId) {
     webviews.callAsync(tabId, 'send', ['receiveLlmDebugData', latestRecord])
 })
 
-module.exports = { publish }
+module.exports = { publish, open }

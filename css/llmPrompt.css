@@ -262,6 +262,13 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     background: rgba(255, 255, 255, 0.16);
 }
 
+.llm-prompt-debug-link {
+    border-color: transparent;
+    background: transparent;
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
 #llm-prompt-send {
     display: flex;
     width: 28px;
