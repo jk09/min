@@ -1,4 +1,5 @@
 var webviews = require('webviews.js')
+var urlParser = require('util/urlParser.js')
 
 const colorExtractorImage = document.createElement('img')
 colorExtractorImage.crossOrigin = 'anonymous'
@@ -142,6 +143,18 @@ function setColor (bg, fg, isLowContrast) {
   }
 }
 
+// domain the current color of each tab was taken from, so the color stays the same while browsing a site
+const colorSourceDomains = {}
+
+function getTabDomain (tabId) {
+  const tab = tabs.get(tabId)
+  return tab ? urlParser.getDomain(tab.url) : ''
+}
+
+function hasColorForCurrentSite (tabId) {
+  return !!colorSourceDomains[tabId] && colorSourceDomains[tabId] === getTabDomain(tabId)
+}
+
 const tabColor = {
   initialize: function () {
     webviews.bindEvent('page-favicon-updated', function (tabId, favicons) {
@@ -160,17 +173,27 @@ const tabColor = {
     })
 
     /*
-    Reset the icon color when the page changes, so that if the new page has no icon it won't inherit the old one
-    But don't actually render anything here because the new icon won't have been received yet
-    and we want to go from old color > new color, rather than old color > default > new color
+    Reset the color when the tab moves to a different site, so that it won't inherit the color of the previous one.
+    Navigating within the same site keeps the color that was picked when the site was first loaded.
      */
     webviews.bindEvent('did-start-navigation', function (tabId, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
-      if (isMainFrame) {
-        tabs.update(tabId, {
-          backgroundColor: null,
-          favicon: null
-        })
+      if (!isMainFrame || isInPlace) {
+        return
       }
+      if (colorSourceDomains[tabId] === urlParser.getDomain(url)) {
+        return
+      }
+
+      delete colorSourceDomains[tabId]
+      tabs.update(tabId, {
+        themeColor: null,
+        backgroundColor: null,
+        favicon: null
+      })
+    })
+
+    tasks.on('tab-destroyed', function (tabId) {
+      delete colorSourceDomains[tabId]
     })
 
     /*
@@ -189,14 +212,13 @@ const tabColor = {
     tasks.on('tab-selected', this.updateColors)
   },
   updateFromThemeColor: function (color, tabId) {
-    if (!color) {
-      tabs.update(tabId, {
-        themeColor: null
-      })
+    if (!color || hasColorForCurrentSite(tabId)) {
       return
     }
 
     const rgb = getColorFromString(color)
+
+    colorSourceDomains[tabId] = getTabDomain(tabId)
 
     tabs.update(tabId, {
       themeColor: {
@@ -212,17 +234,27 @@ const tabColor = {
       return
     }
 
+    const existingFavicon = tabs.get(tabId).favicon
+
     // the icon is shown on the tab even if the color can't be extracted from it
-    tabs.update(tabId, {
-      favicon: {
-        url: favicons[0],
-        luminance: null
-      }
-    })
+    if (!existingFavicon || existingFavicon.url !== favicons[0]) {
+      tabs.update(tabId, {
+        favicon: {
+          url: favicons[0],
+          luminance: null
+        }
+      })
+    }
+
+    if (hasColorForCurrentSite(tabId)) {
+      return
+    }
 
     requestIdleCallback(function () {
       colorExtractorImage.onload = function (e) {
         const backgroundColor = getColorFromImage(colorExtractorImage)
+
+        colorSourceDomains[tabId] = getTabDomain(tabId)
 
         tabs.update(tabId, {
           backgroundColor: {
