@@ -3,8 +3,37 @@ var webviews = require('webviews.js')
 var tabEditor = require('navbar/tabEditor.js')
 var tabState = require('tabState.js')
 var settings = require('util/settings/settings.js')
+var searchEngine = require('util/searchEngine.js')
+const { resolveStartupPageURL } = require('util/startupPage.js')
 const writeFileAtomic = require('write-file-atomic')
 const statistics = require('js/statistics.js')
+
+function getStartupPageURL () {
+  return resolveStartupPageURL(searchEngine.getCurrent())
+}
+
+/* points a task without any restorable content at the startup page */
+function setStartupPageTab (task) {
+  var existingTab = task.tabs.getAtIndex(0)
+
+  if (existingTab) {
+    task.tabs.update(existingTab.id, { url: getStartupPageURL() })
+    task.tabs.setSelected(existingTab.id)
+  } else {
+    task.tabs.setSelected(task.tabs.add({ url: getStartupPageURL() }))
+  }
+}
+
+function openStartupPage () {
+  tasks.setSelected(tasks.add())
+
+  var newTab = tasks.getSelected().tabs.add({
+    url: getStartupPageURL()
+  })
+  browserUI.addTab(newTab, {
+    enterEditMode: false
+  })
+}
 
 const sessionRestore = {
   savePath: window.globalArgs['user-data-path'] + (platformType === 'windows' ? '\\sessionRestore.json' : '/sessionRestore.json'),
@@ -61,7 +90,7 @@ const sessionRestore = {
       console.warn('failed to read session restore data', e)
     }
 
-    var startupConfigOption = settings.get('startupTabOption') || 2
+    var startupConfigOption = settings.get('startupTabOption') || 1
     /*
     1 - reopen last task
     2 - open new task, keep old tabs in background
@@ -79,16 +108,9 @@ const sessionRestore = {
     */
 
     try {
-      // first run, show the tour
+      // first run, there is no session to restore
       if (!savedStringData) {
-        tasks.setSelected(tasks.add()) // create a new task
-
-        var newTab = tasks.getSelected().tabs.add({
-            url: 'https://minbrowser.github.io/min/tour'
-        })
-        browserUI.addTab(newTab, {
-         enterEditMode: false
-        })
+        openStartupPage()
         return
       }
 
@@ -96,9 +118,7 @@ const sessionRestore = {
 
       // the data isn't restorable
       if ((data.version && data.version !== 2) || (data.state && data.state.tasks && data.state.tasks.length === 0)) {
-        tasks.setSelected(tasks.add())
-
-        browserUI.addTab(tasks.getSelected().tabs.add())
+        openStartupPage()
         return
       }
 
@@ -126,10 +146,11 @@ const sessionRestore = {
       // switch to the previously selected tasks
 
       if (tasks.getSelected().tabs.isEmpty() || startupConfigOption === 1) {
-        browserUI.switchToTask(mostRecentTasks[0].id)
+        // the restored task has nothing to show, so open the startup page instead of an empty search bar
         if (tasks.getSelected().tabs.isEmpty()) {
-          tabEditor.show(tasks.getSelected().tabs.getSelected())
+          setStartupPageTab(tasks.getSelected())
         }
+        browserUI.switchToTask(mostRecentTasks[0].id)
       } else {
         window.createdNewTaskOnStartup = true
         // try to reuse a previous empty task
