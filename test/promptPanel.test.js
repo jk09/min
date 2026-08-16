@@ -46,7 +46,7 @@ function loadPromptPanel () {
     'llm-prompt-engine-state', 'llm-prompt-build-info', 'llm-prompt-history',
     'llm-prompt-mode', 'llm-prompt-agent-menu',
     'llm-prompt-search-engine', 'llm-prompt-search-engine-menu',
-    'llm-prompt-own-model', 'llm-prompt-own-model-menu'
+    'llm-prompt-own-model', 'llm-prompt-own-model-menu', 'llm-prompt-debug'
   ]
   const elements = new Map(ids.map(id => [id, createElement(id)]))
   const bodyClasses = new Set()

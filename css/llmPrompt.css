@@ -252,6 +252,16 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     background: rgba(255, 255, 255, 0.1);
 }
 
+.llm-prompt-toolbar-button.active {
+    border-color: rgba(0, 0, 0, 0.32);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .llm-prompt-toolbar-button.active {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.16);
+}
+
 #llm-prompt-send {
     display: flex;
     width: 28px;

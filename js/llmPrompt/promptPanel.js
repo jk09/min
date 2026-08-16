@@ -26,7 +26,8 @@ const state = {
     selectedSearchEngine: searchEngineRegistry.DEFAULT_SEARCH_ENGINE_ID,
     searchEngineMenuOpen: false,
     selectedOwnModel: ownModelRegistry.DEFAULT_OWN_MODEL_ID,
-    ownModelMenuOpen: false
+    ownModelMenuOpen: false,
+    debugEnabled: false
 }
 
 function getPanelElements() {
@@ -47,7 +48,8 @@ function getPanelElements() {
         searchEngineMode: document.getElementById('llm-prompt-search-engine'),
         searchEngineMenu: document.getElementById('llm-prompt-search-engine-menu'),
         ownModelMode: document.getElementById('llm-prompt-own-model'),
-        ownModelMenu: document.getElementById('llm-prompt-own-model-menu')
+        ownModelMenu: document.getElementById('llm-prompt-own-model-menu'),
+        debugToggle: document.getElementById('llm-prompt-debug')
     }
 }
 
@@ -205,7 +207,7 @@ async function sendPrompt(els) {
     closePanel(els)
 
     try {
-        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate', agentId: state.selectedAgent, ownModelId: state.selectedOwnModel })
+        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate', agentId: state.selectedAgent, ownModelId: state.selectedOwnModel, debug: state.debugEnabled })
         renderResult(els, result)
     } catch (e) {
         setResult(els, 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'), true)
@@ -432,6 +434,14 @@ function updateOwnModelButtonLabel(els) {
     els.ownModelMode.title = 'Own model for /b: ' + ownModel.title + (ownModel.functional ? '' : ' (coming soon)')
 }
 
+function updateDebugToggleLabel(els) {
+    els.debugToggle.classList.toggle('active', state.debugEnabled)
+    els.debugToggle.setAttribute('aria-pressed', String(state.debugEnabled))
+    els.debugToggle.title = state.debugEnabled
+        ? 'Debug: on - /b opens a debug tab with the full model exchange'
+        : 'Debug: off - turn on to inspect /b runs in a dedicated tab'
+}
+
 function closeOwnModelMenu(els) {
     state.ownModelMenuOpen = false
     els.ownModelMenu.hidden = true
@@ -514,6 +524,11 @@ function bindEvents(els) {
     els.ownModelMode.addEventListener('click', function (e) {
         e.stopPropagation()
         toggleOwnModelMenu(els)
+    })
+
+    els.debugToggle.addEventListener('click', function () {
+        state.debugEnabled = !state.debugEnabled
+        updateDebugToggleLabel(els)
     })
 
     els.panel.addEventListener('click', function (e) {
@@ -632,6 +647,7 @@ var promptPanel = {
         updateAgentButtonLabel(els)
         updateSearchEngineButtonLabel(els)
         updateOwnModelButtonLabel(els)
+        updateDebugToggleLabel(els)
         syncWebviewMargins(els)
         initializeEngineState(els)
     }
