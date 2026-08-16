@@ -44,22 +44,20 @@ body.mac:not(.is-edit-mode):not(.fullscreen):not(.separate-titlebar) #mac-window
   -webkit-app-region: drag;
 }
 
-/* the empty space in the tab bar acts as a window drag handle */
+/* the empty space in the tab bar acts as a window drag handle.
+   only #tabs is made draggable - it stays inside the navbar padding, so it never
+   overlaps the caption buttons, which are separate elements outside the navbar */
 
-body:not(.fullscreen):not(.separate-titlebar) #navbar {
+body:not(.fullscreen):not(.separate-titlebar) #navbar #tabs {
   -webkit-app-region: drag;
 }
 
-/* everything interactive inside (or overlapping) the tab bar must stay clickable,
+/* everything interactive inside the tab bar must stay clickable,
    because draggable regions don't receive mouse events */
 
-body:not(.fullscreen):not(.separate-titlebar) #navbar #menu-button,
-body:not(.fullscreen):not(.separate-titlebar) #navbar #toolbar-navigation-buttons,
 body:not(.fullscreen):not(.separate-titlebar) #navbar .tab-item,
 body:not(.fullscreen):not(.separate-titlebar) #navbar #tab-overflow-label,
-body:not(.fullscreen):not(.separate-titlebar) #navbar #tab-editor,
-body:not(.fullscreen):not(.separate-titlebar) .windows-caption-buttons,
-body:not(.fullscreen):not(.separate-titlebar) #linux-control-buttons {
+body:not(.fullscreen):not(.separate-titlebar) #navbar #tab-editor {
   -webkit-app-region: no-drag;
 }
 
