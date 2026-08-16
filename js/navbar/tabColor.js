@@ -1,5 +1,4 @@
 var webviews = require('webviews.js')
-var settings = require('util/settings/settings.js')
 
 const colorExtractorImage = document.createElement('img')
 colorExtractorImage.crossOrigin = 'anonymous'
@@ -13,18 +12,6 @@ const defaultColors = {
   lightMode: ['rgb(255, 255, 255)', 'black'],
   darkMode: ['rgb(33, 37, 43)', 'white']
 }
-
-function getHours () {
-  const date = new Date()
-  return date.getHours() + (date.getMinutes() / 60)
-}
-
-let hours = getHours()
-
-// we cache the hours so we don't have to query every time we change the color
-setInterval(function () {
-  hours = getHours()
-}, 5 * 60 * 1000)
 
 function getColorFromImage (image) {
   const w = colorExtractorImage.width
@@ -123,31 +110,6 @@ function isLowContrast (color) {
   return color.filter(i => (i > 235 || i < 15)).length === 3
 }
 
-function adjustColorForTheme (color) {
-  // dim the colors late at night or early in the morning if automatic dark mode is enabled
-  const darkMode = settings.get('darkMode')
-  const isAuto = (darkMode === undefined || darkMode === true || darkMode >= 0)
-
-  let colorChange = 1
-  if (isAuto) {
-    if (hours > 20) {
-      colorChange = 1.01 / (1 + 0.9 * Math.pow(Math.E, 1.5 * (hours - 22.75)))
-    } else if (hours < 6.5) {
-      colorChange = 1.04 / (1 + 0.9 * Math.pow(Math.E, -2 * (hours - 5)))
-    }
-  }
-
-  if (window.isDarkMode) {
-    colorChange = Math.min(colorChange, 0.6)
-  }
-
-  return [
-    Math.round(color[0] * colorChange),
-    Math.round(color[1] * colorChange),
-    Math.round(color[2] * colorChange)
-  ]
-}
-
 // https://stackoverflow.com/a/596243
 function getLuminance (c) {
   return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
@@ -235,13 +197,12 @@ const tabColor = {
     }
 
     const rgb = getColorFromString(color)
-    const rgbAdjusted = adjustColorForTheme(rgb)
 
     tabs.update(tabId, {
       themeColor: {
-        color: getRGBString(rgbAdjusted),
-        textColor: getTextColor(rgbAdjusted),
-        isLowContrast: isLowContrast(rgbAdjusted)
+        color: getRGBString(rgb),
+        textColor: getTextColor(rgb),
+        isLowContrast: isLowContrast(rgb)
       }
     })
   },
@@ -251,16 +212,23 @@ const tabColor = {
       return
     }
 
+    // the icon is shown on the tab even if the color can't be extracted from it
+    tabs.update(tabId, {
+      favicon: {
+        url: favicons[0],
+        luminance: null
+      }
+    })
+
     requestIdleCallback(function () {
       colorExtractorImage.onload = function (e) {
         const backgroundColor = getColorFromImage(colorExtractorImage)
-        const backgroundColorAdjusted = adjustColorForTheme(backgroundColor)
 
         tabs.update(tabId, {
           backgroundColor: {
-            color: getRGBString(backgroundColorAdjusted),
-            textColor: getTextColor(backgroundColorAdjusted),
-            isLowContrast: isLowContrast(backgroundColorAdjusted)
+            color: getRGBString(backgroundColor),
+            textColor: getTextColor(backgroundColor),
+            isLowContrast: isLowContrast(backgroundColor)
           },
           favicon: {
             url: favicons[0],
