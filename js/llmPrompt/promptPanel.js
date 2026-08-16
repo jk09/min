@@ -4,6 +4,7 @@ var buildInfoData = require('dist/buildInfo.build.js')
 var promptRouter = require('llmPrompt/promptRouter.js')
 var agentRegistry = require('llmPrompt/agents/agentRegistry.js')
 var searchEngineRegistry = require('llmPrompt/searchEngines/searchEngineRegistry.js')
+var ownModelRegistry = require('llmPrompt/ownModels/ownModelRegistry.js')
 var webviews = require('webviews.js')
 var places = require('places/places.js')
 
@@ -23,7 +24,9 @@ const state = {
     selectedAgent: agentRegistry.DEFAULT_AGENT_ID,
     agentMenuOpen: false,
     selectedSearchEngine: searchEngineRegistry.DEFAULT_SEARCH_ENGINE_ID,
-    searchEngineMenuOpen: false
+    searchEngineMenuOpen: false,
+    selectedOwnModel: ownModelRegistry.DEFAULT_OWN_MODEL_ID,
+    ownModelMenuOpen: false
 }
 
 function getPanelElements() {
@@ -42,7 +45,9 @@ function getPanelElements() {
         agentMode: document.getElementById('llm-prompt-mode'),
         agentMenu: document.getElementById('llm-prompt-agent-menu'),
         searchEngineMode: document.getElementById('llm-prompt-search-engine'),
-        searchEngineMenu: document.getElementById('llm-prompt-search-engine-menu')
+        searchEngineMenu: document.getElementById('llm-prompt-search-engine-menu'),
+        ownModelMode: document.getElementById('llm-prompt-own-model'),
+        ownModelMenu: document.getElementById('llm-prompt-own-model-menu')
     }
 }
 
@@ -96,6 +101,7 @@ function closePanel(els) {
     clearHistorySuggestions(els)
     closeAgentMenu(els)
     closeSearchEngineMenu(els)
+    closeOwnModelMenu(els)
     els.overlay.hidden = true
     document.body.classList.remove('llm-prompt-overlay-open')
     webviews.hidePlaceholder(PLACEHOLDER_REASON)
@@ -199,7 +205,7 @@ async function sendPrompt(els) {
     closePanel(els)
 
     try {
-        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate', agentId: state.selectedAgent })
+        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate', agentId: state.selectedAgent, ownModelId: state.selectedOwnModel })
         renderResult(els, result)
     } catch (e) {
         setResult(els, 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'), true)
@@ -353,6 +359,7 @@ function toggleAgentMenu(els) {
         closeAgentMenu(els)
     } else {
         closeSearchEngineMenu(els)
+        closeOwnModelMenu(els)
         openAgentMenu(els)
     }
 }
@@ -414,7 +421,70 @@ function toggleSearchEngineMenu(els) {
         closeSearchEngineMenu(els)
     } else {
         closeAgentMenu(els)
+        closeOwnModelMenu(els)
         openSearchEngineMenu(els)
+    }
+}
+
+function updateOwnModelButtonLabel(els) {
+    const ownModel = ownModelRegistry.get(state.selectedOwnModel) || ownModelRegistry.getDefault()
+    els.ownModelMode.textContent = ownModel.shortTitle || ownModel.title
+    els.ownModelMode.title = 'Own model for /b: ' + ownModel.title + (ownModel.functional ? '' : ' (coming soon)')
+}
+
+function closeOwnModelMenu(els) {
+    state.ownModelMenuOpen = false
+    els.ownModelMenu.hidden = true
+    els.ownModelMode.setAttribute('aria-expanded', 'false')
+}
+
+function renderOwnModelMenu(els) {
+    els.ownModelMenu.replaceChildren()
+
+    ownModelRegistry.list().forEach(function (ownModel) {
+        const item = document.createElement('button')
+        item.type = 'button'
+        item.className = 'llm-prompt-own-model-item'
+        item.setAttribute('role', 'option')
+        item.setAttribute('aria-selected', String(ownModel.id === state.selectedOwnModel))
+        item.classList.toggle('selected', ownModel.id === state.selectedOwnModel)
+
+        const title = document.createElement('span')
+        title.textContent = ownModel.shortTitle || ownModel.title
+        item.appendChild(title)
+
+        if (!ownModel.functional) {
+            const badge = document.createElement('span')
+            badge.className = 'llm-prompt-own-model-badge'
+            badge.textContent = 'soon'
+            item.appendChild(badge)
+        }
+
+        item.addEventListener('click', function () {
+            state.selectedOwnModel = ownModel.id
+            updateOwnModelButtonLabel(els)
+            closeOwnModelMenu(els)
+            els.ownModelMode.focus()
+        })
+
+        els.ownModelMenu.appendChild(item)
+    })
+}
+
+function openOwnModelMenu(els) {
+    renderOwnModelMenu(els)
+    state.ownModelMenuOpen = true
+    els.ownModelMenu.hidden = false
+    els.ownModelMode.setAttribute('aria-expanded', 'true')
+}
+
+function toggleOwnModelMenu(els) {
+    if (state.ownModelMenuOpen) {
+        closeOwnModelMenu(els)
+    } else {
+        closeAgentMenu(els)
+        closeSearchEngineMenu(els)
+        openOwnModelMenu(els)
     }
 }
 
@@ -441,12 +511,20 @@ function bindEvents(els) {
         toggleSearchEngineMenu(els)
     })
 
+    els.ownModelMode.addEventListener('click', function (e) {
+        e.stopPropagation()
+        toggleOwnModelMenu(els)
+    })
+
     els.panel.addEventListener('click', function (e) {
         if (state.agentMenuOpen && !els.agentMenu.contains(e.target) && e.target !== els.agentMode) {
             closeAgentMenu(els)
         }
         if (state.searchEngineMenuOpen && !els.searchEngineMenu.contains(e.target) && e.target !== els.searchEngineMode) {
             closeSearchEngineMenu(els)
+        }
+        if (state.ownModelMenuOpen && !els.ownModelMenu.contains(e.target) && e.target !== els.ownModelMode) {
+            closeOwnModelMenu(els)
         }
     })
 
@@ -475,6 +553,8 @@ function bindEvents(els) {
                 closeAgentMenu(els)
             } else if (state.searchEngineMenuOpen) {
                 closeSearchEngineMenu(els)
+            } else if (state.ownModelMenuOpen) {
+                closeOwnModelMenu(els)
             } else if (state.historySuggestions.length > 0) {
                 clearHistorySuggestions(els)
             } else {
@@ -551,6 +631,7 @@ var promptPanel = {
         updateControls(els)
         updateAgentButtonLabel(els)
         updateSearchEngineButtonLabel(els)
+        updateOwnModelButtonLabel(els)
         syncWebviewMargins(els)
         initializeEngineState(els)
     }

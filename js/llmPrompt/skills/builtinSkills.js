@@ -2,6 +2,10 @@
 
 const skillRegistry = require('llmPrompt/skills/skillRegistry.js')
 const agentRegistry = require('llmPrompt/agents/agentRegistry.js')
+const ownModelRegistry = require('llmPrompt/ownModels/ownModelRegistry.js')
+const toolRegistry = require('llmPrompt/tools/toolRegistry.js')
+const planParser = require('llmPrompt/planParser.js')
+const planningSkill = require('llmPrompt/planningSkill.js')
 
 function requireArgs (argsText, usage) {
     if (!argsText) {
@@ -119,6 +123,53 @@ const builtinSkills = [
         run: async function () {
             const lines = skillRegistry.getCatalog().map(skill => skill.usage + ' — ' + skill.description)
             return { message: lines.join('\n') }
+        }
+    },
+    {
+        id: 'b',
+        title: 'Run a browser command',
+        description: 'Plan and run a browser action (open pages, search history, manage tabs) from a plain instruction.',
+        kind: 'llm',
+        usage: '/b <instruction>',
+        triggers: [],
+        run: async function (input, context) {
+            const instruction = requireArgs(input.argsText, '/b <instruction>')
+            const ownModel = ownModelRegistry.get(context.ownModelId) || ownModelRegistry.getDefault()
+
+            if (!ownModel.functional) {
+                return { message: ownModel.title + ' is not wired up yet. Try ' + ownModelRegistry.getDefault().title + ' instead.' }
+            }
+
+            const catalog = toolRegistry.getCatalog()
+            const knownToolIds = catalog.map(tool => tool.id)
+
+            const answer = await context.llm.complete({
+                system: planningSkill.buildSystemPrompt(catalog),
+                prompt: instruction,
+                responseFormat: 'json'
+            })
+
+            if (!answer.ok) {
+                throw new Error(answer.errorMessage)
+            }
+
+            const parsed = planParser.parsePlan(answer.output, knownToolIds)
+
+            if (!parsed.ok) {
+                throw new Error(parsed.errorMessage)
+            }
+
+            if (parsed.plan.toolCalls.length === 0) {
+                return { message: parsed.plan.message || 'Nothing to do.' }
+            }
+
+            const planResult = await context.runPlan(parsed.plan.toolCalls)
+
+            if (!planResult.ok) {
+                throw new Error(planResult.errorMessage)
+            }
+
+            return { message: planningSkill.describePlanOutcome(parsed.plan, planResult) }
         }
     },
     {
