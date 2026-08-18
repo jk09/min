@@ -30,8 +30,7 @@ var urlParser = {
       }
     }
 
-    const domain = urlParser.getDomain(url)
-    return hosts.includes(domain)
+    return urlParser.validateDomain(urlParser.getDomain(url))
   },
   removeProtocol: function (url) {
     if (!urlParser.isURL(url)) {
