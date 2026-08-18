@@ -1,15 +1,9 @@
-var statistics = require('js/statistics.js')
-var searchEngine = require('js/util/searchEngine.js')
-var urlParser = require('js/util/urlParser.js')
-
 /* common actions that affect different parts of the UI (webviews, tabstrip, etc) */
 
 var settings = require('util/settings/settings.js')
 var webviews = require('webviews.js')
 var focusMode = require('focusMode.js')
 var tabBar = require('navbar/tabBar.js')
-var tabEditor = require('navbar/tabEditor.js')
-var searchbar = require('searchbar/searchbar.js')
 
 /* creates a new task */
 
@@ -29,7 +23,7 @@ function addTask () {
 
 /*
 options
-  options.enterEditMode - whether to enter editing mode when the tab is created. Defaults to true.
+  options.openPrompt - whether to open the LLM prompt when the tab is created. Defaults to true.
   options.openInBackground - whether to open the tab without switching to it. Defaults to false.
 */
 function addTab (tabId = tabs.add(), options = {}) {
@@ -48,10 +42,11 @@ function addTab (tabId = tabs.add(), options = {}) {
 
   if (!options.openInBackground) {
     switchToTab(tabId, {
-      focusWebview: options.enterEditMode === false
+      focusWebview: options.openPrompt === false
     })
-    if (options.enterEditMode !== false) {
-      tabEditor.show(tabId)
+    if (options.openPrompt !== false) {
+      // required lazily, because the prompt runtime depends on this module
+      require('llmPrompt/promptPanel.js').open()
     }
   } else {
     tabBar.getTab(tabId).scrollIntoView()
@@ -219,21 +214,7 @@ function switchToTab (id, options) {
   webviews.setSelected(id, {
     focus: options.focusWebview !== false
   })
-
-  tabEditor.hide()
-
-  if (!tabs.get(id).url) {
-    document.body.classList.add('is-ntp')
-  } else {
-    document.body.classList.remove('is-ntp')
-  }
 }
-
-tasks.on('tab-updated', function (id, key) {
-  if (key === 'url' && id === tabs.getSelected()) {
-    document.body.classList.remove('is-ntp')
-  }
-})
 
 webviews.bindEvent('did-create-popup', function (tabId, popupId, initialURL) {
   var popupTab = tabs.add({
@@ -253,7 +234,7 @@ webviews.bindEvent('new-tab', function (tabId, url, openInForeground) {
   })
 
   addTab(newTab, {
-    enterEditMode: false,
+    openPrompt: false,
     openInBackground: !settings.get('openTabsInForeground') && !openInForeground
   })
 })
@@ -268,27 +249,6 @@ ipc.on('set-file-view', function (e, data) {
       tabs.update(tab.id, { isFileView: data.isFileView })
     }
   })
-})
-
-searchbar.events.on('url-selected', function (data) {
-  var searchbarQuery = searchEngine.getSearch(urlParser.parse(data.url))
-  if (searchbarQuery) {
-    statistics.incrementValue('searchCounts.' + searchbarQuery.engine)
-  }
-
-  if (data.background) {
-    var newTab = tabs.add({
-      url: data.url,
-      private: tabs.get(tabs.getSelected()).private
-    })
-    addTab(newTab, {
-      enterEditMode: false,
-      openInBackground: true
-    })
-  } else {
-    webviews.update(tabs.getSelected(), data.url)
-    tabEditor.hide()
-  }
 })
 
 tabBar.events.on('tab-selected', function (id) {

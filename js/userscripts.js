@@ -5,9 +5,6 @@ var chokidar = require('chokidar')
 
 var webviews = require('webviews.js')
 var settings = require('util/settings/settings.js')
-var bangsPlugin = require('searchbar/bangsPlugin.js')
-var tabEditor = require('navbar/tabEditor.js')
-var searchbarPlugins = require('searchbar/searchbarPlugins.js')
 var urlParser = require('util/urlParser.js')
 
 var statistics = require('js/statistics.js')
@@ -215,39 +212,6 @@ const userscripts = {
 
     webviews.bindIPC('showUserscriptDirectory', function () {
       userscripts.showDirectory()
-    })
-
-    bangsPlugin.registerCustomBang({
-      phrase: '!run',
-      snippet: l('runUserscript'),
-      isAction: false,
-      showSuggestions: function (text, input, event) {
-        searchbarPlugins.reset('bangs')
-
-        var isFirst = true
-        userscripts.scripts.forEach(function (script) {
-          if (script.name.toLowerCase().startsWith(text.toLowerCase())) {
-            searchbarPlugins.addResult('bangs', {
-              title: script.name,
-              fakeFocus: isFirst && text,
-              click: function () {
-                tabEditor.hide()
-                userscripts.runScript(tabs.getSelected(), script)
-              }
-            })
-            isFirst = false
-          }
-        })
-      },
-      fn: function (text) {
-        if (!text) {
-          return
-        }
-        var matchingScript = userscripts.scripts.find(script => script.name.toLowerCase().startsWith(text.toLowerCase()))
-        if (matchingScript) {
-          userscripts.runScript(tabs.getSelected(), matchingScript)
-        }
-      }
     })
   }
 }

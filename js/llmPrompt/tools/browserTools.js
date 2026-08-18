@@ -28,7 +28,7 @@ function describeTab (tab) {
 
 function openTab (url, background) {
     const tabId = tabs.add({ url: urlParser.parse(url) })
-    browserUI.addTab(tabId, { enterEditMode: false, openInBackground: Boolean(background) })
+    browserUI.addTab(tabId, { openPrompt: false, openInBackground: Boolean(background) })
     return tabId
 }
 

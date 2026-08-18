@@ -3,7 +3,6 @@ var webviews = require('webviews.js')
 var browserUI = require('browserUI.js')
 var focusMode = require('focusMode.js')
 var modalMode = require('modalMode.js')
-var tabEditor = require('navbar/tabEditor.js')
 var promptPanel = require('llmPrompt/promptPanel.js')
 var urlParser = require('util/urlParser.js')
 var keyMapModule = require('util/keyMap.js')
@@ -63,16 +62,7 @@ const defaultKeybindings = {
       // strip tab id so that a new one is generated
       const newTab = tabs.add({ ...sourceTab, id: undefined })
 
-      browserUI.addTab(newTab, { enterEditMode: false })
-    })
-
-    keybindings.defineShortcut('enterEditMode', function (e) {
-      tabEditor.show(tabs.getSelected())
-      return false
-    })
-
-    keybindings.defineShortcut('runShortcut', function (e) {
-      tabEditor.show(tabs.getSelected(), '!')
+      browserUI.addTab(newTab, { openPrompt: false })
     })
 
     keybindings.defineShortcut('closeTab', function (e) {
@@ -101,17 +91,8 @@ const defaultKeybindings = {
       }
 
       browserUI.addTab(tabs.add(restoredTab), {
-        enterEditMode: false
+        openPrompt: false
       })
-    })
-
-    keybindings.defineShortcut('addToFavorites', function (e) {
-      tabEditor.show(tabs.getSelected(), null, false) // we need to show the bookmarks button, which is only visible in edit mode
-      tabEditor.container.querySelector('.bookmarks-button').click()
-    })
-
-    keybindings.defineShortcut('showBookmarks', function () {
-      tabEditor.show(tabs.getSelected(), '!bookmarks ')
     })
 
     keybindings.defineShortcut('toggleLLMPrompt', function () {
@@ -152,8 +133,6 @@ const defaultKeybindings = {
       if (webviews.placeholderRequests.length === 0 && document.activeElement.tagName !== 'INPUT') {
         webviews.callAsync(tabs.getSelected(), 'stop')
       }
-
-      tabEditor.hide()
 
       if (modalMode.enabled() && modalMode.onDismiss) {
         modalMode.onDismiss()
@@ -226,10 +205,6 @@ const defaultKeybindings = {
 
     keybindings.defineShortcut('reloadIgnoringCache', function () {
       webviews.callAsync(tabs.getSelected(), 'reloadIgnoringCache')
-    })
-
-    keybindings.defineShortcut('showHistory', function () {
-      tabEditor.show(tabs.getSelected(), '!history ')
     })
 
     keybindings.defineShortcut('copyPageURL', function () {

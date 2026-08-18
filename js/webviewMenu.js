@@ -86,7 +86,7 @@ const webviewMenu = {
         linkActions.push({
           label: l('openInNewTab'),
           click: function () {
-            browserUI.addTab(tabs.add({ url: link }), { enterEditMode: false, openInBackground: openInBackground })
+            browserUI.addTab(tabs.add({ url: link }), { openPrompt: false, openInBackground: openInBackground })
           }
         })
       }
@@ -94,7 +94,7 @@ const webviewMenu = {
       linkActions.push({
         label: l('openInNewPrivateTab'),
         click: function () {
-          browserUI.addTab(tabs.add({ url: link, private: true }), { enterEditMode: false, openInBackground: openInBackground })
+          browserUI.addTab(tabs.add({ url: link, private: true }), { openPrompt: false, openInBackground: openInBackground })
         }
       })
 
@@ -132,7 +132,7 @@ const webviewMenu = {
         imageActions.push({
           label: l('openImageInNewTab'),
           click: function () {
-            browserUI.addTab(tabs.add({ url: mediaURL }), { enterEditMode: false, openInBackground: openInBackground })
+            browserUI.addTab(tabs.add({ url: mediaURL }), { openPrompt: false, openInBackground: openInBackground })
           }
         })
       }
@@ -140,7 +140,7 @@ const webviewMenu = {
       imageActions.push({
         label: l('openImageInNewPrivateTab'),
         click: function () {
-          browserUI.addTab(tabs.add({ url: mediaURL, private: true }), { enterEditMode: false, openInBackground: openInBackground })
+          browserUI.addTab(tabs.add({ url: mediaURL, private: true }), { openPrompt: false, openInBackground: openInBackground })
         }
       })
 
@@ -168,7 +168,7 @@ const webviewMenu = {
               private: currentTab.private
             })
             browserUI.addTab(newTab, {
-              enterEditMode: false,
+              openPrompt: false,
               openInBackground: false
             })
           }
@@ -343,7 +343,7 @@ const webviewMenu = {
     translateMenu.submenu.push({
       label: 'Send Feedback',
       click: function () {
-        browserUI.addTab(tabs.add({ url: 'https://github.com/minbrowser/min/issues/new?title=Translation%20feedback%20for%20' + encodeURIComponent(tabs.get(tabs.getSelected()).url) }), { enterEditMode: false, openInBackground: false })
+        browserUI.addTab(tabs.add({ url: 'https://github.com/minbrowser/min/issues/new?title=Translation%20feedback%20for%20' + encodeURIComponent(tabs.get(tabs.getSelected()).url) }), { openPrompt: false, openInBackground: false })
       }
     })
 

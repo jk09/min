@@ -15,7 +15,7 @@ const tabContextMenu = {
             // strip tab id so that a new one is generated
             const newTab = tabs.add({ ...sourceTab, id: undefined })
 
-            browserUI.addTab(newTab, { enterEditMode: false })
+            browserUI.addTab(newTab, { openPrompt: false })
           }
         }
       ]

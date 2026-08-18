@@ -72,18 +72,13 @@ function syncWebviewMargins(els) {
     }
 }
 
-function isOverlayAvailable() {
-    // the overlay dims a page, so it is unavailable while the new-tab/address-selection UI is shown
-    return !document.body.classList.contains('is-ntp')
-}
-
 function autoGrowInput(input) {
     input.style.height = 'auto'
     input.style.height = input.scrollHeight + 'px'
 }
 
 function openPanel(els) {
-    if (state.open || !isOverlayAvailable()) {
+    if (state.open || !els.panel) {
         return
     }
 

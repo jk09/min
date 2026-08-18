@@ -4,7 +4,6 @@ var webviews = require('webviews.js')
 var keybindings = require('keybindings.js')
 var browserUI = require('browserUI.js')
 var tabBar = require('navbar/tabBar.js')
-var tabEditor = require('navbar/tabEditor.js')
 var focusMode = require('focusMode.js')
 var modalMode = require('modalMode.js')
 var keyboardNavigationHelper = require('util/keyboardNavigationHelper.js')
@@ -34,7 +33,6 @@ function addTaskFromMenu () {
   taskOverlay.show()
   setTimeout(function () {
     taskOverlay.hide()
-    tabEditor.show(tabs.getSelected())
   }, 600)
 }
 
@@ -187,8 +185,6 @@ var taskOverlay = {
 
     document.body.classList.add('task-overlay-is-shown')
     document.body.setAttribute('data-context', 'taskOverlay')
-
-    tabEditor.hide()
 
     document.getElementById('task-search-input').value = ''
 
@@ -385,10 +381,6 @@ var taskOverlay = {
       taskOverlay.hide()
     })
 
-    keybindings.defineShortcut('enterEditMode', function (e) {
-      taskOverlay.hide()
-    })
-
     keybindings.defineShortcut('closeTab', function (e) {
       var focusedTab = (document.querySelector('.task-tab-item.fakefocus') || document.activeElement)
       if (focusedTab && focusedTab.getAttribute('data-tab')) {
@@ -410,7 +402,6 @@ var taskOverlay = {
     addTaskButton.addEventListener('click', function (e) {
       browserUI.addTask()
       taskOverlay.hide()
-      tabEditor.show(tabs.getSelected())
     })
 
     taskOverlayNavbar.addEventListener('click', function () {

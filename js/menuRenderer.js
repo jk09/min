@@ -7,7 +7,6 @@ var focusMode = require('focusMode.js')
 var modalMode = require('modalMode.js')
 var findinpage = require('findinpage.js')
 var PDFViewer = require('pdfViewer.js')
-var tabEditor = require('navbar/tabEditor.js')
 var readerView = require('readerView.js')
 
 module.exports = {
@@ -49,18 +48,6 @@ module.exports = {
       webviews.callAsync(tabs.getSelected(), 'toggleDevTools')
     })
 
-    ipc.on('openEditor', function () {
-      tabEditor.show(tabs.getSelected())
-    })
-
-    ipc.on('showBookmarks', function () {
-      tabEditor.show(tabs.getSelected(), '!bookmarks ')
-    })
-
-    ipc.on('showHistory', function () {
-      tabEditor.show(tabs.getSelected(), '!history ')
-    })
-
     ipc.on('addTab', function (e, data) {
       /* new tabs can't be created in modal mode */
       if (modalMode.enabled()) {
@@ -78,7 +65,7 @@ module.exports = {
       })
 
       browserUI.addTab(newTab, {
-        enterEditMode: !data.url // only enter edit mode if the new tab is empty
+        openPrompt: !data.url // only open the prompt if the new tab is empty
       })
     })
 

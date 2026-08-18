@@ -41,16 +41,6 @@ function buildTouchBar () {
       }),
       new TouchBarSpacer({ size: 'flexible' }),
       new TouchBarButton({
-        icon: getTouchBarIcon('NSImageNameTouchBarSearchTemplate'),
-        iconPosition: 'left',
-        // TODO this is really hacky, find a better way to set the size
-        label: '    ' + l('searchbarPlaceholder') + '                     ',
-        click: function () {
-          windowUtils.sendIPCToWindow(windows.getCurrent(), 'openEditor')
-        }
-      }),
-      new TouchBarSpacer({ size: 'flexible' }),
-      new TouchBarButton({
         icon: getTouchBarIcon('NSImageNameTouchBarAdd'),
         accessibilityLabel: l('newTabAction'),
         click: function () {

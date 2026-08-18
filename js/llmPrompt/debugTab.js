@@ -17,7 +17,7 @@ function findDebugTab () {
 
 function openDebugTab () {
     const tabId = tabs.add({ url: DEBUG_PAGE_URL })
-    browserUI.addTab(tabId, { enterEditMode: false, openInBackground: false })
+    browserUI.addTab(tabId, { openPrompt: false, openInBackground: false })
     return tabId
 }
 
