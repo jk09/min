@@ -14,6 +14,7 @@ const skillRegistry = require('llmPrompt/skills/skillRegistry.js')
 const builtinSkills = require('llmPrompt/skills/builtinSkills.js')
 const engineClient = require('llmPrompt/engineClient.js')
 const settings = require('util/settings/settings.js')
+const urlParser = require('util/urlParser.js')
 
 let initialized = false
 
@@ -114,6 +115,23 @@ async function runSearch (prompt, scope) {
     }
 }
 
+async function runURL (url, scope) {
+    const trace = []
+    const context = createContext(scope, trace)
+    const outcome = await context.runTool('tabs.open', { url })
+
+    if (!outcome.ok) {
+        return { ok: false, route: 'url', message: outcome.errorMessage, trace }
+    }
+
+    return {
+        ok: true,
+        route: 'url',
+        message: 'Opening ' + outcome.result.url,
+        trace
+    }
+}
+
 /*
 options.scope - 'read' or 'mutate'. Prompts typed by the user are mutate-capable;
 the gate exists so non-interactive callers can stay read-only.
@@ -144,6 +162,10 @@ async function handlePrompt (rawPrompt, options = {}) {
 
     if (explicit && !explicit.unknownSkillId) {
         return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId, ownModelId, debug)
+    }
+
+    if (!prompt.startsWith('/') && urlParser.isPossibleURL(prompt)) {
+        return runURL(prompt, scope)
     }
 
     return runSearch(prompt, scope)

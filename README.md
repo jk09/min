@@ -47,7 +47,7 @@ You can find prebuilt binaries for Min [here](https://github.com/minbrowser/min/
 
 ## LLM prompt: `/b <command>` browser commands
 
-Min's LLM prompt (open it with `Ctrl+J`/`Cmd+J`, or the **Ask** button in the status bar) supports a `/b <instruction>` command that turns a plain-language instruction into browser actions - e.g. `/b open google.com and bing.com in new tabs`, `/b find pages in my history about tax return forms`, `/b close all tabs opened for a search`.
+Min's LLM prompt (open it with `Ctrl+/`/`Cmd+/`, or the **Ask** button in the status bar) supports a `/b <instruction>` command that turns a plain-language instruction into browser actions - e.g. `/b open google.com and bing.com in new tabs`, `/b find pages in my history about tax return forms`, `/b close all tabs opened for a search`.
 
 `/b` uses a bring-your-own-model (BYOM) approach: Min doesn't ship or train a model, it calls whichever model you've already configured. The "Own model" selector in the prompt toolbar lets you pick which model handles `/b`; only **Configured model** is functional today (the others are placeholders for future providers).
 

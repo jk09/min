@@ -30,7 +30,7 @@ var defaultKeyMap = {
   fillPassword: 'mod+\\',
   toggleTabAudio: 'shift+mod+m',
   showHistory: 'shift+mod+h',
-  toggleLLMPrompt: 'mod+j'
+  toggleLLMPrompt: 'mod+/'
 }
 /* Utility function to override default mapping with user settings */
 function userKeyMap (settings) {
