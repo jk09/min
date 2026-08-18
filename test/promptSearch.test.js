@@ -6,6 +6,7 @@ function loadPromptRouter () {
     const registeredTools = new Map()
     let llmCalls = 0
     const searchCalls = []
+    const openCalls = []
 
     const toolRegistry = {
         registerAll: tools => tools.forEach(tool => registeredTools.set(tool.id, tool)),
@@ -38,6 +39,12 @@ function loadPromptRouter () {
     const modules = {
         'llmPrompt/tools/toolRegistry.js': toolRegistry,
         'llmPrompt/tools/browserTools.js': [{
+            id: 'tabs.open',
+            handler: async function (args) {
+                openCalls.push(args)
+                return { tabId: 'tab-1', url: args.url }
+            }
+        }, {
             id: 'search.web',
             handler: async function (args) {
                 searchCalls.push(args)
@@ -52,6 +59,7 @@ function loadPromptRouter () {
                 return { ok: false }
             }
         },
+        'util/urlParser.js': { isPossibleURL: url => url === 'https://example.com' || url === 'example.com' },
         'util/settings/settings.js': { get: () => null }
     }
     const originalLoad = Module._load
@@ -65,8 +73,22 @@ function loadPromptRouter () {
     const router = require(routerPath)
     Module._load = originalLoad
 
-    return { router, searchCalls, getLlmCalls: () => llmCalls }
+    return { router, searchCalls, openCalls, getLlmCalls: () => llmCalls }
 }
+
+test('possible URLs, including protocol-less domains, open in a new tab without a search', async function () {
+    const runtime = loadPromptRouter()
+    const strictResult = await runtime.router.handlePrompt('https://example.com', { scope: 'mutate' })
+    const protocolLessResult = await runtime.router.handlePrompt('example.com', { scope: 'mutate' })
+
+    assert.strictEqual(strictResult.ok, true)
+    assert.strictEqual(strictResult.route, 'url')
+    assert.strictEqual(protocolLessResult.ok, true)
+    assert.strictEqual(protocolLessResult.route, 'url')
+    assert.deepStrictEqual(runtime.openCalls, [{ url: 'https://example.com' }, { url: 'example.com' }])
+    assert.deepStrictEqual(runtime.searchCalls, [])
+    assert.strictEqual(runtime.getLlmCalls(), 0)
+})
 
 test('plain prompt text runs the default web search without an LLM call', async function () {
     const runtime = loadPromptRouter()
