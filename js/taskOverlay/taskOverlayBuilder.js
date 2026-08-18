@@ -1,5 +1,5 @@
 var browserUI = require('browserUI.js')
-var searchbarUtils = require('searchbar/searchbarUtils.js')
+var listItem = require('util/listItem.js')
 var urlParser = require('util/urlParser.js')
 var searchEngine = require('util/searchEngine.js')
 
@@ -160,11 +160,11 @@ var TaskOverlayBuilder = {
         var lastTabTitle = task.tabs.get().sort((a, b) => b.lastActivity - a.lastActivity)[0].title
 
         if (lastTabTitle) {
-          lastTabTitle = searchbarUtils.getRealTitle(lastTabTitle)
+          lastTabTitle = listItem.getRealTitle(lastTabTitle)
           if (lastTabTitle.length > 40) {
             lastTabTitle = lastTabTitle.substring(0, 40) + '...'
           }
-          lastTabEl.textContent = searchbarUtils.getRealTitle(lastTabTitle)
+          lastTabEl.textContent = listItem.getRealTitle(lastTabTitle)
         }
         infoContainer.appendChild(lastTabEl)
 
@@ -264,7 +264,7 @@ var TaskOverlayBuilder = {
           data.secondaryText = urlParser.basicURL(source)
         }
 
-        var el = searchbarUtils.createItem(data)
+        var el = listItem.createItem(data)
 
         el.setAttribute('data-tab', tab.id)
 

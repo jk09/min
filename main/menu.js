@@ -61,27 +61,6 @@ function buildAppMenu (options = {}) {
     }
   ]
 
-  var personalDataItems = [
-    {
-      label: l('appMenuBookmarks'),
-      accelerator: getFormattedKeyMapEntry('showBookmarks'),
-      click: function (item, window, event) {
-        if (!event.triggeredByAccelerator) {
-          sendIPCToWindow(window, 'showBookmarks')
-        }
-      }
-    },
-    {
-      label: l('appMenuHistory'),
-      accelerator: getFormattedKeyMapEntry('showHistory'),
-      click: function (item, window, event) {
-        if (!event.triggeredByAccelerator) {
-          sendIPCToWindow(window, 'showHistory')
-        }
-      }
-    }
-  ]
-
   var quitAction = {
     label: l('appMenuQuit').replace('%n', app.name),
     accelerator: getFormattedKeyMapEntry('quitMin'),
@@ -104,8 +83,6 @@ function buildAppMenu (options = {}) {
 
   var template = [
     ...(options.secondary ? tabTaskActions : []),
-    ...(options.secondary ? [{ type: 'separator' }] : []),
-    ...(options.secondary ? personalDataItems : []),
     ...(options.secondary ? [{ type: 'separator' }] : []),
     ...(options.secondary ? [preferencesAction] : []),
     ...(options.secondary ? [{ type: 'separator' }] : []),
@@ -235,8 +212,6 @@ function buildAppMenu (options = {}) {
     {
       label: l('appMenuView'),
       submenu: [
-        ...(!options.secondary ? personalDataItems : []),
-        ...(!options.secondary ? [{ type: 'separator' }] : []),
         {
           label: l('appMenuZoomIn'),
           accelerator: 'CmdOrCtrl+Plus',

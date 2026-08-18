@@ -1,6 +1,5 @@
 var browserUI = require('browserUI.js')
-var webviews = require('webviews.js')
-var tabEditor = require('navbar/tabEditor.js')
+var promptPanel = require('llmPrompt/promptPanel.js')
 var tabState = require('tabState.js')
 var settings = require('util/settings/settings.js')
 var searchEngine = require('util/searchEngine.js')
@@ -31,7 +30,7 @@ function openStartupPage () {
     url: getStartupPageURL()
   })
   browserUI.addTab(newTab, {
-    enterEditMode: false
+    openPrompt: false
   })
 }
 
@@ -157,7 +156,7 @@ const sessionRestore = {
         var lastTask = tasks.byIndex(tasks.getLength() - 1)
         if (lastTask && lastTask.tabs.isEmpty() && !lastTask.name) {
           browserUI.switchToTask(lastTask.id)
-          tabEditor.show(lastTask.tabs.getSelected())
+          promptPanel.open()
         } else {
           browserUI.addTask()
         }
@@ -233,7 +232,7 @@ const sessionRestore = {
       })
     if (newTaskCandidates.length > 0) {
       browserUI.switchToTask(newTaskCandidates[0].id)
-      tabEditor.show(tasks.getSelected().tabs.getSelected())
+      promptPanel.open()
     } else {
       browserUI.addTask()
     }

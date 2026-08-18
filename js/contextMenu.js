@@ -1,5 +1,4 @@
 const remoteMenu = require('remoteMenuRenderer.js')
-const searchbar = require('searchbar/searchbar.js')
 
 module.exports = {
   initialize: function () {
@@ -44,14 +43,6 @@ module.exports = {
 
       while (node) {
         if (node.nodeName.match(/^(input|textarea)$/i) || node.isContentEditable) {
-          if (node.id === 'tab-editor-input') {
-            inputMenu[1].push({
-              label: l('pasteAndGo'),
-              click: function () {
-                searchbar.openURL(electron.clipboard.readText())
-              }
-            })
-          }
           remoteMenu.open(inputMenu)
           break
         }

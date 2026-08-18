@@ -43,10 +43,6 @@
   width: 4rem;
 }
 
-body.is-edit-mode #toolbar-navigation-buttons {
-  display: none;
-}
-
 #back-button,
 #forward-button {
   opacity: 1;
@@ -147,9 +143,6 @@ body.linux #menu-button {
 }
 .dark-theme #tab-overflow-label:hover {
   background-color: rgba(255, 255, 255, 0.1);
-}
-.is-edit-mode #tab-overflow-label {
-  visibility: hidden;
 }
 
 /* overflow statistics panel */
@@ -308,16 +301,6 @@ body:not(.touch)
 }
 .tab-item.fade:hover {
   opacity: 1;
-}
-
-.is-edit-mode #navbar #tabs-inner::-webkit-scrollbar {
-  height: 0;
-}
-
-/* hide tabs when tab editor is open */
-
-.is-edit-mode .tab-item {
-  opacity: 0;
 }
 
 .tab-item .title-container {

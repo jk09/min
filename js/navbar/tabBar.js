@@ -8,7 +8,6 @@ const dragula = require('dragula')
 const settings = require('util/settings/settings.js')
 const urlParser = require('util/urlParser.js')
 
-const tabEditor = require('navbar/tabEditor.js')
 const progressBar = require('navbar/progressBar.js')
 const permissionRequests = require('navbar/permissionRequests.js')
 const tabOverflow = require('navbar/tabOverflow.js')
@@ -449,14 +448,13 @@ tabBar.container.addEventListener('drop', e => {
   if (!path) {
     return
   }
-  if (tabEditor.isShown || tabs.isEmpty()) {
+  if (tabs.isEmpty()) {
     webviews.update(tabs.getSelected(), path)
-    tabEditor.hide()
   } else {
     require('browserUI.js').addTab(tabs.add({
       url: path,
       private: tabs.get(tabs.getSelected()).private
-    }), { enterEditMode: false, openInBackground: !settings.get('openTabsInForeground') })
+    }), { openPrompt: false, openInBackground: !settings.get('openTabsInForeground') })
   }
 })
 
