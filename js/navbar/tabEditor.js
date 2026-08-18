@@ -17,6 +17,17 @@ const tabEditor = {
       return
     }
 
+    var currentURL = tabs.get(tabId).url ? urlParser.getSourceURL(tabs.get(tabId).url) : ''
+    if (currentURL === 'min://newtab') {
+      currentURL = ''
+    }
+
+    /* An empty tab has no URL to edit, so the LLM prompt replaces the address selector. */
+    if (!editingValue && !currentURL) {
+      require('llmPrompt/promptPanel.js').open()
+      return
+    }
+
     tabEditor.container.hidden = false
     tabEditor.isShown = true
 
@@ -26,11 +37,6 @@ const tabEditor = {
     webviews.requestPlaceholder('editMode')
 
     document.body.classList.add('is-edit-mode')
-
-    var currentURL = urlParser.getSourceURL(tabs.get(tabId).url)
-    if (currentURL === 'min://newtab') {
-      currentURL = ''
-    }
 
     tabEditor.input.value = editingValue || currentURL
     tabEditor.input.focus()

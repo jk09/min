@@ -221,19 +221,7 @@ function switchToTab (id, options) {
   })
 
   tabEditor.hide()
-
-  if (!tabs.get(id).url) {
-    document.body.classList.add('is-ntp')
-  } else {
-    document.body.classList.remove('is-ntp')
-  }
 }
-
-tasks.on('tab-updated', function (id, key) {
-  if (key === 'url' && id === tabs.getSelected()) {
-    document.body.classList.remove('is-ntp')
-  }
-})
 
 webviews.bindEvent('did-create-popup', function (tabId, popupId, initialURL) {
   var popupTab = tabs.add({

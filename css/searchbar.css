@@ -11,10 +11,6 @@
   -webkit-user-select: none;
   max-height: calc(100% - 125px);
   overflow-y: auto;
-}
-
-body:not(.is-ntp) #searchbar,
-body.ntp-has-background #searchbar {
   box-shadow: rgba(0, 0, 0, 0.25) 0px 3px 4px -2px;
 }
 

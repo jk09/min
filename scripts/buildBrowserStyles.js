@@ -11,7 +11,6 @@ const modules = [
   'css/tabEditor.css',
   'css/webviews.css',
   'css/llmPrompt.css',
-  'css/newTabPage.css',
   'css/searchbar.css',
   'css/listItem.css',
   'css/bookmarkManager.css',

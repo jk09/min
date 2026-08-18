@@ -153,13 +153,12 @@ test('toggle opens and closes the overlay', function () {
   assert.strictEqual(promptPanel.isOpen(), false)
 })
 
-test('the overlay does not open while the new tab page is shown', function () {
-  const { promptPanel, bodyClasses } = loadPromptPanel()
+test('the overlay opens on the blank empty state', function () {
+  const { promptPanel } = loadPromptPanel()
 
   promptPanel.initialize()
-  bodyClasses.add('is-ntp')
 
   promptPanel.open()
 
-  assert.strictEqual(promptPanel.isOpen(), false)
+  assert.strictEqual(promptPanel.isOpen(), true)
 })
