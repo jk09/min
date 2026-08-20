@@ -44,13 +44,7 @@ function initialize () {
     initialized = true
 }
 
-const llm = {
-    complete: function (request) {
-        return engineClient.complete(request)
-    }
-}
-
-function createContext (scope, trace, agentId, ownModelId, debug) {
+function createContext (scope, trace, agentId, ownModelId, debug, requestId, onProgress) {
     async function runTool (id, args) {
         const outcome = await toolRegistry.run(id, args, { scope })
         trace.push({ tool: id, args: args || {}, ok: outcome.ok, result: outcome.result, errorMessage: outcome.errorMessage })
@@ -67,12 +61,18 @@ function createContext (scope, trace, agentId, ownModelId, debug) {
         return { ok: true, steps: trace.slice() }
     }
 
+    const llm = {
+        complete: function (request) {
+            return engineClient.complete(request, { requestId, onProgress })
+        }
+    }
+
     return { scope, agentId: agentId || null, ownModelId: ownModelId || null, debug: Boolean(debug), runTool, runPlan, llm }
 }
 
-async function runSkill (skill, argsText, prompt, scope, agentId, ownModelId, debug) {
+async function runSkill (skill, argsText, prompt, scope, agentId, ownModelId, debug, requestId, onProgress) {
     const trace = []
-    const context = createContext(scope, trace, agentId, ownModelId, debug)
+    const context = createContext(scope, trace, agentId, ownModelId, debug, requestId, onProgress)
 
     try {
         const result = await skill.run({ prompt, argsText }, context)
@@ -158,10 +158,12 @@ async function handlePrompt (rawPrompt, options = {}) {
     const agentId = typeof options.agentId === 'string' ? options.agentId : null
     const ownModelId = typeof options.ownModelId === 'string' ? options.ownModelId : null
     const debug = Boolean(options.debug)
+    const requestId = typeof options.requestId === 'string' ? options.requestId : null
+    const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null
     const explicit = skillRegistry.resolveExplicit(prompt)
 
     if (explicit && !explicit.unknownSkillId) {
-        return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId, ownModelId, debug)
+        return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
     }
 
     if (!prompt.startsWith('/') && urlParser.isPossibleURL(prompt)) {

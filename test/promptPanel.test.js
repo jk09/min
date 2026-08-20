@@ -41,8 +41,8 @@ function createElement (id) {
 
 function loadPromptPanel () {
   const ids = [
-    'llm-prompt-overlay', 'llm-prompt-scrim', 'llm-prompt-panel', 'status-bar',
-    'status-bar-prompt-button', 'llm-prompt-input', 'llm-prompt-send', 'llm-prompt-result',
+    'llm-prompt-overlay', 'llm-prompt-scrim', 'llm-prompt-panel',
+    'llm-prompt-input', 'llm-prompt-send', 'llm-prompt-result',
     'llm-prompt-engine-state', 'llm-prompt-build-info', 'llm-prompt-history',
     'llm-prompt-debug', 'llm-prompt-debug-link'
   ]
@@ -103,18 +103,18 @@ function loadPromptPanel () {
   return { promptPanel, elements, bodyClasses, placeholderRequests, margins, previouslyFocused }
 }
 
-test('getTargetMargins reserves space for the status bar only', function () {
+test('getTargetMargins does not reserve removed status bar space', function () {
   const { promptPanel } = loadPromptPanel()
 
-  assert.deepStrictEqual(promptPanel.getTargetMargins({ height: 22 }), [0, 0, 22, 0])
+  assert.deepStrictEqual(promptPanel.getTargetMargins({ height: 22 }), [0, 0, 0, 0])
 })
 
-test('initialize reserves the status bar height as a bottom webview margin', function () {
+test('initialize leaves webview margins unchanged without a status bar', function () {
   const { promptPanel, margins } = loadPromptPanel()
 
   promptPanel.initialize()
 
-  assert.deepStrictEqual(margins, [[0, 0, 22, 0]])
+  assert.deepStrictEqual(margins, [])
 })
 
 test('the overlay is closed until it is opened, and restores focus on close', function () {

@@ -130,6 +130,10 @@ const defaultKeybindings = {
     })
 
     keybindings.defineShortcut({ keys: 'esc' }, function (e) {
+      if (promptPanel.isSending() && promptPanel.cancel()) {
+        return
+      }
+
       if (webviews.placeholderRequests.length === 0 && document.activeElement.tagName !== 'INPUT') {
         webviews.callAsync(tabs.getSelected(), 'stop')
       }

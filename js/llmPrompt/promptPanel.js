@@ -9,11 +9,16 @@ var webviews = require('webviews.js')
 var places = require('places/places.js')
 
 const PLACEHOLDER_REASON = 'llmPrompt'
+const RUNNING_MESSAGES = ['Thinking...', 'Reading model output...', 'Waiting for the model...']
 
 const state = {
     open: false,
     providerConfigured: false,
     sending: false,
+    activeRequestId: null,
+    progressText: '',
+    progressMessageIndex: 0,
+    progressTimer: null,
     hasResult: false,
     engineStatus: null,
     appliedMargins: [0, 0, 0, 0],
@@ -29,8 +34,6 @@ function getPanelElements() {
         overlay: document.getElementById('llm-prompt-overlay'),
         scrim: document.getElementById('llm-prompt-scrim'),
         panel: document.getElementById('llm-prompt-panel'),
-        statusBar: document.getElementById('status-bar'),
-        promptButton: document.getElementById('status-bar-prompt-button'),
         input: document.getElementById('llm-prompt-input'),
         send: document.getElementById('llm-prompt-send'),
         result: document.getElementById('llm-prompt-result'),
@@ -42,13 +45,16 @@ function getPanelElements() {
     }
 }
 
-// the overlay floats above the page, so only the status bar reduces the webview area
-function getTargetMargins(statusBarRect) {
-    return [0, 0, Math.round(statusBarRect.height), 0]
+function createRequestId () {
+    return 'prompt-panel-' + Date.now() + '-' + Math.floor(Math.random() * 1000000)
+}
+
+function getTargetMargins() {
+    return [0, 0, 0, 0]
 }
 
 function syncWebviewMargins(els) {
-    const nextMargins = getTargetMargins(els.statusBar.getBoundingClientRect())
+    const nextMargins = getTargetMargins()
     const delta = nextMargins.map(function (value, idx) {
         return value - state.appliedMargins[idx]
     })
@@ -146,7 +152,13 @@ function updateEngineStateLabel(els) {
 
 function updateControls(els) {
     // deterministic skills run without a provider, so the panel is never fully disabled
-    els.send.disabled = state.sending
+    const icon = els.send.querySelector && els.send.querySelector('i')
+    els.send.classList.toggle('llm-prompt-stop', state.sending)
+    els.send.title = state.sending ? 'Stop prompt' : 'Send prompt'
+    els.send.setAttribute('aria-label', state.sending ? 'Stop prompt' : 'Send prompt')
+    if (icon) {
+        icon.className = state.sending ? 'i carbon:stop-filled' : 'i carbon:arrow-up'
+    }
     updateEngineStateLabel(els)
     updateGuidance(els)
 }
@@ -167,40 +179,117 @@ function setResult(els, text, isError) {
     els.result.classList.toggle('llm-prompt-error', Boolean(isError))
 }
 
+function clearResult(els) {
+    state.hasResult = false
+    els.result.textContent = ''
+    els.result.classList.toggle('llm-prompt-error', false)
+}
+
 function renderResult(els, result) {
     var text = [describeTrace(result.trace), result.message, result.detail].filter(Boolean).join(' \u2014 ')
     setResult(els, text, !result.ok)
+}
+
+function getRunningText() {
+    const progress = state.progressText.trim()
+    if (progress) {
+        return 'Thinking... ' + progress.slice(-700)
+    }
+    return RUNNING_MESSAGES[state.progressMessageIndex % RUNNING_MESSAGES.length]
+}
+
+function stopProgressRotation() {
+    if (state.progressTimer) {
+        clearInterval(state.progressTimer)
+        state.progressTimer = null
+    }
+}
+
+function startProgressRotation(els) {
+    stopProgressRotation()
+    state.progressText = ''
+    state.progressMessageIndex = 0
+    setResult(els, getRunningText(), false)
+    state.progressTimer = setInterval(function () {
+        state.progressMessageIndex++
+        setResult(els, getRunningText(), false)
+    }, 1200)
+}
+
+function handleProgress(els, update) {
+    if (!state.sending || !update || !update.text) {
+        return
+    }
+    state.progressText = (state.progressText + update.text).slice(-1200)
+    setResult(els, getRunningText(), false)
+}
+
+function cancelPrompt(els) {
+    if (!state.sending) {
+        return false
+    }
+
+    if (state.activeRequestId) {
+        engineClient.cancel(state.activeRequestId).catch(function () {})
+    }
+    state.sending = false
+    state.activeRequestId = null
+    stopProgressRotation()
+    clearResult(els)
+    els.input.value = ''
+    autoGrowInput(els.input)
+    updateControls(els)
+    closePanel(els)
+    return true
 }
 
 async function sendPrompt(els) {
     var prompt = els.input.value.trim()
 
     if (!prompt || state.sending) {
+        if (state.sending) {
+            cancelPrompt(els)
+        }
         return
     }
 
+    const requestId = createRequestId()
     state.sending = true
+    state.activeRequestId = requestId
     updateControls(els)
     els.input.value = ''
     autoGrowInput(els.input)
-    setResult(els, 'Working\u2026', false)
-    // results are reported in the status bar, so the overlay gets out of the way immediately
-    closePanel(els)
+    clearHistorySuggestions(els)
+    startProgressRotation(els)
 
     try {
         const result = await promptRouter.handlePrompt(prompt, {
             scope: 'mutate',
             agentId: agentRegistry.DEFAULT_AGENT_ID,
             ownModelId: ownModelRegistry.DEFAULT_OWN_MODEL_ID,
-            debug: state.debugEnabled
+            debug: state.debugEnabled,
+            requestId,
+            onProgress: function (update) {
+                handleProgress(els, update)
+            }
         })
+        if (state.activeRequestId !== requestId) {
+            return
+        }
         renderResult(els, result)
     } catch (e) {
+        if (state.activeRequestId !== requestId) {
+            return
+        }
         setResult(els, 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'), true)
+    } finally {
+        if (state.activeRequestId === requestId) {
+            state.sending = false
+            state.activeRequestId = null
+            stopProgressRotation()
+            updateControls(els)
+        }
     }
-
-    state.sending = false
-    updateControls(els)
 }
 
 function clearHistorySuggestions(els) {
@@ -301,15 +390,17 @@ function updateDebugToggleLabel(els) {
 
 function bindEvents(els) {
     els.send.addEventListener('click', function () {
-        sendPrompt(els)
-    })
-
-    els.promptButton.addEventListener('click', function () {
-        openPanel(els)
+        if (state.sending) {
+            cancelPrompt(els)
+        } else {
+            sendPrompt(els)
+        }
     })
 
     els.scrim.addEventListener('click', function () {
-        closePanel(els)
+        if (!cancelPrompt(els)) {
+            closePanel(els)
+        }
     })
 
     els.debugToggle.addEventListener('click', function () {
@@ -343,6 +434,9 @@ function bindEvents(els) {
 
         if (e.key === 'Escape') {
             e.preventDefault()
+            if (cancelPrompt(els)) {
+                return
+            }
             if (state.historySuggestions.length > 0) {
                 clearHistorySuggestions(els)
             } else {
@@ -397,12 +491,23 @@ var promptPanel = {
         openPanel(getPanelElements())
     },
     close: function () {
-        closePanel(getPanelElements())
+        const els = getPanelElements()
+        if (!cancelPrompt(els)) {
+            closePanel(els)
+        }
+    },
+    cancel: function () {
+        return cancelPrompt(getPanelElements())
+    },
+    isSending: function () {
+        return state.sending
     },
     toggle: function () {
         const els = getPanelElements()
         if (state.open) {
-            closePanel(els)
+            if (!cancelPrompt(els)) {
+                closePanel(els)
+            }
         } else {
             openPanel(els)
         }

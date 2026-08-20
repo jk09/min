@@ -2,7 +2,7 @@
     position: fixed;
     top: calc(36px + var(--control-space-top));
     right: 0;
-    bottom: var(--status-bar-height);
+    bottom: 0;
     left: 0;
     z-index: 4;
     display: flex;
@@ -227,63 +227,22 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     background: rgba(255, 255, 255, 0.18);
 }
 
-#status-bar {
-    display: flex;
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 3;
-    height: var(--status-bar-height);
-    align-items: center;
-    gap: 0.5em;
-    overflow: hidden;
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
-    background: rgb(251, 251, 251);
-    padding: 0 0.6em;
-}
-
-.dark-mode #status-bar {
-    border-top-color: rgba(255, 255, 255, 0.15);
-    background: rgb(41, 44, 52);
-}
-
-#status-bar-prompt-button {
-    flex: none;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font-size: 0.78em;
-    opacity: 0.75;
-    padding: 0 0.35em;
-}
-
-#status-bar-prompt-button:hover {
-    background: rgba(0, 0, 0, 0.08);
-    opacity: 1;
-}
-
-.dark-mode #status-bar-prompt-button:hover {
-    background: rgba(255, 255, 255, 0.12);
+#llm-prompt-send.llm-prompt-stop {
+    border-color: rgba(179, 38, 30, 0.38);
+    background: rgba(179, 38, 30, 0.12);
 }
 
 #llm-prompt-status {
     display: flex;
-    flex: 1;
-    align-items: center;
-    gap: 0.5em;
+    max-height: min(10rem, 28vh);
+    flex-direction: column;
+    gap: 0.3em;
     min-width: 0;
-    font-size: 0.78em;
-    white-space: nowrap;
+    overflow-y: auto;
+    font-size: 0.82em;
 }
 
 #llm-prompt-status-messages {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    gap: 0.5em;
     min-width: 0;
 }
 
@@ -295,15 +254,13 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
 #llm-prompt-build-info {
     flex: none;
     opacity: 0.6;
+    font-size: 0.82em;
     font-family: monospace;
     white-space: nowrap;
 }
 
 #llm-prompt-result {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: pre-wrap;
 }
 
 #llm-prompt-result.llm-prompt-error {

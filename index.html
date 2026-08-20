@@ -107,6 +107,12 @@
           aria-label="Prompt"></textarea>
         <div id="llm-prompt-history" role="listbox" aria-label="Browsing history suggestions" hidden></div>
       </div>
+      <div id="llm-prompt-status" class="light-fade">
+        <span id="llm-prompt-engine-state"></span>
+        <div id="llm-prompt-status-messages" aria-live="polite">
+          <span id="llm-prompt-result"></span>
+        </div>
+      </div>
       <div class="llm-prompt-toolbar">
         <div class="llm-prompt-toolbar-group">
           <button id="llm-prompt-debug" class="llm-prompt-toolbar-button" type="button" aria-pressed="false"
@@ -115,26 +121,14 @@
             title="Open the /b debug tab" hidden>View debug tab</button>
           <button id="llm-prompt-settings" class="llm-prompt-toolbar-button" type="button" disabled
             title="Prompt settings (not configurable yet)"><i class="i carbon:settings"></i></button>
+          <span id="llm-prompt-build-info" role="note"></span>
         </div>
         <div class="llm-prompt-toolbar-group">
-          <button id="llm-prompt-send" type="button" title="Send prompt"><i class="i carbon:arrow-up"></i></button>
+          <button id="llm-prompt-send" type="button" title="Send prompt" aria-label="Send prompt"><i class="i carbon:arrow-up"></i></button>
         </div>
       </div>
     </section>
   </div>
-
-
-  <footer id="status-bar" class="theme-background-color theme-text-color">
-    <button id="status-bar-prompt-button" type="button" aria-label="Open the LLM prompt"
-      title="Open the LLM prompt">Ask</button>
-    <div id="llm-prompt-status" class="light-fade">
-      <div id="llm-prompt-status-messages" aria-live="polite">
-        <span id="llm-prompt-engine-state"></span>
-        <span id="llm-prompt-result"></span>
-      </div>
-      <span id="llm-prompt-build-info" role="note"></span>
-    </div>
-  </footer>
 
   <!-- findinpage ui -->
 
