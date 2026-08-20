@@ -1,8 +1,10 @@
 /*
-Routes prompt text to a skill or the default search engine.
+Routes prompt text, LLM-first:
 
+  <web address>       -> open in a new tab (protocol-less domains included)
+  '?<query>'          -> search with the configured search engine
   '/id args'          -> explicit skill invocation
-    anything else       -> default search engine
+  anything else       -> the model plans and runs tool calls (the former '/b <prompt>')
 
 The router never touches the browser directly: every effect goes through the tool
 registry, so the capability surface stays auditable.
@@ -168,6 +170,23 @@ async function handlePrompt (rawPrompt, options = {}) {
 
     if (!prompt.startsWith('/') && urlParser.isPossibleURL(prompt)) {
         return runURL(prompt, scope)
+    }
+
+    if (prompt.startsWith('?')) {
+        const query = prompt.slice(1).trim()
+
+        if (!query) {
+            return { ok: false, route: 'error', message: 'Type a search query after ?.', trace: [] }
+        }
+
+        return runSearch(query, scope)
+    }
+
+    // plain text defaults to the LLM, which plans and runs tool calls itself (formerly explicit '/b')
+    const llmSkill = skillRegistry.get('b')
+
+    if (llmSkill) {
+        return runSkill(llmSkill, prompt, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
     }
 
     return runSearch(prompt, scope)

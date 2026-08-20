@@ -130,8 +130,8 @@ function updateGuidance(els) {
     }
 
     els.result.textContent = state.providerConfigured
-        ? 'Type / to list skills.'
-        : 'Search and skills work without a model.'
+        ? 'Type an address, ?query to search, or ask anything. / lists skills.'
+        : '?query to search and / skills work without a model.'
 }
 
 function updateEngineStateLabel(els) {
