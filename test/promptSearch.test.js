@@ -22,6 +22,15 @@ function loadPromptRouter () {
         run: async () => ({ message: 'skill completed' })
     }
 
+    const llmSkill = {
+        id: 'b',
+        kind: 'llm',
+        run: async function (input, context) {
+            const answer = await context.llm.complete({ prompt: input.argsText })
+            return { message: answer.ok ? answer.output : 'no model configured' }
+        }
+    }
+
     const skillRegistry = {
         registerAll: () => {},
         resolveExplicit: function (prompt) {
@@ -32,6 +41,9 @@ function loadPromptRouter () {
                 return { unknownSkillId: prompt.slice(1) }
             }
             return null
+        },
+        get: function (id) {
+            return id === 'b' ? llmSkill : null
         },
         getCatalog: () => []
     }
@@ -90,9 +102,9 @@ test('possible URLs, including protocol-less domains, open in a new tab without 
     assert.strictEqual(runtime.getLlmCalls(), 0)
 })
 
-test('plain prompt text runs the default web search without an LLM call', async function () {
+test('a leading ? searches the configured engine without asking the model', async function () {
     const runtime = loadPromptRouter()
-    const result = await runtime.router.handlePrompt('privacy focused browser', { scope: 'mutate' })
+    const result = await runtime.router.handlePrompt('?privacy focused browser', { scope: 'mutate' })
 
     assert.strictEqual(result.ok, true)
     assert.strictEqual(result.route, 'search')
@@ -100,14 +112,24 @@ test('plain prompt text runs the default web search without an LLM call', async 
     assert.strictEqual(runtime.getLlmCalls(), 0)
 })
 
-test('unknown slash text is searched while known explicit skills still run', async function () {
+test('plain prompt text that is not an address or a ?search is handled by the model', async function () {
     const runtime = loadPromptRouter()
-    const searchResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate' })
+    const result = await runtime.router.handlePrompt('privacy focused browser', { scope: 'mutate' })
+
+    assert.strictEqual(result.route, 'skill')
+    assert.strictEqual(result.skillId, 'b')
+    assert.deepStrictEqual(runtime.searchCalls, [])
+    assert.strictEqual(runtime.getLlmCalls(), 1)
+})
+
+test('unknown slash text falls back to the model while known explicit skills still run', async function () {
+    const runtime = loadPromptRouter()
+    const llmResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate' })
     const skillResult = await runtime.router.handlePrompt('/known args', { scope: 'mutate' })
 
-    assert.strictEqual(searchResult.route, 'search')
-    assert.deepStrictEqual(runtime.searchCalls, [{ query: '/not-a-skill' }])
+    assert.strictEqual(llmResult.route, 'skill')
+    assert.strictEqual(llmResult.skillId, 'b')
     assert.strictEqual(skillResult.route, 'skill')
     assert.strictEqual(skillResult.skillId, 'known')
-    assert.strictEqual(runtime.getLlmCalls(), 0)
+    assert.strictEqual(runtime.getLlmCalls(), 1)
 })
