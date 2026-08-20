@@ -3,7 +3,6 @@ var buildInfoView = require('llmPrompt/buildInfo.js')
 var buildInfoData = require('dist/buildInfo.build.js')
 var promptRouter = require('llmPrompt/promptRouter.js')
 var agentRegistry = require('llmPrompt/agents/agentRegistry.js')
-var searchEngineRegistry = require('llmPrompt/searchEngines/searchEngineRegistry.js')
 var ownModelRegistry = require('llmPrompt/ownModels/ownModelRegistry.js')
 var debugTab = require('llmPrompt/debugTab.js')
 var webviews = require('webviews.js')
@@ -22,12 +21,6 @@ const state = {
     historySuggestions: [],
     selectedHistorySuggestion: -1,
     historyRequestId: 0,
-    selectedAgent: agentRegistry.DEFAULT_AGENT_ID,
-    agentMenuOpen: false,
-    selectedSearchEngine: searchEngineRegistry.DEFAULT_SEARCH_ENGINE_ID,
-    searchEngineMenuOpen: false,
-    selectedOwnModel: ownModelRegistry.DEFAULT_OWN_MODEL_ID,
-    ownModelMenuOpen: false,
     debugEnabled: false
 }
 
@@ -44,12 +37,6 @@ function getPanelElements() {
         engineState: document.getElementById('llm-prompt-engine-state'),
         buildInfo: document.getElementById('llm-prompt-build-info'),
         history: document.getElementById('llm-prompt-history'),
-        agentMode: document.getElementById('llm-prompt-mode'),
-        agentMenu: document.getElementById('llm-prompt-agent-menu'),
-        searchEngineMode: document.getElementById('llm-prompt-search-engine'),
-        searchEngineMenu: document.getElementById('llm-prompt-search-engine-menu'),
-        ownModelMode: document.getElementById('llm-prompt-own-model'),
-        ownModelMenu: document.getElementById('llm-prompt-own-model-menu'),
         debugToggle: document.getElementById('llm-prompt-debug'),
         debugLink: document.getElementById('llm-prompt-debug-link')
     }
@@ -98,9 +85,6 @@ function closePanel(els) {
 
     state.open = false
     clearHistorySuggestions(els)
-    closeAgentMenu(els)
-    closeSearchEngineMenu(els)
-    closeOwnModelMenu(els)
     els.overlay.hidden = true
     document.body.classList.remove('llm-prompt-overlay-open')
     webviews.hidePlaceholder(PLACEHOLDER_REASON)
@@ -204,7 +188,12 @@ async function sendPrompt(els) {
     closePanel(els)
 
     try {
-        const result = await promptRouter.handlePrompt(prompt, { scope: 'mutate', agentId: state.selectedAgent, ownModelId: state.selectedOwnModel, debug: state.debugEnabled })
+        const result = await promptRouter.handlePrompt(prompt, {
+            scope: 'mutate',
+            agentId: agentRegistry.DEFAULT_AGENT_ID,
+            ownModelId: ownModelRegistry.DEFAULT_OWN_MODEL_ID,
+            debug: state.debugEnabled
+        })
         renderResult(els, result)
     } catch (e) {
         setResult(els, 'The prompt runtime failed: ' + (e && e.message ? e.message : 'unknown error'), true)
@@ -301,136 +290,6 @@ async function updateHistorySuggestions(els) {
     }
 }
 
-function updateAgentButtonLabel(els) {
-    const agent = agentRegistry.get(state.selectedAgent) || agentRegistry.getDefault()
-    els.agentMode.textContent = agent.shortTitle || agent.title
-    els.agentMode.title = 'AI agent: ' + agent.title + (agent.functional ? '' : ' (coming soon)')
-}
-
-function closeAgentMenu(els) {
-    state.agentMenuOpen = false
-    els.agentMenu.hidden = true
-    els.agentMode.setAttribute('aria-expanded', 'false')
-}
-
-function renderAgentMenu(els) {
-    els.agentMenu.replaceChildren()
-
-    agentRegistry.list().forEach(function (agent) {
-        const item = document.createElement('button')
-        item.type = 'button'
-        item.className = 'llm-prompt-agent-item'
-        item.setAttribute('role', 'option')
-        item.setAttribute('aria-selected', String(agent.id === state.selectedAgent))
-        item.classList.toggle('selected', agent.id === state.selectedAgent)
-
-        const title = document.createElement('span')
-        title.textContent = agent.shortTitle || agent.title
-        item.appendChild(title)
-
-        if (!agent.functional) {
-            const badge = document.createElement('span')
-            badge.className = 'llm-prompt-agent-badge'
-            badge.textContent = 'soon'
-            item.appendChild(badge)
-        }
-
-        item.addEventListener('click', function () {
-            state.selectedAgent = agent.id
-            updateAgentButtonLabel(els)
-            closeAgentMenu(els)
-            els.agentMode.focus()
-        })
-
-        els.agentMenu.appendChild(item)
-    })
-}
-
-function openAgentMenu(els) {
-    renderAgentMenu(els)
-    state.agentMenuOpen = true
-    els.agentMenu.hidden = false
-    els.agentMode.setAttribute('aria-expanded', 'true')
-}
-
-function toggleAgentMenu(els) {
-    if (state.agentMenuOpen) {
-        closeAgentMenu(els)
-    } else {
-        closeSearchEngineMenu(els)
-        closeOwnModelMenu(els)
-        openAgentMenu(els)
-    }
-}
-
-function updateSearchEngineButtonLabel(els) {
-    const searchEngine = searchEngineRegistry.get(state.selectedSearchEngine) || searchEngineRegistry.getDefault()
-    els.searchEngineMode.textContent = searchEngine.shortTitle || searchEngine.title
-    els.searchEngineMode.title = 'Search engine: ' + searchEngine.title + (searchEngine.functional ? '' : ' (coming soon)')
-}
-
-function closeSearchEngineMenu(els) {
-    state.searchEngineMenuOpen = false
-    els.searchEngineMenu.hidden = true
-    els.searchEngineMode.setAttribute('aria-expanded', 'false')
-}
-
-function renderSearchEngineMenu(els) {
-    els.searchEngineMenu.replaceChildren()
-
-    searchEngineRegistry.list().forEach(function (searchEngine) {
-        const item = document.createElement('button')
-        item.type = 'button'
-        item.className = 'llm-prompt-search-engine-item'
-        item.setAttribute('role', 'option')
-        item.setAttribute('aria-selected', String(searchEngine.id === state.selectedSearchEngine))
-        item.classList.toggle('selected', searchEngine.id === state.selectedSearchEngine)
-
-        const title = document.createElement('span')
-        title.textContent = searchEngine.shortTitle || searchEngine.title
-        item.appendChild(title)
-
-        if (!searchEngine.functional) {
-            const badge = document.createElement('span')
-            badge.className = 'llm-prompt-search-engine-badge'
-            badge.textContent = 'soon'
-            item.appendChild(badge)
-        }
-
-        item.addEventListener('click', function () {
-            state.selectedSearchEngine = searchEngine.id
-            updateSearchEngineButtonLabel(els)
-            closeSearchEngineMenu(els)
-            els.searchEngineMode.focus()
-        })
-
-        els.searchEngineMenu.appendChild(item)
-    })
-}
-
-function openSearchEngineMenu(els) {
-    renderSearchEngineMenu(els)
-    state.searchEngineMenuOpen = true
-    els.searchEngineMenu.hidden = false
-    els.searchEngineMode.setAttribute('aria-expanded', 'true')
-}
-
-function toggleSearchEngineMenu(els) {
-    if (state.searchEngineMenuOpen) {
-        closeSearchEngineMenu(els)
-    } else {
-        closeAgentMenu(els)
-        closeOwnModelMenu(els)
-        openSearchEngineMenu(els)
-    }
-}
-
-function updateOwnModelButtonLabel(els) {
-    const ownModel = ownModelRegistry.get(state.selectedOwnModel) || ownModelRegistry.getDefault()
-    els.ownModelMode.textContent = ownModel.shortTitle || ownModel.title
-    els.ownModelMode.title = 'Own model for /b: ' + ownModel.title + (ownModel.functional ? '' : ' (coming soon)')
-}
-
 function updateDebugToggleLabel(els) {
     els.debugToggle.classList.toggle('active', state.debugEnabled)
     els.debugToggle.setAttribute('aria-pressed', String(state.debugEnabled))
@@ -438,62 +297,6 @@ function updateDebugToggleLabel(els) {
         ? 'Debug: on - /b opens a debug tab with the full model exchange'
         : 'Debug: off - turn on to inspect /b runs in a dedicated tab'
     els.debugLink.hidden = !state.debugEnabled
-}
-
-function closeOwnModelMenu(els) {
-    state.ownModelMenuOpen = false
-    els.ownModelMenu.hidden = true
-    els.ownModelMode.setAttribute('aria-expanded', 'false')
-}
-
-function renderOwnModelMenu(els) {
-    els.ownModelMenu.replaceChildren()
-
-    ownModelRegistry.list().forEach(function (ownModel) {
-        const item = document.createElement('button')
-        item.type = 'button'
-        item.className = 'llm-prompt-own-model-item'
-        item.setAttribute('role', 'option')
-        item.setAttribute('aria-selected', String(ownModel.id === state.selectedOwnModel))
-        item.classList.toggle('selected', ownModel.id === state.selectedOwnModel)
-
-        const title = document.createElement('span')
-        title.textContent = ownModel.shortTitle || ownModel.title
-        item.appendChild(title)
-
-        if (!ownModel.functional) {
-            const badge = document.createElement('span')
-            badge.className = 'llm-prompt-own-model-badge'
-            badge.textContent = 'soon'
-            item.appendChild(badge)
-        }
-
-        item.addEventListener('click', function () {
-            state.selectedOwnModel = ownModel.id
-            updateOwnModelButtonLabel(els)
-            closeOwnModelMenu(els)
-            els.ownModelMode.focus()
-        })
-
-        els.ownModelMenu.appendChild(item)
-    })
-}
-
-function openOwnModelMenu(els) {
-    renderOwnModelMenu(els)
-    state.ownModelMenuOpen = true
-    els.ownModelMenu.hidden = false
-    els.ownModelMode.setAttribute('aria-expanded', 'true')
-}
-
-function toggleOwnModelMenu(els) {
-    if (state.ownModelMenuOpen) {
-        closeOwnModelMenu(els)
-    } else {
-        closeAgentMenu(els)
-        closeSearchEngineMenu(els)
-        openOwnModelMenu(els)
-    }
 }
 
 function bindEvents(els) {
@@ -509,21 +312,6 @@ function bindEvents(els) {
         closePanel(els)
     })
 
-    els.agentMode.addEventListener('click', function (e) {
-        e.stopPropagation()
-        toggleAgentMenu(els)
-    })
-
-    els.searchEngineMode.addEventListener('click', function (e) {
-        e.stopPropagation()
-        toggleSearchEngineMenu(els)
-    })
-
-    els.ownModelMode.addEventListener('click', function (e) {
-        e.stopPropagation()
-        toggleOwnModelMenu(els)
-    })
-
     els.debugToggle.addEventListener('click', function () {
         state.debugEnabled = !state.debugEnabled
         updateDebugToggleLabel(els)
@@ -532,18 +320,6 @@ function bindEvents(els) {
     els.debugLink.addEventListener('click', function (e) {
         e.stopPropagation()
         debugTab.open()
-    })
-
-    els.panel.addEventListener('click', function (e) {
-        if (state.agentMenuOpen && !els.agentMenu.contains(e.target) && e.target !== els.agentMode) {
-            closeAgentMenu(els)
-        }
-        if (state.searchEngineMenuOpen && !els.searchEngineMenu.contains(e.target) && e.target !== els.searchEngineMode) {
-            closeSearchEngineMenu(els)
-        }
-        if (state.ownModelMenuOpen && !els.ownModelMenu.contains(e.target) && e.target !== els.ownModelMode) {
-            closeOwnModelMenu(els)
-        }
     })
 
     els.panel.addEventListener('keydown', function (e) {
@@ -567,13 +343,7 @@ function bindEvents(els) {
 
         if (e.key === 'Escape') {
             e.preventDefault()
-            if (state.agentMenuOpen) {
-                closeAgentMenu(els)
-            } else if (state.searchEngineMenuOpen) {
-                closeSearchEngineMenu(els)
-            } else if (state.ownModelMenuOpen) {
-                closeOwnModelMenu(els)
-            } else if (state.historySuggestions.length > 0) {
+            if (state.historySuggestions.length > 0) {
                 clearHistorySuggestions(els)
             } else {
                 closePanel(els)
@@ -647,9 +417,6 @@ var promptPanel = {
         promptRouter.initialize()
         bindEvents(els)
         updateControls(els)
-        updateAgentButtonLabel(els)
-        updateSearchEngineButtonLabel(els)
-        updateOwnModelButtonLabel(els)
         updateDebugToggleLabel(els)
         syncWebviewMargins(els)
         initializeEngineState(els)

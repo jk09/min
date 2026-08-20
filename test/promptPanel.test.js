@@ -44,9 +44,7 @@ function loadPromptPanel () {
     'llm-prompt-overlay', 'llm-prompt-scrim', 'llm-prompt-panel', 'status-bar',
     'status-bar-prompt-button', 'llm-prompt-input', 'llm-prompt-send', 'llm-prompt-result',
     'llm-prompt-engine-state', 'llm-prompt-build-info', 'llm-prompt-history',
-    'llm-prompt-mode', 'llm-prompt-agent-menu',
-    'llm-prompt-search-engine', 'llm-prompt-search-engine-menu',
-    'llm-prompt-own-model', 'llm-prompt-own-model-menu', 'llm-prompt-debug', 'llm-prompt-debug-link'
+    'llm-prompt-debug', 'llm-prompt-debug-link'
   ]
   const elements = new Map(ids.map(id => [id, createElement(id)]))
   const bodyClasses = new Set()
@@ -76,7 +74,6 @@ function loadPromptPanel () {
     'dist/buildInfo.build.js': { shortCommit: 'abc1234' },
     'llmPrompt/promptRouter.js': { initialize: () => {}, handlePrompt: async () => ({ ok: true, message: 'done' }), toolRegistry: { run: async () => {} } },
     'llmPrompt/agents/agentRegistry.js': require('../js/llmPrompt/agents/agentRegistry.js'),
-    'llmPrompt/searchEngines/searchEngineRegistry.js': require('../js/llmPrompt/searchEngines/searchEngineRegistry.js'),
     'llmPrompt/ownModels/ownModelRegistry.js': require('../js/llmPrompt/ownModels/ownModelRegistry.js'),
     'llmPrompt/debugTab.js': { publish: () => {}, open: () => {} },
     'webviews.js': {
