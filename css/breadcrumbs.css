@@ -1,0 +1,90 @@
+#breadcrumbs-bar {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 calc(0.5em + var(--control-space-right)) 0 calc(0.5em + var(--control-space-left));
+  background: rgba(0, 0, 0, 0.04);
+  font-size: 0.8em;
+  overflow: hidden;
+}
+
+.dark-theme #breadcrumbs-bar {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#breadcrumbs-overflow-button {
+  flex: 0 0 auto;
+  margin-right: 0.5em;
+  padding: 0 0.5em;
+  border: 0;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  opacity: 0.75;
+  font-size: 1em;
+}
+
+.dark-theme #breadcrumbs-overflow-button {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#breadcrumbs-overflow-button:hover {
+  opacity: 1;
+}
+
+#breadcrumbs-inner {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#breadcrumbs-bar.expanded #breadcrumbs-inner {
+  overflow-x: auto;
+}
+
+.breadcrumb-item {
+  flex: 0 0 auto;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.15em 0.6em;
+  margin-right: 2px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.breadcrumb-item:not(:last-child):after {
+  content: "\203a";
+  margin-left: 0.6em;
+  opacity: 0.5;
+}
+
+.breadcrumb-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+  opacity: 1;
+}
+
+.dark-theme .breadcrumb-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.breadcrumb-item.current {
+  opacity: 1;
+  font-weight: 600;
+  cursor: default;
+}
+
+.breadcrumb-item.subdued {
+  opacity: 0.45;
+}
+
+.breadcrumb-item.breadcrumb-hidden {
+  display: none;
+}
