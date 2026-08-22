@@ -69,6 +69,8 @@
     "tabOverflowHeading": "%n tabs not shown",
     "tabOverflowStatus": "%l loading, %u not loaded", //%l is the number of loading tabs, %u the number of tabs without a loaded page
     "newTabAction": "New Tab", //this is a verb, used to label a button that adds a tab to the tabstrip when clicked
+    /* breadcrumbs bar */
+    "breadcrumbsHiddenLabel": "%n more pages hidden", //accessible label for the button that reveals breadcrumb items truncated from the navigation history bar
     /* find in page toolbar */
     "searchInPage": "Search in Page", //this is used as the placeholder text for the textbox in the find in page toolbar
     "findMatchesSingular": "%i of %t match", //this and the next label are used to indicate which match is currently highlighted
