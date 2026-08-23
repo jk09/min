@@ -46,6 +46,20 @@ The `Min` browser session should resemble vibe coding (vibe browsing?).
 
 The specifications for individual features are in the [specification folder](./spec/). Its subfolders contain `SPEC.md` files, along with possible supplemental files. The names of the subfolders refer to the workflow status of the specified features: `backlog`, `in_progress`, `done`, `blocked`. The subfolder `done` expecially can be used to determine the rationale for certain features. The commits which contain the implementation of features may have the spec references in their commit messages.
 
+## Feature ledger
+
+Specifications record intent at a point in time; the [feature ledger](./spec/FEATURES.json) records what the application actually does now. It is the source of truth for the live feature set. See [docs/feature-ledger.md](./docs/feature-ledger.md) for the full design and [docs/features.md](./docs/features.md) for the generated feature documentation.
+
+Every agentic run MUST:
+
+1. Run `npm run features:context` and read the generated `spec/CONTEXT.md` before planning. It lists the active features and the features that must not be reintroduced.
+2. Reuse an existing feature `id` when revising that feature. Do not create a second `active` entry for behaviour that already has one.
+3. When replacing a feature, set the old entry to `superseded` (or `removed`, with a `removalReason`), clear its `sourceFiles` and `tests`, and delete the test files and documentation that belonged to it.
+4. Keep tests matched to features across the `unit`, `integration` and `e2e` tiers, and list them on the ledger entry.
+5. Run `npm run features:docs`, then `npm test` and `npm run test:unit`, then `npm run features:restamp -- <id> [...]` for every feature whose source files changed, before committing.
+
+`npm run verify:features` runs as part of `npm test` and fails on stale, orphaned or inconsistent ledger entries.
+
 ## Agent commit behavior
 - Automatically commit (`git commit ...`) the changes produced by each agentic run.
 - The format of the commit message should follow the [commit message instructions](./.copilot-commit-message-instructions.md)
