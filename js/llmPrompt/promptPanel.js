@@ -190,6 +190,10 @@ function renderResult(els, result) {
     setResult(els, text, !result.ok)
 }
 
+function shouldCloseAfterSubmit(result) {
+    return result && result.ok && !(result.route === 'skill' && result.kind === 'llm')
+}
+
 function getRunningText() {
     const progress = state.progressText.trim()
     if (progress) {
@@ -277,6 +281,9 @@ async function sendPrompt(els) {
             return
         }
         renderResult(els, result)
+        if (shouldCloseAfterSubmit(result)) {
+            closePanel(els)
+        }
     } catch (e) {
         if (state.activeRequestId !== requestId) {
             return
