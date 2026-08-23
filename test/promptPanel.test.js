@@ -39,7 +39,7 @@ function createElement (id) {
   }
 }
 
-function loadPromptPanel () {
+function loadPromptPanel (handlePrompt) {
   const ids = [
     'llm-prompt-overlay', 'llm-prompt-scrim', 'llm-prompt-panel',
     'llm-prompt-input', 'llm-prompt-send', 'llm-prompt-result',
@@ -72,7 +72,7 @@ function loadPromptPanel () {
     'llmPrompt/engineClient.js': { getStatus: async () => ({ providerConfigured: false }) },
     'llmPrompt/buildInfo.js': { render: () => {} },
     'dist/buildInfo.build.js': { shortCommit: 'abc1234' },
-    'llmPrompt/promptRouter.js': { initialize: () => {}, handlePrompt: async () => ({ ok: true, message: 'done' }), toolRegistry: { run: async () => {} } },
+    'llmPrompt/promptRouter.js': { initialize: () => {}, handlePrompt: handlePrompt || (async () => ({ ok: true, message: 'done' })), toolRegistry: { run: async () => {} } },
     'llmPrompt/agents/agentRegistry.js': require('../js/llmPrompt/agents/agentRegistry.js'),
     'llmPrompt/ownModels/ownModelRegistry.js': require('../js/llmPrompt/ownModels/ownModelRegistry.js'),
     'llmPrompt/debugTab.js': { publish: () => {}, open: () => {} },
@@ -156,6 +156,39 @@ test('the overlay opens on the blank empty state', function () {
   promptPanel.initialize()
 
   promptPanel.open()
+
+  assert.strictEqual(promptPanel.isOpen(), true)
+})
+
+test('submitting an immediate result closes the prompt', async function () {
+  const { promptPanel, elements } = loadPromptPanel(async () => ({
+    ok: true,
+    route: 'search',
+    message: 'Searching the web.'
+  }))
+
+  promptPanel.initialize()
+  promptPanel.open()
+  elements.get('llm-prompt-input').value = 'privacy browser'
+  elements.get('llm-prompt-input').dispatch('keydown', { key: 'Enter', shiftKey: false, preventDefault: () => {} })
+  await Promise.resolve()
+
+  assert.strictEqual(promptPanel.isOpen(), false)
+})
+
+test('submitting an LLM result keeps the prompt open', async function () {
+  const { promptPanel, elements } = loadPromptPanel(async () => ({
+    ok: true,
+    route: 'skill',
+    kind: 'llm',
+    message: 'Model completed the request.'
+  }))
+
+  promptPanel.initialize()
+  promptPanel.open()
+  elements.get('llm-prompt-input').value = '//summarize this'
+  elements.get('llm-prompt-input').dispatch('keydown', { key: 'Enter', shiftKey: false, preventDefault: () => {} })
+  await Promise.resolve()
 
   assert.strictEqual(promptPanel.isOpen(), true)
 })
