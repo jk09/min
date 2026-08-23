@@ -59,9 +59,9 @@ Min's LLM prompt (open it with `Ctrl+/`/`Cmd+/`, or the **Ask** button in the st
    ```
 2. Point Min at it and start the browser:
    ```bash
-   MIN_LLM_PROVIDER=ollama MIN_LLM_MODEL=llama3.2 npm start
+   npm run startWithOllama
    ```
-   (On Windows PowerShell, set `$env:MIN_LLM_PROVIDER = "ollama"` and `$env:MIN_LLM_MODEL = "llama3.2"` first, then run `npm start`.)
+   This runs cross-platform (Windows/macOS/Linux) and defaults to the `llama3.2` model. To use a different model, pass it as an argument: `npm run startWithOllama -- mistral`.
 3. Open the LLM prompt and confirm the engine-state label shows `ollama / llama3.2`, then try a `/b` command.
 
 A hosted provider (OpenAI, OpenRouter, LM Studio) works the same way, using `MIN_LLM_PROVIDER`, `MIN_LLM_MODEL`, `MIN_LLM_API_KEY`, and optionally `MIN_LLM_BASE_URL` instead.
