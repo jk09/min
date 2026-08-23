@@ -45,11 +45,13 @@ You can find prebuilt binaries for Min [here](https://github.com/minbrowser/min/
 * Min supports installing userscripts to extend its functionality. See the [userscript documentation](https://github.com/minbrowser/min/wiki/userscripts) for instructions on writing userscripts, as well as a collection of scripts written by the community.
 * If you have questions about using Min, need help getting started with development, or want to talk about what we're working on, join our [Discord server](https://discord.gg/bRpqjJ4).
 
-## LLM prompt: `/b <command>` browser commands
+## LLM prompt: `//<command>` browser commands
 
-Min's LLM prompt (open it with `Ctrl+/`/`Cmd+/`, or the **Ask** button in the status bar) supports a `/b <instruction>` command that turns a plain-language instruction into browser actions - e.g. `/b open google.com and bing.com in new tabs`, `/b find pages in my history about tax return forms`, `/b close all tabs opened for a search`.
+Min's LLM prompt (open it with `Ctrl+/`/`Cmd+/`, or the **Ask** button in the status bar) supports a `//<instruction>` command that turns a plain-language instruction into browser actions - e.g. `//open google.com and bing.com in new tabs`, `//find pages in my history about tax return forms`, `//close all tabs opened for a search`.
 
-`/b` uses a bring-your-own-model (BYOM) approach: Min doesn't ship or train a model, it calls whichever model you've already configured. The "Own model" selector in the prompt toolbar lets you pick which model handles `/b`; only **Configured model** is functional today (the others are placeholders for future providers).
+Typing an address opens it directly, plain text without a leading `/` searches your configured search engine, `//<instruction>` is sent to the model, and `/<skill-name>` invokes a named skill.
+
+`//` uses a bring-your-own-model (BYOM) approach: Min doesn't ship or train a model, it calls whichever model you've already configured. The "Own model" selector in the prompt toolbar lets you pick which model handles `//`; only **Configured model** is functional today (the others are placeholders for future providers).
 
 ### Configuring a model with Ollama (local, no API key)
 

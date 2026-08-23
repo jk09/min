@@ -1,10 +1,14 @@
 /*
-Routes prompt text, LLM-first:
+Routes prompt text:
 
   <web address>       -> open in a new tab (protocol-less domains included)
-  '?<query>'          -> search with the configured search engine
-  '/id args'          -> explicit skill invocation
-  anything else       -> the model plans and runs tool calls (the former '/b <prompt>')
+  text w/o leading '/' -> search with the configured search engine
+  '//<prompt>'         -> the prompt is fed to the configured LLM model
+  '/<skill-name> args' -> explicit skill invocation
+
+The URL check always runs first, so text that resolves to an address is opened
+even if it also happens to start with '/'. Leading/trailing whitespace is
+discarded before any of these checks run.
 
 The router never touches the browser directly: every effect goes through the tool
 registry, so the capability surface stays auditable.
@@ -162,34 +166,43 @@ async function handlePrompt (rawPrompt, options = {}) {
     const debug = Boolean(options.debug)
     const requestId = typeof options.requestId === 'string' ? options.requestId : null
     const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null
+
+    if (urlParser.isPossibleURL(prompt)) {
+        return runURL(prompt, scope)
+    }
+
+    if (!prompt.startsWith('/')) {
+        return runSearch(prompt, scope)
+    }
+
+    if (prompt.startsWith('//')) {
+        const llmPrompt = prompt.slice(2).trim()
+
+        if (!llmPrompt) {
+            return { ok: false, route: 'error', message: 'Type a prompt after //.', trace: [] }
+        }
+
+        const llmSkill = skillRegistry.get('b')
+
+        if (llmSkill) {
+            return runSkill(llmSkill, llmPrompt, llmPrompt, scope, agentId, ownModelId, debug, requestId, onProgress)
+        }
+
+        return { ok: false, route: 'error', message: 'No LLM model is configured.', trace: [] }
+    }
+
     const explicit = skillRegistry.resolveExplicit(prompt)
 
     if (explicit && !explicit.unknownSkillId) {
         return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
     }
 
-    if (!prompt.startsWith('/') && urlParser.isPossibleURL(prompt)) {
-        return runURL(prompt, scope)
+    return {
+        ok: false,
+        route: 'error',
+        message: 'Unknown skill "/' + (explicit ? explicit.unknownSkillId : '') + '". Type / to see the available skills.',
+        trace: []
     }
-
-    if (prompt.startsWith('?')) {
-        const query = prompt.slice(1).trim()
-
-        if (!query) {
-            return { ok: false, route: 'error', message: 'Type a search query after ?.', trace: [] }
-        }
-
-        return runSearch(query, scope)
-    }
-
-    // plain text defaults to the LLM, which plans and runs tool calls itself (formerly explicit '/b')
-    const llmSkill = skillRegistry.get('b')
-
-    if (llmSkill) {
-        return runSkill(llmSkill, prompt, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
-    }
-
-    return runSearch(prompt, scope)
 }
 
 module.exports = {

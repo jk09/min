@@ -102,9 +102,9 @@ test('possible URLs, including protocol-less domains, open in a new tab without 
     assert.strictEqual(runtime.getLlmCalls(), 0)
 })
 
-test('a leading ? searches the configured engine without asking the model', async function () {
+test('plain text without a leading / searches the configured engine without asking the model', async function () {
     const runtime = loadPromptRouter()
-    const result = await runtime.router.handlePrompt('?privacy focused browser', { scope: 'mutate' })
+    const result = await runtime.router.handlePrompt('privacy focused browser', { scope: 'mutate' })
 
     assert.strictEqual(result.ok, true)
     assert.strictEqual(result.route, 'search')
@@ -112,9 +112,9 @@ test('a leading ? searches the configured engine without asking the model', asyn
     assert.strictEqual(runtime.getLlmCalls(), 0)
 })
 
-test('plain prompt text that is not an address or a ?search is handled by the model', async function () {
+test('a leading // feeds the prompt to the configured LLM model', async function () {
     const runtime = loadPromptRouter()
-    const result = await runtime.router.handlePrompt('privacy focused browser', { scope: 'mutate' })
+    const result = await runtime.router.handlePrompt('//privacy focused browser', { scope: 'mutate' })
 
     assert.strictEqual(result.route, 'skill')
     assert.strictEqual(result.skillId, 'b')
@@ -122,14 +122,14 @@ test('plain prompt text that is not an address or a ?search is handled by the mo
     assert.strictEqual(runtime.getLlmCalls(), 1)
 })
 
-test('unknown slash text falls back to the model while known explicit skills still run', async function () {
+test('unknown slash text is rejected without asking the model, known explicit skills still run', async function () {
     const runtime = loadPromptRouter()
-    const llmResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate' })
+    const unknownResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate' })
     const skillResult = await runtime.router.handlePrompt('/known args', { scope: 'mutate' })
 
-    assert.strictEqual(llmResult.route, 'skill')
-    assert.strictEqual(llmResult.skillId, 'b')
+    assert.strictEqual(unknownResult.ok, false)
+    assert.strictEqual(unknownResult.route, 'error')
     assert.strictEqual(skillResult.route, 'skill')
     assert.strictEqual(skillResult.skillId, 'known')
-    assert.strictEqual(runtime.getLlmCalls(), 1)
+    assert.strictEqual(runtime.getLlmCalls(), 0)
 })
