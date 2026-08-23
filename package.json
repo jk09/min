@@ -72,6 +72,7 @@
     "watch": "node ./scripts/watch.js",
     "startElectron": "electron . --development-mode",
     "start": "npm run build && concurrently \"npm run watch\" \"npm run startElectron\"",
+    "startWithOllama": "node ./scripts/startWithOllama.js",
     "buildBrowser": "node ./scripts/buildBrowser.js",
     "buildBrowserStyles": "node ./scripts/buildBrowserStyles.js",
     "buildPreload": "node ./scripts/buildPreload.js",
