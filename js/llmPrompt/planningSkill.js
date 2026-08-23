@@ -22,6 +22,8 @@ function buildSystemPrompt (catalog) {
     return [
         'You turn a browser instruction into a short plan of tool calls.',
         'Only use the tools listed below; never invent a tool id or a parameter name.',
+        'Every argument value must be concrete and valid for the target tool; do not use placeholders or wildcards like "*", "<id>", or "any".',
+        'For tabs.close, only pass an exact tab id that came from tabs.list.',
         'Reply with JSON only, no prose, in the exact shape:',
         '{ "message": "short summary for the user", "toolCalls": [ { "tool": "id", "args": { } } ] }',
         'Use at most ' + MAX_TOOL_CALLS_HINT + ' tool calls.',

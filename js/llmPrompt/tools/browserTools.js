@@ -74,6 +74,11 @@ const browserTools = [
             tabId: { type: 'string', required: true, description: 'id of the tab to close' }
         },
         handler: function (args) {
+            // Model-generated plans occasionally use placeholders; skip these safely.
+            if (args.tabId === '*' || args.tabId === '<id>' || args.tabId === 'any') {
+                return { closed: null, skipped: true, reason: 'placeholder tab id' }
+            }
+
             if (!tabs.has(args.tabId)) {
                 throw new Error('no tab with id ' + args.tabId)
             }
