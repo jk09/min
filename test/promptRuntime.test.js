@@ -158,6 +158,8 @@ test('/b system prompt lists the tool catalog and instructs JSON-only replies', 
     assert.match(system, /value:string/)
     assert.match(system, /count:number\?/)
     assert.match(system, /JSON only/)
+    assert.match(system, /do not use placeholders or wildcards/i)
+    assert.match(system, /tabs\.close/i)
 })
 
 test('/b outcome summary combines the plan message with a step count', function () {
