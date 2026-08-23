@@ -131,10 +131,10 @@ const builtinSkills = [
         title: 'Run a browser command',
         description: 'Plan and run a browser action (open pages, search history, manage tabs) from a plain instruction.',
         kind: 'llm',
-        usage: '/b <instruction>',
+        usage: '//<instruction>',
         triggers: [],
         run: async function (input, context) {
-            const instruction = requireArgs(input.argsText, '/b <instruction>')
+            const instruction = requireArgs(input.argsText, '//<instruction>')
             const ownModel = ownModelRegistry.get(context.ownModelId) || ownModelRegistry.getDefault()
 
             const record = { instruction, ownModelId: ownModel.id }
