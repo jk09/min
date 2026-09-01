@@ -4,6 +4,10 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using Min.Maui.Models;
 using Min.Maui.ViewModels;
+#if WINDOWS
+using Microsoft.UI.Xaml.Input;
+using Windows.System;
+#endif
 
 public partial class MainPage : ContentPage
 {
@@ -19,6 +23,28 @@ public partial class MainPage : ContentPage
 		viewModel.Tabs.CollectionChanged += OnTabsChanged;
 		Loaded += OnLoaded;
 		SyncWebViews();
+	}
+
+	protected override void OnHandlerChanged()
+	{
+		base.OnHandlerChanged();
+#if WINDOWS
+		if (Handler?.PlatformView is Microsoft.UI.Xaml.UIElement element)
+		{
+			var accelerator = new KeyboardAccelerator
+			{
+				Key = VirtualKey.L,
+				Modifiers = VirtualKeyModifiers.Control
+			};
+			accelerator.Invoked += (_, args) =>
+			{
+				viewModel.IsPromptOverlayVisible = true;
+				PromptEditor.Focus();
+				args.Handled = true;
+			};
+			element.KeyboardAccelerators.Add(accelerator);
+		}
+#endif
 	}
 
 	private void OnLoaded(object? sender, EventArgs e)

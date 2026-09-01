@@ -14,18 +14,12 @@ public sealed class BrowserShellViewModel : ObservableObject
     private bool isPromptOverlayVisible;
     private bool isBusy;
     private string statusText;
-    private SearchEngineDefinition selectedSearchEngine;
-    private AgentDefinition selectedAgent;
     private bool debugMode;
 
     public BrowserShellViewModel(BrowserSessionService session, PromptRouterService router, SearchEngineRegistry searchEngines, AgentRegistry agents, BuildInfoService buildInfo)
     {
         this.session = session;
         this.router = router;
-        SearchEngines = new ObservableCollection<SearchEngineDefinition>(searchEngines.List());
-        Agents = new ObservableCollection<AgentDefinition>(agents.List());
-        selectedSearchEngine = searchEngines.Default;
-        selectedAgent = agents.Default;
         statusText = buildInfo.Label;
 
         OpenPromptCommand = new RelayCommand<object>(_ => IsPromptOverlayVisible = true);
@@ -57,8 +51,6 @@ public sealed class BrowserShellViewModel : ObservableObject
     public bool HasTabs => session.HasTabs;
     public IEnumerable<NavigationEntry> Breadcrumbs => session.SelectedTab?.History ?? Enumerable.Empty<NavigationEntry>();
     public string OverflowSummary => session.OverflowSummary;
-    public ObservableCollection<SearchEngineDefinition> SearchEngines { get; }
-    public ObservableCollection<AgentDefinition> Agents { get; }
 
     public string PromptText
     {
@@ -90,18 +82,6 @@ public sealed class BrowserShellViewModel : ObservableObject
         set => SetProperty(ref statusText, value);
     }
 
-    public SearchEngineDefinition SelectedSearchEngine
-    {
-        get => selectedSearchEngine;
-        set => SetProperty(ref selectedSearchEngine, value);
-    }
-
-    public AgentDefinition SelectedAgent
-    {
-        get => selectedAgent;
-        set => SetProperty(ref selectedAgent, value);
-    }
-
     public bool DebugMode
     {
         get => debugMode;
@@ -126,7 +106,7 @@ public sealed class BrowserShellViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            var result = await router.RouteAsync(PromptText, SelectedSearchEngine, SelectedAgent, DebugMode).ConfigureAwait(false);
+            var result = await router.RouteAsync(PromptText, debug: DebugMode).ConfigureAwait(false);
             StatusText = result.Message;
             if (result.Succeeded)
             {
