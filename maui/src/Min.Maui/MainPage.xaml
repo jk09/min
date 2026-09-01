@@ -173,7 +173,7 @@
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
-                      <Grid RowDefinitions="Auto,*,Auto,Auto"
+                    <Grid RowDefinitions="Auto,*,Auto,Auto"
                           RowSpacing="0">
                         <Grid ColumnDefinitions="*,Auto"
                               Padding="16,12,12,6">
