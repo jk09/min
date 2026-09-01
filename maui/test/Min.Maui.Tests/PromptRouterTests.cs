@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Min.Maui.Core;
 using Min.Maui.Automation;
+using Min.Maui.Core;
 using Min.Maui.Services;
 using Min.Maui.ViewModels;
 
