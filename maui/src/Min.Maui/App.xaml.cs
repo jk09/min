@@ -4,10 +4,10 @@ public partial class App : Application
 {
 	private readonly MainPage mainPage;
 
-	public App(MainPage mainPage, Automation.NamedPipeAutomationServer automationServer)
+	public App(ViewModels.BrowserShellViewModel viewModel, Automation.NamedPipeAutomationServer automationServer)
 	{
-		this.mainPage = mainPage;
 		InitializeComponent();
+		mainPage = new MainPage(viewModel);
 		automationServer.StartIfRequested();
 	}
 

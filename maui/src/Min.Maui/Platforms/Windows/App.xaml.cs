@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
+using Min.Maui.Diagnostics;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -16,9 +17,26 @@ public partial class App : MauiWinUIApplication
 	/// </summary>
 	public App()
 	{
+		UnhandledException += OnUnhandledException;
 		this.InitializeComponent();
 	}
 
-	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+	protected override MauiApp CreateMauiApp()
+	{
+		try
+		{
+			return MauiProgram.CreateMauiApp();
+		}
+		catch (Exception exception)
+		{
+			StartupDiagnostics.Write(exception);
+			throw;
+		}
+	}
+
+	private static void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs args)
+	{
+		StartupDiagnostics.Write(args.Exception);
+	}
 }
 

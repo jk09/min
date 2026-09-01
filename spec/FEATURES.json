@@ -524,6 +524,7 @@
         "maui/src/Min.Maui/Models/BrowserTab.cs",
         "maui/src/Min.Maui/Models/BrowserTitle.cs",
         "maui/src/Min.Maui/Models/NavigationEntry.cs",
+        "maui/src/Min.Maui/Diagnostics/StartupDiagnostics.cs",
         "maui/src/Min.Maui/Platforms/Windows/App.xaml",
         "maui/src/Min.Maui/Platforms/Windows/App.xaml.cs",
         "maui/src/Min.Maui/Platforms/Windows/Package.appxmanifest",
@@ -564,7 +565,7 @@
         "unit",
         "e2e"
       ],
-      "sourceHash": "sha256:07cf8650e2f5a6e29db60678d69fc15295dbe12d3aa02f634df666797f9a37c8",
+      "sourceHash": "sha256:d0a5150dc3379fdf0b37852dc98298a80d6699c3cb877a0e3952411d74a66472",
       "lastVerified": "2026-09-01"
     }
   ]
