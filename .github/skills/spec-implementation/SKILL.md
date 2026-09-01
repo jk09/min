@@ -17,5 +17,10 @@ The location of  `SPEC.md` file, which contains the feature specification to be 
 ## Steps:
 
 - checkout a new branch whose name is based on the spec name, possibly with disambiguator (a simple counter if enough) if a branch with the proposed name exists
+- run `npm run features:context` and read `spec/CONTEXT.md` to learn which features are already live and which must not be reintroduced
 - implement the specified feature
+- update [spec/FEATURES.json](../../../spec/FEATURES.json): add or update the entry for this feature, and retire any entry this work supersedes or removes per `## Feature ledger` in [AGENTS.md](../../../AGENTS.md)
+- add or update tests for the feature and list them on its ledger entry
+- run `npm run features:docs`, `npm test` and `npm run test:unit`
+- run `npm run features:restamp -- <id> [...]` for every feature whose source files changed
 - commit the changes per `## Agent commit behavior` in [AGENTS.md](../../../AGENTS.md)

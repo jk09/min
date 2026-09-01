@@ -1,0 +1,499 @@
+{
+  "schemaVersion": 1,
+  "features": [
+    {
+      "id": "prompt-runtime",
+      "title": "Prompt-driven browser command runtime",
+      "summary": "Tool registry, skill registry and router that turn prompt input into browser actions.",
+      "status": "active",
+      "specPath": "spec/done/feat-q4m8zt-prompt-command-runtime/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/llmPrompt/promptRouter.js",
+        "js/llmPrompt/tools/toolRegistry.js",
+        "js/llmPrompt/tools/browserTools.js",
+        "js/llmPrompt/skills/skillRegistry.js",
+        "js/llmPrompt/skills/builtinSkills.js",
+        "js/llmPrompt/engineClient.js",
+        "main/llmEngine.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [
+          "test/promptRuntime.test.js"
+        ],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "integration"
+      ],
+      "sourceHash": "sha256:61915e8f71fed2ebc0935c0e937ec7837d7630aa632ac6cf5c53d5063e47907a",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "prompt-panel",
+      "title": "LLM prompt panel for browser control",
+      "summary": "Original docked bottom panel with chat-style prompt composition.",
+      "status": "superseded",
+      "specPath": "spec/done/feat-a7k3p9-llm-prompt-panel/SPEC.md",
+      "supersedes": [],
+      "supersededBy": "prompt-overlay",
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": null,
+      "lastVerified": null
+    },
+    {
+      "id": "prompt-panel-minimal",
+      "title": "Minimalistic LLM prompt without history log",
+      "summary": "Reduced the docked panel to a single input line by dropping the scrolling history log.",
+      "status": "superseded",
+      "specPath": "spec/done/feat-h3k9mz-minimal-llm-prompt/SPEC.md",
+      "supersedes": [],
+      "supersededBy": "prompt-overlay",
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": null,
+      "lastVerified": null
+    },
+    {
+      "id": "prompt-overlay",
+      "title": "On-demand prompt overlay with persistent status bar",
+      "summary": "Centered prompt overlay opened on demand, backed by a one-line always-visible status bar.",
+      "status": "active",
+      "specPath": "spec/done/feat-v9t2ce-overlay-prompt-status-bar/SPEC.md",
+      "supersedes": [
+        "prompt-panel",
+        "prompt-panel-minimal"
+      ],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/llmPrompt/promptPanel.js",
+        "css/llmPrompt.css",
+        "index.html"
+      ],
+      "tests": {
+        "unit": [
+          "test/promptPanel.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:8494458577fa5f4ed8580c6c5f57238a6d7f3b7ea6a5c156ced5a1ec8c24bfa5",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "build-commit-indicator",
+      "title": "Build commit indicator in the prompt status bar",
+      "summary": "Shows the short commit hash and build metadata of the running build in the status bar.",
+      "status": "active",
+      "specPath": "spec/done/feat-b7x4qn-build-commit-indicator/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "scripts/buildInfo.js",
+        "js/llmPrompt/buildInfo.js"
+      ],
+      "tests": {
+        "unit": [
+          "test/buildInfo.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:ee3220f4c7c85bc018a2b9d25226bc1614cea4cf407086796361d7b4eb94ad23",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "prompt-debug-tab",
+      "title": "Debug tab for the /b command",
+      "summary": "Dedicated internal tab rendering the full model exchange and tool-call trace of a /b run.",
+      "status": "active",
+      "specPath": "spec/done/feat-d7k2mx-b-command-debug-tab/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/llmPrompt/debugTab.js",
+        "js/llmPrompt/llmDebugPreload.js",
+        "pages/llmPromptDebug/index.html",
+        "pages/llmPromptDebug/llmPromptDebug.js",
+        "pages/llmPromptDebug/llmPromptDebug.css"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:38e63cb45a0b932cba990730551e15f9e27ac1c26ec41a11ad198569fa99bb36",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "nl-browser-commands",
+      "title": "Natural-language browser commands via /b",
+      "summary": "Maps free-form instructions to browser tool calls through an LLM planning step.",
+      "status": "active",
+      "specPath": "spec/done/feat-h4qz2r-nl-browser-commands/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/llmPrompt/planningSkill.js",
+        "js/llmPrompt/planParser.js",
+        "js/llmPrompt/ownModels/ownModelRegistry.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:f97e0f9e6427fe7c8f54603a6f0dd9a4f697efa2379d4532ede88f46498ff6b7",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "prompt-plaintext-search",
+      "title": "Plain-text prompt input triggers the default search engine",
+      "summary": "Prompt input without a leading slash is routed to the configured search engine.",
+      "status": "active",
+      "specPath": "spec/done/feat-x7q2f9-llm-prompt-plaintext-search/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/util/searchEngine.js"
+      ],
+      "tests": {
+        "unit": [
+          "test/promptSearch.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:f2e8f6f6c1ec28a81d13966bd1d7626dc7ddc0b684ad9ab83dc0503571a45ad0",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "ai-agent-handoff",
+      "title": "AI agent hand-off from the prompt via /ai",
+      "summary": "Opens an external AI agent in a tab, seeded with the prompt and page context.",
+      "status": "active",
+      "specPath": "spec/done/feat-x7q3n9-ai-agent-prompt-tabs/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/llmPrompt/agents/agentRegistry.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:9870d1812d665a4060d77cbd773978c8345131bce3158fd19ec82f1932ec4827",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "prompt-search-engine-selector",
+      "title": "Search-engine selector in the prompt toolbar",
+      "summary": "Toolbar control for choosing the search engine, replacing the non-functional model button.",
+      "status": "active",
+      "specPath": "spec/done/feat-x9q3rt-agent-search-selectors/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/llmPrompt/searchEngines/searchEngineRegistry.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:47bf0bec9f939f0de2f3cd75bc5d73193e921e0116383018bd115142ee05deb6",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "prompt-shortcut-url-navigation",
+      "title": "Prompt shortcut and direct URL navigation",
+      "summary": "Ctrl+/ opens the prompt, and plain URLs entered there navigate directly.",
+      "status": "active",
+      "specPath": "spec/done/fix-q7n2ka-prompt-shortcut-url-navigation/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/keybindings.js",
+        "js/defaultKeybindings.js",
+        "js/util/urlParser.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:768ca67af0f586b66508ed7bc24911265cf4314d156b077e35ba9558bb09c92b",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "empty-state-prompt",
+      "title": "Blank empty state with prompt when no tabs are open",
+      "summary": "Closing the last tab leaves a blank surface with the prompt focused instead of an address bar.",
+      "status": "active",
+      "specPath": "spec/done/feat-k7r2xw-empty-state-prompt/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/browserUI.js",
+        "pages/prompt/index.html",
+        "pages/prompt/prompt.js",
+        "pages/prompt/prompt.css"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:41f5c61f5361ca8296249ad5bc3e97b7f634806a2c5b74b0d8838669954fc8ad",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "simplified-browser-controls",
+      "title": "Simplified browser controls for prompt-first browsing",
+      "summary": "Removes the tab dropdown menu and the visible new-tab control from the chrome.",
+      "status": "active",
+      "specPath": "spec/done/feat-k7v2m8-simplify-browser-controls/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/navbar/tabContextMenu.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:01f605b73e69f7a6791cc9cd7c22f57e6f24b05b6f8d3b6e55343149c0e20a0b",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "fixed-width-tabs",
+      "title": "Fixed-width informational tabs with overflow summary",
+      "summary": "Tabs render at a fixed width with favicon and label, and overflow collapses into a summary panel.",
+      "status": "active",
+      "specPath": "spec/done/feat-t4b9xq-fixed-width-informational-tabs/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/navbar/tabBar.js",
+        "js/navbar/tabLabel.js",
+        "js/navbar/tabColor.js",
+        "js/navbar/tabOverflow.js",
+        "js/navbar/tabOverflowPanel.js",
+        "css/tabBar.css"
+      ],
+      "tests": {
+        "unit": [
+          "test/tabOverflow.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:04eed39147b51b1777f57993d0575747d01e0022e9ca53830430cb845dabaf50",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "insecure-tab-indicator",
+      "title": "Persistent insecure-page indicator in tabs",
+      "summary": "The insecure-page indicator stays visible while a tab is hovered.",
+      "status": "active",
+      "specPath": "spec/done/fix-r8n4xq-persistent-insecure-tab-indicator/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/navbar/tabBar.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:9beb8a35d2a38c494caf7e919021a5adeb5ffbf708355a9403f69c2ca756a1d1",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "tabbar-drag-region",
+      "title": "Draggable empty area in the tab bar",
+      "summary": "Empty horizontal space in the tab bar acts as a window drag handle.",
+      "status": "active",
+      "specPath": "spec/done/feat-p4x9qw-draggable-tabbar-empty-area/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "css/windowControls.css"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:74295d5f8cfb8436608e74e6aa4650abaa49c18ff8e2b84e08bf0c277757784d",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "nav-breadcrumbs",
+      "title": "Navigation breadcrumbs bar",
+      "summary": "Shows the in-tab navigation chain as breadcrumbs and allows jumping to any prior page.",
+      "status": "active",
+      "specPath": "spec/done/feat-x7k2mn-navigation-breadcrumbs/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/navbar/breadcrumbs.js",
+        "js/navbar/breadcrumbLayout.js",
+        "css/breadcrumbs.css"
+      ],
+      "tests": {
+        "unit": [
+          "test/breadcrumbLayout.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:51a62bc814f19e56cfd24879635c6fe8055ddcef9f6977f98eb26b7adc150194",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "session-restore-on-startup",
+      "title": "Restore the previous session on startup",
+      "summary": "Reopens the previous tabs and active page instead of starting on an empty surface.",
+      "status": "active",
+      "specPath": "spec/done/feat-r7p2qv-restore-session-on-startup/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/sessionRestore.js",
+        "js/util/startupPage.js"
+      ],
+      "tests": {
+        "unit": [
+          "test/startupPage.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:664f5c76b5cc7443368c2695d379a7ce3ae55643f97af50ebf4d12bee8c1699a",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "esm-module-refactor",
+      "title": "Native ES modules in the main process build",
+      "summary": "Main process is a real ES module graph instead of a concatenated build artifact.",
+      "status": "active",
+      "specPath": "spec/done/feat-x7k2mq-esm-module-refactor/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": false,
+      "sourceFiles": [
+        "main/main.js",
+        "scripts/buildBrowser.js"
+      ],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": "sha256:c9514599e20df40d890ec6bada8c11676cdb744aa07d605615ae1dae046d89d1",
+      "lastVerified": "2026-08-23"
+    },
+    {
+      "id": "tasks-ui",
+      "title": "Tasks (tab group) user interface",
+      "summary": "Task overlay and task switching controls for grouping tabs.",
+      "status": "removed",
+      "specPath": "spec/done/feat-r8m4zq-remove-tasks-ui/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": "Removed as conflicting with the prompt-first, minimal interface goal. Do not reintroduce task grouping UI.",
+      "userVisible": true,
+      "sourceFiles": [],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": null,
+      "lastVerified": null
+    }
+  ]
+}

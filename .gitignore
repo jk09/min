@@ -4,5 +4,6 @@
 .npm
 dist
 .DS_Store
+/spec/CONTEXT.md
 package-lock.json
 yarn.lock
