@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Min.Maui.Core;
 using Min.Maui.Automation;
 using Min.Maui.Services;
 using Min.Maui.ViewModels;
@@ -162,6 +163,19 @@ public sealed class PromptRouterTests
         tab.SetThemeColor("rgb(12, 34, 56)");
 
         Assert.Equal("#0C2238", tab.ThemeColor.ToHex());
+    }
+
+    [Fact]
+    public void AsyncCommandReportsUnhandledPromptFailures()
+    {
+        Exception? reported = null;
+        var command = new AsyncRelayCommand(
+            () => throw new InvalidOperationException("model failed"),
+            onError: exception => reported = exception);
+
+        command.Execute(null);
+
+        Assert.IsType<InvalidOperationException>(reported);
     }
 
     private sealed record TestServices(BrowserSessionService Session, SearchEngineRegistry SearchEngines, AgentRegistry Agents, PromptRouterService Router)

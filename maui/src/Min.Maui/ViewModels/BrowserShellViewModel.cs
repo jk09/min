@@ -27,7 +27,7 @@ public sealed class BrowserShellViewModel : ObservableObject
         OpenPromptCommand = new RelayCommand<object>(_ => IsPromptOverlayVisible = true);
         ClosePromptCommand = new RelayCommand<object>(_ => IsPromptOverlayVisible = false);
         SetPromptModeCommand = new RelayCommand<string>(SetPromptMode);
-        SubmitPromptCommand = new AsyncRelayCommand(SubmitPromptAsync, () => !IsBusy);
+        SubmitPromptCommand = new AsyncRelayCommand(SubmitPromptAsync, () => !IsBusy, OnSubmitFailed);
         SelectTabCommand = new RelayCommand<BrowserTab>(session.SelectTab);
         CloseTabCommand = new RelayCommand<BrowserTab>(session.CloseTab);
         NavigateToBreadcrumbCommand = new RelayCommand<NavigationEntry>(session.NavigateToHistoryEntry);
@@ -198,5 +198,12 @@ public sealed class BrowserShellViewModel : ObservableObject
             IsSendFeedbackActive = false;
             IsBusy = false;
         }
+    }
+
+    private void OnSubmitFailed(Exception exception)
+    {
+        StatusText = "Prompt failed: " + exception.Message;
+        IsSendFeedbackActive = false;
+        IsBusy = false;
     }
 }
