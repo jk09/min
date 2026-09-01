@@ -117,13 +117,15 @@ public partial class MainPage : ContentPage
 			}
 		};
 		webView.Navigating += (_, _) => tab.IsLoading = true;
-		webView.Navigated += (_, args) =>
+		webView.Navigated += async (_, args) =>
 		{
 			tab.IsLoading = false;
 			if (!string.IsNullOrWhiteSpace(args.Url))
 			{
 				viewModel.RecordNavigation(tab.Id, args.Url, BrowserTitle.FromUrl(args.Url));
 			}
+
+			await UpdateTabThemeColorAsync(webView, tab);
 		};
 #if WINDOWS
 		webView.HandlerChanged += (_, _) => AttachNewWindowHandler(webView);
@@ -131,6 +133,18 @@ public partial class MainPage : ContentPage
 #endif
 
 		return webView;
+	}
+
+	private static async Task UpdateTabThemeColorAsync(WebView webView, BrowserTab tab)
+	{
+		try
+		{
+			var color = await webView.EvaluateJavaScriptAsync("document.querySelector('meta[name=\\\"theme-color\\\"]')?.content || getComputedStyle(document.body).backgroundColor");
+			tab.SetThemeColor(color);
+		}
+		catch (Exception)
+		{
+		}
 	}
 
 #if WINDOWS

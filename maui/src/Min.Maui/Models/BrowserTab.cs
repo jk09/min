@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Min.Maui.Core;
+using Microsoft.Maui.Graphics;
 
 namespace Min.Maui.Models;
 
@@ -10,6 +11,7 @@ public sealed class BrowserTab : ObservableObject
     private bool isSelected;
     private bool isLoading;
     private bool isSecure;
+    private Color themeColor;
     private int activeNavigationIndex;
 
     public BrowserTab(string url, string? title = null)
@@ -18,6 +20,7 @@ public sealed class BrowserTab : ObservableObject
         this.url = url;
         this.title = string.IsNullOrWhiteSpace(title) ? BrowserTitle.FromUrl(url) : title;
         isSecure = BrowserTitle.IsSecure(url);
+        themeColor = BrowserTitle.DefaultThemeColor(url);
         History.Add(new NavigationEntry(url, this.title, true));
     }
 
@@ -32,6 +35,8 @@ public sealed class BrowserTab : ObservableObject
             {
                 IsSecure = BrowserTitle.IsSecure(value);
                 OnPropertyChanged(nameof(DisplayUrl));
+                OnPropertyChanged(nameof(FaviconUrl));
+                ThemeColor = BrowserTitle.DefaultThemeColor(value);
             }
         }
     }
@@ -52,6 +57,13 @@ public sealed class BrowserTab : ObservableObject
     public string DisplayTitle => string.IsNullOrWhiteSpace(Title) ? DisplayUrl : Title;
     public string DisplayUrl => BrowserTitle.DisplayUrl(Url);
     public string FaviconText => BrowserTitle.FaviconText(DisplayTitle);
+    public string FaviconUrl => BrowserTitle.FaviconUrl(Url);
+
+    public Color ThemeColor
+    {
+        get => themeColor;
+        private set => SetProperty(ref themeColor, value);
+    }
 
     public bool IsSelected
     {
@@ -117,6 +129,14 @@ public sealed class BrowserTab : ObservableObject
         Url = entry.Url;
         Title = entry.Title;
         ReplaceHistoryEntry(index, true);
+    }
+
+    public void SetThemeColor(string? cssColor)
+    {
+        if (BrowserTitle.TryCreateThemeColor(cssColor, out var color))
+        {
+            ThemeColor = color;
+        }
     }
 
     private void ReplaceHistoryEntry(int index, bool isCurrent)

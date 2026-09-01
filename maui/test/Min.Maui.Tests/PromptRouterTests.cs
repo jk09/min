@@ -69,6 +69,19 @@ public sealed class PromptRouterTests
         Assert.Equal("https://example.net/path", services.Session.SelectedTab?.Url);
     }
 
+    [Fact]
+    public void TabMetadataProvidesPageIconAndThemeColor()
+    {
+        var tab = new Models.BrowserTab("https://example.com/path", "Example");
+
+        Assert.Contains("example.com", tab.FaviconUrl);
+        Assert.NotNull(tab.ThemeColor);
+
+        tab.SetThemeColor("rgb(12, 34, 56)");
+
+        Assert.Equal("#0C2238", tab.ThemeColor.ToHex());
+    }
+
     private sealed record TestServices(BrowserSessionService Session, SearchEngineRegistry SearchEngines, AgentRegistry Agents, PromptRouterService Router)
     {
         public static TestServices Create(string? plan = null)
