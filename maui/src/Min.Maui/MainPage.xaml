@@ -57,34 +57,34 @@
                             <Grid RowDefinitions="3,*">
                                 <BoxView Color="{Binding ThemeColor}"/>
                                 <Grid Grid.Row="1"
-                                   ColumnDefinitions="24,*,Auto"
-                                   ColumnSpacing="7"
-                                   Padding="8,0">
-                                 <Image Source="{Binding FaviconUrl}"
-                                     WidthRequest="16"
-                                     HeightRequest="16"
-                                     VerticalOptions="Center"/>
-                                 <VerticalStackLayout Grid.Column="1"
-                                             Spacing="0"
-                                             VerticalOptions="Center">
-                                     <Label Text="{Binding DisplayTitle}"
-                                         TextColor="#f5f7fb"
-                                         FontSize="13"
-                                         LineBreakMode="TailTruncation"/>
-                                     <Label Text="{Binding DisplayUrl}"
-                                         TextColor="#a7b0bd"
-                                         FontSize="10"
-                                         LineBreakMode="TailTruncation"/>
-                                 </VerticalStackLayout>
-                                 <Button Grid.Column="2"
-                                      Text="x"
-                                      FontSize="11"
-                                      WidthRequest="28"
-                                      HeightRequest="28"
-                                      Padding="0"
-                                      BackgroundColor="Transparent"
-                                      Command="{Binding BindingContext.CloseTabCommand, Source={x:Reference Root}}"
-                                      CommandParameter="{Binding .}"/>
+                                      ColumnDefinitions="24,*,Auto"
+                                      ColumnSpacing="7"
+                                      Padding="8,0">
+                                    <Image Source="{Binding FaviconUrl}"
+                                           WidthRequest="16"
+                                           HeightRequest="16"
+                                           VerticalOptions="Center"/>
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Spacing="0"
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding DisplayTitle}"
+                                               TextColor="#f5f7fb"
+                                               FontSize="13"
+                                               LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding DisplayUrl}"
+                                               TextColor="#a7b0bd"
+                                               FontSize="10"
+                                               LineBreakMode="TailTruncation"/>
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2"
+                                            Text="x"
+                                            FontSize="11"
+                                            WidthRequest="28"
+                                            HeightRequest="28"
+                                            Padding="0"
+                                            BackgroundColor="Transparent"
+                                            Command="{Binding BindingContext.CloseTabCommand, Source={x:Reference Root}}"
+                                            CommandParameter="{Binding .}"/>
                                 </Grid>
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding BindingContext.SelectTabCommand, Source={x:Reference Root}}"

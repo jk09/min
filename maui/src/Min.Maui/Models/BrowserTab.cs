@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
-using Min.Maui.Core;
 using Microsoft.Maui.Graphics;
+using Min.Maui.Core;
 
 namespace Min.Maui.Models;
 
