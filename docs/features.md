@@ -5,7 +5,7 @@
 The live feature set of the browser, derived from [`spec/FEATURES.json`](../spec/FEATURES.json).
 See [the feature ledger](feature-ledger.md) for how this file is maintained.
 
-## Active features (17)
+## Active features (18)
 
 ### Prompt-driven browser command runtime
 
@@ -160,6 +160,15 @@ Main process is a real ES module graph instead of a concatenated build artifact.
 - **spec:** [spec/done/feat-x7k2mq-esm-module-refactor/SPEC.md](../spec/done/feat-x7k2mq-esm-module-refactor/SPEC.md)
 - **source:** `main/main.js`, `scripts/buildBrowser.js`
 - **tests:** —
+
+### Windows-first Microsoft MAUI browser port
+
+Side-by-side MAUI solution that ports the prompt-first browser shell to a typed Windows WebView app.
+
+- **id:** `maui-windows-port`
+- **spec:** [spec/done/feat-m9w2px-maui-windows-port/SPEC.md](../spec/done/feat-m9w2px-maui-windows-port/SPEC.md)
+- **source:** `maui/.gitignore`, `maui/Min.Maui.slnx`, `maui/README.md`, `maui/src/Min.Maui/Min.Maui.csproj`, `maui/src/Min.Maui/App.xaml`, `maui/src/Min.Maui/App.xaml.cs`, `maui/src/Min.Maui/GlobalXmlns.cs`, `maui/src/Min.Maui/MauiProgram.cs`, `maui/src/Min.Maui/MainPage.xaml`, `maui/src/Min.Maui/MainPage.xaml.cs`, `maui/src/Min.Maui/Automation/BrowserAutomationEndpoint.cs`, `maui/src/Min.Maui/Automation/NamedPipeAutomationServer.cs`, `maui/src/Min.Maui/Core/AsyncRelayCommand.cs`, `maui/src/Min.Maui/Core/ObservableObject.cs`, `maui/src/Min.Maui/Core/RelayCommand.cs`, `maui/src/Min.Maui/Models/BrowserTab.cs`, `maui/src/Min.Maui/Models/BrowserTitle.cs`, `maui/src/Min.Maui/Models/NavigationEntry.cs`, `maui/src/Min.Maui/Platforms/Windows/App.xaml`, `maui/src/Min.Maui/Platforms/Windows/App.xaml.cs`, `maui/src/Min.Maui/Platforms/Windows/Package.appxmanifest`, `maui/src/Min.Maui/Platforms/Windows/app.manifest`, `maui/src/Min.Maui/Properties/launchSettings.json`, `maui/src/Min.Maui/Resources/AppIcon/appicon.svg`, `maui/src/Min.Maui/Resources/AppIcon/appiconfg.svg`, `maui/src/Min.Maui/Resources/Fonts/OpenSans-Regular.ttf`, `maui/src/Min.Maui/Resources/Fonts/OpenSans-Semibold.ttf`, `maui/src/Min.Maui/Resources/Splash/splash.svg`, `maui/src/Min.Maui/Resources/Styles/Colors.xaml`, `maui/src/Min.Maui/Resources/Styles/Styles.xaml`, `maui/src/Min.Maui/Services/AgentRegistry.cs`, `maui/src/Min.Maui/Services/BrowserSessionService.cs`, `maui/src/Min.Maui/Services/BrowserToolRegistry.cs`, `maui/src/Min.Maui/Services/BuildInfoService.cs`, `maui/src/Min.Maui/Services/PromptPlanning.cs`, `maui/src/Min.Maui/Services/PromptRouterService.cs`, `maui/src/Min.Maui/Services/SearchEngineRegistry.cs`, `maui/src/Min.Maui/Services/SessionStore.cs`, `maui/src/Min.Maui/Services/UrlInputParser.cs`, `maui/src/Min.Maui/ViewModels/BrowserShellViewModel.cs`, `maui/src/Min.Maui/Xaml/BoolToObjectConverter.cs`, `maui/src/Min.Maui/Xaml/InvertedBoolConverter.cs`, `maui/test/Min.Maui.Tests/Min.Maui.Tests.csproj`, `maui/test/Min.Maui.Tests/PromptRouterTests.cs`
+- **tests:** unit (1), e2e (1)
 
 ## Retired features (3)
 

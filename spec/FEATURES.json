@@ -494,6 +494,78 @@
       "requiredTiers": [],
       "sourceHash": null,
       "lastVerified": null
+    },
+    {
+      "id": "maui-windows-port",
+      "title": "Windows-first Microsoft MAUI browser port",
+      "summary": "Side-by-side MAUI solution that ports the prompt-first browser shell to a typed Windows WebView app.",
+      "status": "active",
+      "specPath": "spec/done/feat-m9w2px-maui-windows-port/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "maui/.gitignore",
+        "maui/Min.Maui.slnx",
+        "maui/README.md",
+        "maui/src/Min.Maui/Min.Maui.csproj",
+        "maui/src/Min.Maui/App.xaml",
+        "maui/src/Min.Maui/App.xaml.cs",
+        "maui/src/Min.Maui/GlobalXmlns.cs",
+        "maui/src/Min.Maui/MauiProgram.cs",
+        "maui/src/Min.Maui/MainPage.xaml",
+        "maui/src/Min.Maui/MainPage.xaml.cs",
+        "maui/src/Min.Maui/Automation/BrowserAutomationEndpoint.cs",
+        "maui/src/Min.Maui/Automation/NamedPipeAutomationServer.cs",
+        "maui/src/Min.Maui/Core/AsyncRelayCommand.cs",
+        "maui/src/Min.Maui/Core/ObservableObject.cs",
+        "maui/src/Min.Maui/Core/RelayCommand.cs",
+        "maui/src/Min.Maui/Models/BrowserTab.cs",
+        "maui/src/Min.Maui/Models/BrowserTitle.cs",
+        "maui/src/Min.Maui/Models/NavigationEntry.cs",
+        "maui/src/Min.Maui/Platforms/Windows/App.xaml",
+        "maui/src/Min.Maui/Platforms/Windows/App.xaml.cs",
+        "maui/src/Min.Maui/Platforms/Windows/Package.appxmanifest",
+        "maui/src/Min.Maui/Platforms/Windows/app.manifest",
+        "maui/src/Min.Maui/Properties/launchSettings.json",
+        "maui/src/Min.Maui/Resources/AppIcon/appicon.svg",
+        "maui/src/Min.Maui/Resources/AppIcon/appiconfg.svg",
+        "maui/src/Min.Maui/Resources/Fonts/OpenSans-Regular.ttf",
+        "maui/src/Min.Maui/Resources/Fonts/OpenSans-Semibold.ttf",
+        "maui/src/Min.Maui/Resources/Splash/splash.svg",
+        "maui/src/Min.Maui/Resources/Styles/Colors.xaml",
+        "maui/src/Min.Maui/Resources/Styles/Styles.xaml",
+        "maui/src/Min.Maui/Services/AgentRegistry.cs",
+        "maui/src/Min.Maui/Services/BrowserSessionService.cs",
+        "maui/src/Min.Maui/Services/BrowserToolRegistry.cs",
+        "maui/src/Min.Maui/Services/BuildInfoService.cs",
+        "maui/src/Min.Maui/Services/PromptPlanning.cs",
+        "maui/src/Min.Maui/Services/PromptRouterService.cs",
+        "maui/src/Min.Maui/Services/SearchEngineRegistry.cs",
+        "maui/src/Min.Maui/Services/SessionStore.cs",
+        "maui/src/Min.Maui/Services/UrlInputParser.cs",
+        "maui/src/Min.Maui/ViewModels/BrowserShellViewModel.cs",
+        "maui/src/Min.Maui/Xaml/BoolToObjectConverter.cs",
+        "maui/src/Min.Maui/Xaml/InvertedBoolConverter.cs",
+        "maui/test/Min.Maui.Tests/Min.Maui.Tests.csproj",
+        "maui/test/Min.Maui.Tests/PromptRouterTests.cs"
+      ],
+      "tests": {
+        "unit": [
+          "maui/test/Min.Maui.Tests/PromptRouterTests.cs"
+        ],
+        "integration": [],
+        "e2e": [
+          "maui/test/Min.Maui.Tests/PromptRouterTests.cs"
+        ]
+      },
+      "requiredTiers": [
+        "unit",
+        "e2e"
+      ],
+      "sourceHash": "sha256:0f7bd2db0c22aa7e83c05d7c97d37748fe8d929e2633d4a4001258d194787e57",
+      "lastVerified": "2026-09-01"
     }
   ]
 }
