@@ -4,7 +4,7 @@ setlocal EnableExtensions
 rem Merges the currently checked out feature branch into the integration branch below.
 rem Usage: merge-feature-branch.cmd [base-branch]
 
-set "BASE=jk-main-2"
+set "BASE=main-ui"
 if not "%~1"=="" set "BASE=%~1"
 
 git rev-parse --is-inside-work-tree >nul 2>&1
