@@ -80,6 +80,18 @@ public sealed class PromptRouterTests
     }
 
     [Fact]
+    public async Task LlmModeAnswersBrowserWindowAndPageCount()
+    {
+        var services = TestServices.Create();
+
+        var result = await services.Router.RouteLlmAsync("how many windows are there in the browser?");
+
+        Assert.True(result.Succeeded);
+        Assert.Contains("1 browser window", result.Message);
+        Assert.Contains(result.Trace, line => line.StartsWith("browser.windows", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task BrowserInstructionExecutesPlannedToolCalls()
     {
         var services = TestServices.Create("{\"toolCalls\":[{\"tool\":\"tabs.open\",\"args\":{\"url\":\"chromium.org\"}}]}");
@@ -150,6 +162,23 @@ public sealed class PromptRouterTests
         await viewModel.SubmitPromptAsync();
 
         Assert.Equal("min://llm-prompt-debug", services.Session.SelectedTab?.Url);
+    }
+
+    [Fact]
+    public async Task AgentPromptOutputIsShownInComposer()
+    {
+        var services = TestServices.Create();
+        var viewModel = new BrowserShellViewModel(services.Session, services.Router, services.SearchEngines, services.Agents, new BuildInfoService())
+        {
+            IsLlmMode = true,
+            PromptText = "how many pages are in this browser?"
+        };
+
+        await viewModel.SubmitPromptAsync();
+
+        Assert.True(viewModel.HasPromptOutput);
+        Assert.Contains("browser window", viewModel.PromptOutputText);
+        Assert.Equal("Agent response ready", viewModel.StatusText);
     }
 
     [Fact]

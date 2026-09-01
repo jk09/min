@@ -23,6 +23,7 @@ public sealed class BrowserToolRegistry
     public IReadOnlyList<ToolDefinition> GetCatalog() =>
     [
         new("tabs.list", "List open browser tabs.", new Dictionary<string, string>()),
+        new("browser.windows", "Report the current browser window and tab count.", new Dictionary<string, string>()),
         new("tabs.open", "Open a URL in a tab.", new Dictionary<string, string> { ["url"] = "Absolute or host-like URL", ["background"] = "Optional boolean" }),
         new("tabs.close", "Close a tab. Placeholder or wildcard ids close the selected tab.", new Dictionary<string, string> { ["tabId"] = "Optional tab id" }),
         new("tabs.select", "Select an existing tab.", new Dictionary<string, string> { ["tabId"] = "Tab id" }),
@@ -43,6 +44,7 @@ public sealed class BrowserToolRegistry
     private void RegisterBuiltIns()
     {
         handlers["tabs.list"] = (args, context) => Task.FromResult(new ToolResult(true, $"{session.Tabs.Count} tab(s) open", session.Tabs.Select(tab => new { tab.Id, tab.Title, tab.Url, tab.IsSelected }).ToArray()));
+        handlers["browser.windows"] = (args, context) => Task.FromResult(new ToolResult(true, $"There is 1 browser window with {session.Tabs.Count} tab(s).", new { Windows = 1, Tabs = session.Tabs.Count }));
         handlers["tabs.open"] = (args, context) =>
         {
             var url = ReadString(args, "url");

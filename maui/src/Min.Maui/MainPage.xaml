@@ -173,7 +173,7 @@
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
-                    <Grid RowDefinitions="Auto,*,Auto"
+                      <Grid RowDefinitions="Auto,*,Auto,Auto"
                           RowSpacing="0">
                         <Grid ColumnDefinitions="*,Auto"
                               Padding="16,12,12,6">
@@ -204,6 +204,36 @@
                                 TextColor="#f7f9fc"
                                 PlaceholderColor="#8e98a6"/>
                         <Grid Grid.Row="2"
+                              RowDefinitions="Auto,Auto"
+                              RowSpacing="8"
+                              Padding="16,10,16,0">
+                            <HorizontalStackLayout IsVisible="{Binding IsThinking}"
+                                                   Spacing="8">
+                                <ActivityIndicator IsRunning="{Binding IsThinking}"
+                                                   Color="#3b82f6"
+                                                   WidthRequest="18"
+                                                   HeightRequest="18"/>
+                                <Label Text="Thinking..."
+                                       TextColor="#aeb7c4"
+                                       FontSize="12"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Border Grid.Row="1"
+                                    IsVisible="{Binding HasPromptOutput}"
+                                    BackgroundColor="#0f141b"
+                                    Stroke="#303946"
+                                    StrokeThickness="1"
+                                    Padding="12,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="7"/>
+                                </Border.StrokeShape>
+                                <Label Text="{Binding PromptOutputText}"
+                                       TextColor="#dce3ed"
+                                       FontSize="13"
+                                       LineBreakMode="WordWrap"/>
+                            </Border>
+                        </Grid>
+                        <Grid Grid.Row="3"
                               ColumnDefinitions="Auto,*,Auto,Auto"
                               ColumnSpacing="10"
                               Padding="16,12,12,14">

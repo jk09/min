@@ -17,6 +17,8 @@ public sealed class BrowserShellViewModel : ObservableObject
     private bool debugMode;
     private PromptInputMode inputMode;
     private bool isSendFeedbackActive;
+    private bool isThinking;
+    private string promptOutputText = string.Empty;
 
     public BrowserShellViewModel(BrowserSessionService session, PromptRouterService router, SearchEngineRegistry searchEngines, AgentRegistry agents, BuildInfoService buildInfo)
     {
@@ -130,6 +132,26 @@ public sealed class BrowserShellViewModel : ObservableObject
 
     public string SendButtonText => IsSendFeedbackActive ? "Sent" : "Send";
 
+    public bool IsThinking
+    {
+        get => isThinking;
+        private set => SetProperty(ref isThinking, value);
+    }
+
+    public string PromptOutputText
+    {
+        get => promptOutputText;
+        private set
+        {
+            if (SetProperty(ref promptOutputText, value))
+            {
+                OnPropertyChanged(nameof(HasPromptOutput));
+            }
+        }
+    }
+
+    public bool HasPromptOutput => !string.IsNullOrWhiteSpace(PromptOutputText);
+
     public ICommand OpenPromptCommand { get; }
     public ICommand ClosePromptCommand { get; }
     public ICommand SetPromptModeCommand { get; }
@@ -171,12 +193,27 @@ public sealed class BrowserShellViewModel : ObservableObject
     {
         IsSendFeedbackActive = true;
         IsBusy = true;
+        IsThinking = IsLlmMode;
+        if (IsLlmMode)
+        {
+            PromptOutputText = string.Empty;
+        }
+
         try
         {
             var result = IsLlmMode
                 ? await router.RouteLlmAsync(PromptText)
                 : await router.RouteBrowseAsync(PromptText);
-            StatusText = result.Message;
+            if (IsLlmMode)
+            {
+                PromptOutputText = result.Message;
+                StatusText = result.Succeeded ? "Agent response ready" : "Agent prompt failed";
+            }
+            else
+            {
+                StatusText = result.Message;
+            }
+
             if (result.Succeeded)
             {
                 PromptText = string.Empty;
@@ -195,6 +232,7 @@ public sealed class BrowserShellViewModel : ObservableObject
         finally
         {
             await Task.Delay(220);
+            IsThinking = false;
             IsSendFeedbackActive = false;
             IsBusy = false;
         }
@@ -202,7 +240,9 @@ public sealed class BrowserShellViewModel : ObservableObject
 
     private void OnSubmitFailed(Exception exception)
     {
-        StatusText = "Prompt failed: " + exception.Message;
+        PromptOutputText = "Prompt failed: " + exception.Message;
+        StatusText = "Agent prompt failed";
+        IsThinking = false;
         IsSendFeedbackActive = false;
         IsBusy = false;
     }

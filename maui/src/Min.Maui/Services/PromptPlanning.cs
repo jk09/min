@@ -104,6 +104,11 @@ public static class StarterPromptPlanner
             return Plan("settings.open", new { });
         }
 
+        if ((normalized.Contains("how many") || normalized.Contains("count")) && (normalized.Contains("window") || normalized.Contains("tab") || normalized.Contains("page")))
+        {
+            return Plan("browser.windows", new { });
+        }
+
         if (normalized.Contains("summarize") && normalized.Contains("history"))
         {
             return Plan("history.summarizeToday", new { });
