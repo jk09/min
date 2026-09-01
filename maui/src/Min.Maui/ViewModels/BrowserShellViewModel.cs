@@ -101,6 +101,11 @@ public sealed class BrowserShellViewModel : ObservableObject
         OnPropertyChanged(nameof(Breadcrumbs));
     }
 
+    public void OpenLinkInNewTab(string url)
+    {
+        session.OpenTab(url);
+    }
+
     private async Task SubmitPromptAsync()
     {
         IsBusy = true;

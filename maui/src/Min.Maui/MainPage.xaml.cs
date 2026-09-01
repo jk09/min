@@ -5,7 +5,9 @@ using System.ComponentModel;
 using Min.Maui.Models;
 using Min.Maui.ViewModels;
 #if WINDOWS
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.Web.WebView2.Core;
 using Windows.System;
 #endif
 
@@ -13,6 +15,9 @@ public partial class MainPage : ContentPage
 {
 	private readonly BrowserShellViewModel viewModel;
 	private readonly Dictionary<string, WebView> webViews = new();
+#if WINDOWS
+	private readonly HashSet<WebView> webViewsWithNewWindowHandlers = new();
+#endif
 
 	public MainPage(BrowserShellViewModel viewModel)
 	{
@@ -120,7 +125,39 @@ public partial class MainPage : ContentPage
 				viewModel.RecordNavigation(tab.Id, args.Url, BrowserTitle.FromUrl(args.Url));
 			}
 		};
+#if WINDOWS
+		webView.HandlerChanged += (_, _) => AttachNewWindowHandler(webView);
+		AttachNewWindowHandler(webView);
+#endif
 
 		return webView;
 	}
+
+#if WINDOWS
+	private void AttachNewWindowHandler(WebView webView)
+	{
+		if (webViewsWithNewWindowHandlers.Contains(webView) || webView.Handler?.PlatformView is not WebView2 nativeWebView)
+		{
+			return;
+		}
+
+		webViewsWithNewWindowHandlers.Add(webView);
+		_ = AttachNewWindowHandlerAsync(nativeWebView);
+	}
+
+	private async Task AttachNewWindowHandlerAsync(WebView2 nativeWebView)
+	{
+		await nativeWebView.EnsureCoreWebView2Async();
+		nativeWebView.CoreWebView2.NewWindowRequested += OnNewWindowRequested;
+	}
+
+	private void OnNewWindowRequested(CoreWebView2 sender, CoreWebView2NewWindowRequestedEventArgs args)
+	{
+		args.Handled = true;
+		if (!string.IsNullOrWhiteSpace(args.Uri))
+		{
+			Dispatcher.Dispatch(() => viewModel.OpenLinkInNewTab(args.Uri));
+		}
+	}
+#endif
 }

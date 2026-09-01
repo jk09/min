@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Min.Maui.Automation;
 using Min.Maui.Services;
+using Min.Maui.ViewModels;
 
 namespace Min.Maui.Tests;
 
@@ -53,6 +54,19 @@ public sealed class PromptRouterTests
 
         Assert.True(response.Succeeded);
         Assert.Equal("https://bing.com/", services.Session.SelectedTab?.Url);
+    }
+
+    [Fact]
+    public void LinkPopupBridgeOpensLinkInBrowserTab()
+    {
+        var services = TestServices.Create();
+        var viewModel = new BrowserShellViewModel(services.Session, services.Router, services.SearchEngines, services.Agents, new BuildInfoService());
+        var previousTabCount = services.Session.Tabs.Count;
+
+        viewModel.OpenLinkInNewTab("https://example.net/path");
+
+        Assert.Equal(previousTabCount + 1, services.Session.Tabs.Count);
+        Assert.Equal("https://example.net/path", services.Session.SelectedTab?.Url);
     }
 
     private sealed record TestServices(BrowserSessionService Session, SearchEngineRegistry SearchEngines, AgentRegistry Agents, PromptRouterService Router)
