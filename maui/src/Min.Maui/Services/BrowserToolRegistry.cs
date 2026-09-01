@@ -28,7 +28,9 @@ public sealed class BrowserToolRegistry
         new("tabs.select", "Select an existing tab.", new Dictionary<string, string> { ["tabId"] = "Tab id" }),
         new("navigation.go", "Navigate the selected tab to a URL.", new Dictionary<string, string> { ["url"] = "Absolute or host-like URL" }),
         new("search.web", "Search the web with the selected search engine.", new Dictionary<string, string> { ["query"] = "Search query" }),
-        new("page.summarize", "Return a short placeholder summary for the selected page.", new Dictionary<string, string>())
+        new("settings.open", "Open Min settings in a browser tab.", new Dictionary<string, string>()),
+        new("page.summarize", "Summarize the selected tab from available page metadata.", new Dictionary<string, string>()),
+        new("history.summarizeToday", "Summarize the URLs visited today in this MAUI session.", new Dictionary<string, string>())
     ];
 
     public Task<ToolResult> ExecuteAsync(string id, JsonElement args, ToolExecutionContext context)
@@ -90,7 +92,31 @@ public sealed class BrowserToolRegistry
             var tab = session.OpenTab(searchEngines.Default.BuildSearchUrl(query));
             return Task.FromResult(new ToolResult(true, $"Searching for {query}", tab.Id));
         };
-        handlers["page.summarize"] = (args, context) => Task.FromResult(new ToolResult(true, "Page summarization will use the selected WebView content provider in a later iteration."));
+        handlers["settings.open"] = (args, context) =>
+        {
+            var tab = session.OpenTab("min://settings");
+            return Task.FromResult(new ToolResult(true, "Opened settings", tab.Id));
+        };
+        handlers["page.summarize"] = (args, context) =>
+        {
+            var tab = session.SelectedTab;
+            if (tab is null)
+            {
+                return Task.FromResult(new ToolResult(false, "There is no page to summarize."));
+            }
+
+            return Task.FromResult(new ToolResult(true, $"{tab.DisplayTitle}: {tab.DisplayUrl}", new { tab.Title, tab.Url }));
+        };
+        handlers["history.summarizeToday"] = (args, context) =>
+        {
+            var entries = session.Tabs.SelectMany(tab => tab.History).Select(entry => entry.Url).Distinct().ToArray();
+            if (entries.Length == 0)
+            {
+                return Task.FromResult(new ToolResult(true, "No pages have been visited in this MAUI session today."));
+            }
+
+            return Task.FromResult(new ToolResult(true, "Today's MAUI session includes " + entries.Length + " visited page(s): " + string.Join(", ", entries.Take(6))));
+        };
     }
 
     private static string? ReadString(JsonElement args, string propertyName) => args.ValueKind == JsonValueKind.Object && args.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;

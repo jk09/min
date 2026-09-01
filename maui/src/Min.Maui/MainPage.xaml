@@ -157,6 +157,11 @@
             <Grid IsVisible="{Binding IsPromptOverlayVisible}"
                   BackgroundColor="#99000000"
                   Padding="60">
+                <BoxView BackgroundColor="Transparent">
+                    <BoxView.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="ClosePromptOverlay"/>
+                    </BoxView.GestureRecognizers>
+                </BoxView>
                 <Border BackgroundColor="#161b22"
                         Stroke="#343d4b"
                         StrokeThickness="1"
@@ -190,7 +195,7 @@
                         <Editor x:Name="PromptEditor"
                                 Grid.Row="1"
                                 Text="{Binding PromptText}"
-                                Placeholder="Ask, enter a URL, search, or type / for skills"
+                                Placeholder="{Binding InputPlaceholder}"
                                 AutoSize="TextChanges"
                                 MinimumHeightRequest="92"
                                 MaximumHeightRequest="180"
@@ -199,7 +204,7 @@
                                 TextColor="#f7f9fc"
                                 PlaceholderColor="#8e98a6"/>
                         <Grid Grid.Row="2"
-                              ColumnDefinitions="*,Auto,Auto"
+                              ColumnDefinitions="Auto,*,Auto,Auto"
                               ColumnSpacing="10"
                               Padding="16,12,12,14">
                             <Label Text="Ctrl+L"
@@ -207,6 +212,21 @@
                                    FontSize="12"
                                    VerticalOptions="Center"/>
                             <HorizontalStackLayout Grid.Column="1"
+                                                   Spacing="8"
+                                                   HorizontalOptions="End"
+                                                   VerticalOptions="Center">
+                                <Label Text="URL/Search"
+                                       TextColor="#aeb7c4"
+                                       FontSize="12"
+                                       VerticalOptions="Center"/>
+                                <Switch IsToggled="{Binding IsLlmMode}"
+                                        VerticalOptions="Center"/>
+                                <Label Text="LLM"
+                                       TextColor="#aeb7c4"
+                                       FontSize="12"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2"
                                                    Spacing="6"
                                                    VerticalOptions="Center">
                                 <CheckBox IsChecked="{Binding DebugMode}"/>
@@ -215,7 +235,7 @@
                                        FontSize="12"
                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
-                            <Button Grid.Column="2"
+                            <Button Grid.Column="3"
                                     Text="Send"
                                     Command="{Binding SubmitPromptCommand}"/>
                         </Grid>

@@ -27,7 +27,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<SearchEngineRegistry>();
 		builder.Services.AddSingleton<AgentRegistry>();
 		builder.Services.AddSingleton<BrowserToolRegistry>();
-		builder.Services.AddSingleton<ILlmPlannerClient, NotConfiguredPlannerClient>();
+		builder.Services.AddHttpClient<ILlmPlannerClient, OllamaPlannerClient>();
 		builder.Services.AddSingleton<PlanningService>();
 		builder.Services.AddSingleton<PromptRouterService>();
 		builder.Services.AddSingleton<BuildInfoService>();

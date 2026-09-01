@@ -15,6 +15,7 @@ public sealed class BrowserShellViewModel : ObservableObject
     private bool isBusy;
     private string statusText;
     private bool debugMode;
+    private PromptInputMode inputMode;
 
     public BrowserShellViewModel(BrowserSessionService session, PromptRouterService router, SearchEngineRegistry searchEngines, AgentRegistry agents, BuildInfoService buildInfo)
     {
@@ -88,6 +89,23 @@ public sealed class BrowserShellViewModel : ObservableObject
         set => SetProperty(ref debugMode, value);
     }
 
+    public bool IsLlmMode
+    {
+        get => inputMode == PromptInputMode.Llm;
+        set
+        {
+            var nextMode = value ? PromptInputMode.Llm : PromptInputMode.Browse;
+            if (SetProperty(ref inputMode, nextMode))
+            {
+                OnPropertyChanged(nameof(InputModeLabel));
+                OnPropertyChanged(nameof(InputPlaceholder));
+            }
+        }
+    }
+
+    public string InputModeLabel => IsLlmMode ? "LLM" : "URL/Search";
+    public string InputPlaceholder => IsLlmMode ? "Ask the model to use browser tools" : "Enter a URL or search";
+
     public ICommand OpenPromptCommand { get; }
     public ICommand ClosePromptCommand { get; }
     public ICommand SubmitPromptCommand { get; }
@@ -111,7 +129,9 @@ public sealed class BrowserShellViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            var result = await router.RouteAsync(PromptText, debug: DebugMode).ConfigureAwait(false);
+            var result = IsLlmMode
+                ? await router.RouteLlmAsync(PromptText).ConfigureAwait(false)
+                : await router.RouteBrowseAsync(PromptText).ConfigureAwait(false);
             StatusText = result.Message;
             if (result.Succeeded)
             {

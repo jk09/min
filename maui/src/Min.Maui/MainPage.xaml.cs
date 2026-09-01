@@ -48,8 +48,24 @@ public partial class MainPage : ContentPage
 				args.Handled = true;
 			};
 			element.KeyboardAccelerators.Add(accelerator);
+
+			var closeAccelerator = new KeyboardAccelerator
+			{
+				Key = VirtualKey.Escape
+			};
+			closeAccelerator.Invoked += (_, args) =>
+			{
+				viewModel.IsPromptOverlayVisible = false;
+				args.Handled = true;
+			};
+			element.KeyboardAccelerators.Add(closeAccelerator);
 		}
 #endif
+	}
+
+	private void ClosePromptOverlay(object? sender, TappedEventArgs e)
+	{
+		viewModel.IsPromptOverlayVisible = false;
 	}
 
 	private void OnLoaded(object? sender, EventArgs e)

@@ -32,6 +32,53 @@ public sealed class PromptRouterTests
     }
 
     [Fact]
+    public async Task BrowseModeRoutesTextToSearch()
+    {
+        var services = TestServices.Create();
+
+        var result = await services.Router.RouteBrowseAsync("open settings");
+
+        Assert.True(result.Succeeded);
+        Assert.Contains("bing.com/search", services.Session.SelectedTab?.Url);
+    }
+
+    [Fact]
+    public async Task LlmModeUsesStarterToolPlanForSettings()
+    {
+        var services = TestServices.Create();
+
+        var result = await services.Router.RouteLlmAsync("open settings");
+
+        Assert.True(result.Succeeded);
+        Assert.Equal("min://settings", services.Session.SelectedTab?.Url);
+        Assert.Contains(result.Trace, line => line.StartsWith("settings.open", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task LlmModeUsesStarterToolPlanForPageSummary()
+    {
+        var services = TestServices.Create();
+
+        var result = await services.Router.RouteLlmAsync("summarize page");
+
+        Assert.True(result.Succeeded);
+        Assert.Contains("bing.com", result.Message);
+        Assert.Contains(result.Trace, line => line.StartsWith("page.summarize", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task LlmModeUsesStarterToolPlanForTodaysHistory()
+    {
+        var services = TestServices.Create();
+
+        var result = await services.Router.RouteLlmAsync("summarize today's history");
+
+        Assert.True(result.Succeeded);
+        Assert.Contains("visited page", result.Message);
+        Assert.Contains(result.Trace, line => line.StartsWith("history.summarizeToday", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task BrowserInstructionExecutesPlannedToolCalls()
     {
         var services = TestServices.Create("{\"toolCalls\":[{\"tool\":\"tabs.open\",\"args\":{\"url\":\"chromium.org\"}}]}");

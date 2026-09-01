@@ -31,8 +31,22 @@ public sealed class PlanningService
 
     public async Task<PromptRouteResult> RunAsync(string prompt, ToolExecutionContext context, CancellationToken cancellationToken = default)
     {
-        var rawPlan = await plannerClient.CreatePlanAsync(prompt, tools.GetCatalog(), context, cancellationToken).ConfigureAwait(false);
-        var plan = ParsePlan(rawPlan);
+        PromptPlan plan;
+        try
+        {
+            var rawPlan = await plannerClient.CreatePlanAsync(prompt, tools.GetCatalog(), context, cancellationToken).ConfigureAwait(false);
+            plan = ParsePlan(rawPlan);
+        }
+        catch (Exception exception)
+        {
+            plan = StarterPromptPlanner.TryPlan(prompt, "Ollama planner unavailable: " + exception.Message) ?? new PromptPlan(Array.Empty<ToolCall>(), "Ollama planner unavailable: " + exception.Message);
+        }
+
+        if (plan.ToolCalls.Count == 0)
+        {
+            plan = StarterPromptPlanner.TryPlan(prompt, plan.Message) ?? plan;
+        }
+
         var trace = new List<string>();
 
         foreach (var call in plan.ToolCalls)
@@ -77,5 +91,34 @@ public sealed class PlanningService
         var start = rawPlan.IndexOf('{');
         var end = rawPlan.LastIndexOf('}');
         return start >= 0 && end > start ? rawPlan[start..(end + 1)] : rawPlan;
+    }
+}
+
+public static class StarterPromptPlanner
+{
+    public static PromptPlan? TryPlan(string prompt, string? message = null)
+    {
+        var normalized = prompt.Trim().ToLowerInvariant();
+        if (normalized is "open settings" or "settings" || normalized.Contains("open settings", StringComparison.Ordinal))
+        {
+            return Plan("settings.open", new { });
+        }
+
+        if (normalized.Contains("summarize") && normalized.Contains("history"))
+        {
+            return Plan("history.summarizeToday", new { });
+        }
+
+        if (normalized.Contains("summarize") && normalized.Contains("page"))
+        {
+            return Plan("page.summarize", new { });
+        }
+
+        return null;
+    }
+
+    private static PromptPlan Plan(string tool, object args)
+    {
+        return new PromptPlan([new ToolCall(tool, JsonSerializer.SerializeToElement(args))], null);
     }
 }

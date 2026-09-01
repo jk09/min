@@ -36,12 +36,12 @@ public sealed class PromptRouterService
         var context = new ToolExecutionContext(session.SelectedTab?.Id, session.SelectedTab?.Url);
         if (value.StartsWith("//", StringComparison.Ordinal))
         {
-            return await planning.RunAsync(value[2..].Trim(), context, cancellationToken).ConfigureAwait(false);
+            return await RouteLlmAsync(value[2..].Trim(), cancellationToken).ConfigureAwait(false);
         }
 
         if (value.StartsWith("/b ", StringComparison.OrdinalIgnoreCase))
         {
-            return await planning.RunAsync(value[3..].Trim(), context, cancellationToken).ConfigureAwait(false);
+            return await RouteLlmAsync(value[3..].Trim(), cancellationToken).ConfigureAwait(false);
         }
 
         if (value.StartsWith('/'))
@@ -58,6 +58,36 @@ public sealed class PromptRouterService
         var engine = selectedSearchEngine is { IsEnabled: true } ? selectedSearchEngine : searchEngines.Default;
         session.OpenTab(engine.BuildSearchUrl(value));
         return PromptRouteResult.Handled($"Searching {engine.Label} for {value}", closeOverlay: true);
+    }
+
+    public Task<PromptRouteResult> RouteBrowseAsync(string input, SearchEngineDefinition? selectedSearchEngine = null, CancellationToken cancellationToken = default)
+    {
+        var value = input.Trim();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Task.FromResult(PromptRouteResult.Error("Type a URL or search."));
+        }
+
+        if (UrlInputParser.TryParseNavigationUrl(value, out var url))
+        {
+            var tab = session.OpenTab(url);
+            return Task.FromResult(PromptRouteResult.Handled($"Opened {tab.DisplayUrl}", closeOverlay: true));
+        }
+
+        var engine = selectedSearchEngine is { IsEnabled: true } ? selectedSearchEngine : searchEngines.Default;
+        session.OpenTab(engine.BuildSearchUrl(value));
+        return Task.FromResult(PromptRouteResult.Handled($"Searching {engine.Label} for {value}", closeOverlay: true));
+    }
+
+    public Task<PromptRouteResult> RouteLlmAsync(string input, CancellationToken cancellationToken = default)
+    {
+        var value = input.Trim();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Task.FromResult(PromptRouteResult.Error("Type an instruction for the model."));
+        }
+
+        return planning.RunAsync(value, new ToolExecutionContext(session.SelectedTab?.Id, session.SelectedTab?.Url), cancellationToken);
     }
 
     private async Task<PromptRouteResult> RouteSkillAsync(string skillText, AgentDefinition selectedAgent, ToolExecutionContext context)

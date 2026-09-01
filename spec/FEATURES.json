@@ -541,12 +541,14 @@
         "maui/src/Min.Maui/Services/BrowserSessionService.cs",
         "maui/src/Min.Maui/Services/BrowserToolRegistry.cs",
         "maui/src/Min.Maui/Services/BuildInfoService.cs",
+        "maui/src/Min.Maui/Services/OllamaPlannerClient.cs",
         "maui/src/Min.Maui/Services/PromptPlanning.cs",
         "maui/src/Min.Maui/Services/PromptRouterService.cs",
         "maui/src/Min.Maui/Services/SearchEngineRegistry.cs",
         "maui/src/Min.Maui/Services/SessionStore.cs",
         "maui/src/Min.Maui/Services/UrlInputParser.cs",
         "maui/src/Min.Maui/ViewModels/BrowserShellViewModel.cs",
+        "maui/src/Min.Maui/ViewModels/PromptInputMode.cs",
         "maui/src/Min.Maui/Xaml/BoolToObjectConverter.cs",
         "maui/src/Min.Maui/Xaml/InvertedBoolConverter.cs",
         "maui/test/Min.Maui.Tests/Min.Maui.Tests.csproj",
@@ -565,7 +567,7 @@
         "unit",
         "e2e"
       ],
-      "sourceHash": "sha256:3d032602cdea7321061ddea1914abf74f8dadbecf8fbc72496ea15f101d4a163",
+      "sourceHash": "sha256:603268844f7d2740ebd3eea5b804025c1068338685011b6eb1764f63762e7798",
       "lastVerified": "2026-09-01"
     }
   ]
