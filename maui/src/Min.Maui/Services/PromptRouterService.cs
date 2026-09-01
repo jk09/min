@@ -124,7 +124,7 @@ public sealed class PromptRouterService
         return PromptRouteResult.Handled($"Opened {agent.Label} handoff in {tab.DisplayUrl}", closeOverlay: true);
     }
 
-    private PromptRouteResult OpenDebugTab()
+    public PromptRouteResult OpenDebugTab()
     {
         session.OpenTab("min://llm-prompt-debug");
         return PromptRouteResult.Handled("Opened prompt debug tab", closeOverlay: true);

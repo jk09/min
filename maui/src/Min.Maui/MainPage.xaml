@@ -212,21 +212,38 @@
                                    FontSize="12"
                                    VerticalOptions="Center"/>
                             <HorizontalStackLayout Grid.Column="1"
-                                                   Spacing="8"
+                                       Spacing="4"
                                                    HorizontalOptions="End"
                                                    VerticalOptions="Center">
-                                <Label Text="URL/Search"
-                                       TextColor="#aeb7c4"
-                                       FontSize="12"
-                                       VerticalOptions="Center"/>
-                                <Switch IsToggled="{Binding IsLlmMode}"
-                                        VerticalOptions="Center"/>
-                                <Label Text="LLM"
-                                       TextColor="#aeb7c4"
-                                       FontSize="12"
-                                       VerticalOptions="Center"/>
+                            <Border BackgroundColor="#0f141b"
+                                Stroke="#303946"
+                                StrokeThickness="1"
+                                Padding="3">
+                                <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="7"/>
+                                </Border.StrokeShape>
+                                <HorizontalStackLayout Spacing="3">
+                                <Button Text="Search"
+                                    FontSize="12"
+                                    HeightRequest="32"
+                                    Padding="12,0"
+                                    BackgroundColor="{Binding IsSearchMode, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#2f3a49|#0f141b'}"
+                                    TextColor="#e4ebf5"
+                                    Command="{Binding SetPromptModeCommand}"
+                                    CommandParameter="search"/>
+                                <Button Text="Agent"
+                                    FontSize="12"
+                                    HeightRequest="32"
+                                    Padding="12,0"
+                                    BackgroundColor="{Binding IsLlmMode, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#2f3a49|#0f141b'}"
+                                    TextColor="#e4ebf5"
+                                    Command="{Binding SetPromptModeCommand}"
+                                    CommandParameter="agent"/>
+                                </HorizontalStackLayout>
+                            </Border>
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Grid.Column="2"
+                                       IsVisible="{Binding IsDebugAvailable}"
                                                    Spacing="6"
                                                    VerticalOptions="Center">
                                 <CheckBox IsChecked="{Binding DebugMode}"/>
@@ -236,7 +253,8 @@
                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                             <Button Grid.Column="3"
-                                    Text="Send"
+                                    Text="{Binding SendButtonText}"
+                                    BackgroundColor="{Binding IsSendFeedbackActive, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#3b82f6|#2c3440'}"
                                     Command="{Binding SubmitPromptCommand}"/>
                         </Grid>
                     </Grid>

@@ -59,6 +59,36 @@ public partial class MainPage : ContentPage
 				args.Handled = true;
 			};
 			element.KeyboardAccelerators.Add(closeAccelerator);
+
+			var submitAccelerator = new KeyboardAccelerator
+			{
+				Key = VirtualKey.Enter
+			};
+			submitAccelerator.Invoked += (_, args) =>
+			{
+				if (viewModel.IsPromptOverlayVisible)
+				{
+					viewModel.SubmitPromptFromKeyboard();
+					args.Handled = true;
+				}
+			};
+			element.KeyboardAccelerators.Add(submitAccelerator);
+
+			var newlineAccelerator = new KeyboardAccelerator
+			{
+				Key = VirtualKey.Enter,
+				Modifiers = VirtualKeyModifiers.Control
+			};
+			newlineAccelerator.Invoked += (_, args) =>
+			{
+				if (viewModel.IsPromptOverlayVisible)
+				{
+					viewModel.InsertPromptNewLine();
+					PromptEditor.Focus();
+					args.Handled = true;
+				}
+			};
+			element.KeyboardAccelerators.Add(newlineAccelerator);
 		}
 #endif
 	}

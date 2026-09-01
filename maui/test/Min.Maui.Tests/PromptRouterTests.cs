@@ -117,6 +117,41 @@ public sealed class PromptRouterTests
     }
 
     [Fact]
+    public void PromptModeSelectorControlsDebugAvailability()
+    {
+        var services = TestServices.Create();
+        var viewModel = new BrowserShellViewModel(services.Session, services.Router, services.SearchEngines, services.Agents, new BuildInfoService())
+        {
+            IsLlmMode = true,
+            DebugMode = true
+        };
+
+        Assert.True(viewModel.IsDebugAvailable);
+
+        viewModel.IsLlmMode = false;
+
+        Assert.True(viewModel.IsSearchMode);
+        Assert.False(viewModel.IsDebugAvailable);
+        Assert.False(viewModel.DebugMode);
+    }
+
+    [Fact]
+    public async Task LlmDebugModeOpensDebugTabAfterPromptSubmit()
+    {
+        var services = TestServices.Create();
+        var viewModel = new BrowserShellViewModel(services.Session, services.Router, services.SearchEngines, services.Agents, new BuildInfoService())
+        {
+            IsLlmMode = true,
+            DebugMode = true,
+            PromptText = "summarize page"
+        };
+
+        await viewModel.SubmitPromptAsync();
+
+        Assert.Equal("min://llm-prompt-debug", services.Session.SelectedTab?.Url);
+    }
+
+    [Fact]
     public void TabMetadataProvidesPageIconAndThemeColor()
     {
         var tab = new Models.BrowserTab("https://example.com/path", "Example");

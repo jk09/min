@@ -30,13 +30,16 @@ This port reconstructs the behavior represented by the completed feature specs i
 2. The shell displays multiple tab records and maintains one native `WebView` per tab, showing the selected tab.
 3. The tab strip uses fixed-width informational tabs and an overflow summary instead of Tasks UI or a visible new-tab button.
 4. The prompt is available on demand as a centered overlay above the web surface and has a persistent status bar affordance.
-5. Prompt input offers an explicit mode switch: URL/search mode routes host-like strings to direct URL navigation and ordinary text to the default search engine; LLM mode routes the input to the model planning pipeline.
+5. Prompt input offers an explicit Search/Agent mode selector: Search mode routes host-like strings to direct URL navigation and ordinary text to the default search engine; Agent mode routes the input to the model planning pipeline.
 6. The LLM planning pipeline exposes a typed browser tool catalog and executes validated tool calls.
 7. The prompt can be dismissed with `Esc`, the close button, or by clicking outside the composer.
 8. LLM mode supports starter commands for opening settings, summarizing the current page metadata, and summarizing today's MAUI session history.
-9. The shell supports AI agent handoff through `/ai`.
-10. The shell persists and restores tab URLs and active tab state.
-11. The shell exposes an automation endpoint and named-pipe server for remote end-to-end manipulation.
+9. The Send button gives immediate visual feedback when activated.
+10. Pressing `Enter` submits the prompt, while `Ctrl+Enter` inserts a newline.
+11. Debug mode is only available in Agent mode, and opens the LLM debug tab when an Agent prompt is submitted.
+12. The shell supports AI agent handoff through `/ai`.
+13. The shell persists and restores tab URLs and active tab state.
+14. The shell exposes an automation endpoint and named-pipe server for remote end-to-end manipulation.
 
 ## 7. Acceptance Criteria
 - [x] `dotnet test maui/Min.Maui.slnx` builds the MAUI app and runs routing/automation tests.
@@ -44,6 +47,7 @@ This port reconstructs the behavior represented by the completed feature specs i
 - [x] Plain prompt input opens a default Bing search tab.
 - [x] `//` planning input can execute a browser tool call.
 - [x] LLM mode can execute starter internal tools such as opening settings, summarizing the current page, and summarizing today's session history.
+- [x] Agent-mode debug submissions open the internal prompt debug page.
 - [x] The automation endpoint can submit a prompt through the same route as a remote end-to-end driver.
 
 ## 8. Testing / Verification

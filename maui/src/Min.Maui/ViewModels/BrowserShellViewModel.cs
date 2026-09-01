@@ -16,6 +16,7 @@ public sealed class BrowserShellViewModel : ObservableObject
     private string statusText;
     private bool debugMode;
     private PromptInputMode inputMode;
+    private bool isSendFeedbackActive;
 
     public BrowserShellViewModel(BrowserSessionService session, PromptRouterService router, SearchEngineRegistry searchEngines, AgentRegistry agents, BuildInfoService buildInfo)
     {
@@ -25,6 +26,7 @@ public sealed class BrowserShellViewModel : ObservableObject
 
         OpenPromptCommand = new RelayCommand<object>(_ => IsPromptOverlayVisible = true);
         ClosePromptCommand = new RelayCommand<object>(_ => IsPromptOverlayVisible = false);
+        SetPromptModeCommand = new RelayCommand<string>(SetPromptMode);
         SubmitPromptCommand = new AsyncRelayCommand(SubmitPromptAsync, () => !IsBusy);
         SelectTabCommand = new RelayCommand<BrowserTab>(session.SelectTab);
         CloseTabCommand = new RelayCommand<BrowserTab>(session.CloseTab);
@@ -99,15 +101,38 @@ public sealed class BrowserShellViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(InputModeLabel));
                 OnPropertyChanged(nameof(InputPlaceholder));
+                OnPropertyChanged(nameof(IsSearchMode));
+                OnPropertyChanged(nameof(IsDebugAvailable));
+                if (!IsLlmMode)
+                {
+                    DebugMode = false;
+                }
             }
         }
     }
 
+    public bool IsSearchMode => !IsLlmMode;
+    public bool IsDebugAvailable => IsLlmMode;
     public string InputModeLabel => IsLlmMode ? "LLM" : "URL/Search";
     public string InputPlaceholder => IsLlmMode ? "Ask the model to use browser tools" : "Enter a URL or search";
 
+    public bool IsSendFeedbackActive
+    {
+        get => isSendFeedbackActive;
+        private set
+        {
+            if (SetProperty(ref isSendFeedbackActive, value))
+            {
+                OnPropertyChanged(nameof(SendButtonText));
+            }
+        }
+    }
+
+    public string SendButtonText => IsSendFeedbackActive ? "Sent" : "Send";
+
     public ICommand OpenPromptCommand { get; }
     public ICommand ClosePromptCommand { get; }
+    public ICommand SetPromptModeCommand { get; }
     public ICommand SubmitPromptCommand { get; }
     public ICommand SelectTabCommand { get; }
     public ICommand CloseTabCommand { get; }
@@ -124,18 +149,42 @@ public sealed class BrowserShellViewModel : ObservableObject
         session.OpenTab(url);
     }
 
-    private async Task SubmitPromptAsync()
+    public void InsertPromptNewLine()
     {
+        PromptText += Environment.NewLine;
+    }
+
+    public void SubmitPromptFromKeyboard()
+    {
+        if (SubmitPromptCommand.CanExecute(null))
+        {
+            SubmitPromptCommand.Execute(null);
+        }
+    }
+
+    private void SetPromptMode(string? mode)
+    {
+        IsLlmMode = string.Equals(mode, "agent", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public async Task SubmitPromptAsync()
+    {
+        IsSendFeedbackActive = true;
         IsBusy = true;
         try
         {
             var result = IsLlmMode
-                ? await router.RouteLlmAsync(PromptText).ConfigureAwait(false)
-                : await router.RouteBrowseAsync(PromptText).ConfigureAwait(false);
+                ? await router.RouteLlmAsync(PromptText)
+                : await router.RouteBrowseAsync(PromptText);
             StatusText = result.Message;
             if (result.Succeeded)
             {
                 PromptText = string.Empty;
+            }
+
+            if (IsLlmMode && DebugMode)
+            {
+                router.OpenDebugTab();
             }
 
             if (result.CloseOverlay)
@@ -145,6 +194,8 @@ public sealed class BrowserShellViewModel : ObservableObject
         }
         finally
         {
+            await Task.Delay(220);
+            IsSendFeedbackActive = false;
             IsBusy = false;
         }
     }
