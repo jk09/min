@@ -158,6 +158,24 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     gap: 0.35em;
 }
 
+.llm-prompt-mode-label {
+    opacity: 0.7;
+    font-size: 0.82em;
+}
+
+#llm-prompt-mode {
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font-size: 0.82em;
+    padding: 0.25em 0.4em;
+}
+
+.dark-mode #llm-prompt-mode {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
 .llm-prompt-toolbar-button {
     border: 1px solid transparent;
     border-radius: 6px;

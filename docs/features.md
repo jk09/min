@@ -18,7 +18,7 @@ Tool registry, skill registry and router that turn prompt input into browser act
 
 ### On-demand prompt overlay with persistent status bar
 
-Centered prompt overlay opened on demand, backed by a one-line always-visible status bar.
+Centered prompt overlay with selectable browser navigation and LLM prompt modes.
 
 - **id:** `prompt-overlay`
 - **spec:** [spec/done/feat-v9t2ce-overlay-prompt-status-bar/SPEC.md](../spec/done/feat-v9t2ce-overlay-prompt-status-bar/SPEC.md)
@@ -82,11 +82,11 @@ Toolbar control for choosing the search engine, replacing the non-functional mod
 
 ### Prompt shortcut and direct URL navigation
 
-Ctrl+/ opens the prompt, and plain URLs entered there navigate directly.
+Ctrl+L opens the prompt, which supports browser URL/search input and direct LLM prompts.
 
 - **id:** `prompt-shortcut-url-navigation`
 - **spec:** [spec/done/fix-q7n2ka-prompt-shortcut-url-navigation/SPEC.md](../spec/done/fix-q7n2ka-prompt-shortcut-url-navigation/SPEC.md)
-- **source:** `js/keybindings.js`, `js/defaultKeybindings.js`, `js/util/urlParser.js`
+- **source:** `js/keybindings.js`, `js/defaultKeybindings.js`, `js/util/keyMap.js`, `js/util/urlParser.js`
 - **tests:** —
 
 ### Blank empty state with prompt when no tabs are open

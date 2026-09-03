@@ -35,6 +35,7 @@ function getPanelElements() {
         scrim: document.getElementById('llm-prompt-scrim'),
         panel: document.getElementById('llm-prompt-panel'),
         input: document.getElementById('llm-prompt-input'),
+        mode: document.getElementById('llm-prompt-mode'),
         send: document.getElementById('llm-prompt-send'),
         result: document.getElementById('llm-prompt-result'),
         engineState: document.getElementById('llm-prompt-engine-state'),
@@ -45,7 +46,7 @@ function getPanelElements() {
     }
 }
 
-function createRequestId () {
+function createRequestId() {
     return 'prompt-panel-' + Date.now() + '-' + Math.floor(Math.random() * 1000000)
 }
 
@@ -106,7 +107,7 @@ function closePanel(els) {
 }
 
 function trapFocus(els, e) {
-    const focusable = Array.from(els.panel.querySelectorAll('textarea, button:not([disabled])'))
+    const focusable = Array.from(els.panel.querySelectorAll('textarea, select, button:not([disabled])'))
     if (focusable.length === 0) {
         return
     }
@@ -129,9 +130,15 @@ function updateGuidance(els) {
         return
     }
 
-    els.result.textContent = state.providerConfigured
-        ? 'Type an address, ?query to search, or ask anything. / lists skills.'
-        : '?query to search and / skills work without a model.'
+    if (els.mode.value === 'llm') {
+        els.input.placeholder = 'Ask the model anything'
+        els.result.textContent = state.providerConfigured
+            ? 'Ask anything. Enter sends the prompt to the model.'
+            : 'Configure a model to send prompts.'
+    } else {
+        els.input.placeholder = 'Type an address or search the web'
+        els.result.textContent = 'Type an address or search the web.'
+    }
 }
 
 function updateEngineStateLabel(els) {
@@ -234,7 +241,7 @@ function cancelPrompt(els) {
     }
 
     if (state.activeRequestId) {
-        engineClient.cancel(state.activeRequestId).catch(function () {})
+        engineClient.cancel(state.activeRequestId).catch(function () { })
     }
     state.sending = false
     state.activeRequestId = null
@@ -268,6 +275,7 @@ async function sendPrompt(els) {
 
     try {
         const result = await promptRouter.handlePrompt(prompt, {
+            mode: els.mode.value,
             scope: 'mutate',
             agentId: agentRegistry.DEFAULT_AGENT_ID,
             ownModelId: ownModelRegistry.DEFAULT_OWN_MODEL_ID,
@@ -368,7 +376,7 @@ async function updateHistorySuggestions(els) {
     const query = els.input.value.trim()
     const requestId = ++state.historyRequestId
 
-    if (!query || query.startsWith('/')) {
+    if (!query || els.mode.value !== 'browser') {
         clearHistorySuggestions(els)
         return
     }
@@ -418,6 +426,11 @@ function bindEvents(els) {
     els.debugLink.addEventListener('click', function (e) {
         e.stopPropagation()
         debugTab.open()
+    })
+
+    els.mode.addEventListener('change', function () {
+        clearHistorySuggestions(els)
+        updateControls(els)
     })
 
     els.panel.addEventListener('keydown', function (e) {

@@ -2,7 +2,7 @@ const test = require('node:test')
 const assert = require('node:assert')
 const Module = require('node:module')
 
-function loadPromptRouter () {
+function loadPromptRouter() {
     const registeredTools = new Map()
     let llmCalls = 0
     const searchCalls = []
@@ -32,7 +32,7 @@ function loadPromptRouter () {
     }
 
     const skillRegistry = {
-        registerAll: () => {},
+        registerAll: () => { },
         resolveExplicit: function (prompt) {
             if (prompt === '/known args') {
                 return { skill, argsText: 'args' }
@@ -112,9 +112,9 @@ test('plain text without a leading / searches the configured engine without aski
     assert.strictEqual(runtime.getLlmCalls(), 0)
 })
 
-test('a leading // feeds the prompt to the configured LLM model', async function () {
+test('LLM mode feeds ordinary prompt text to the configured model', async function () {
     const runtime = loadPromptRouter()
-    const result = await runtime.router.handlePrompt('//privacy focused browser', { scope: 'mutate' })
+    const result = await runtime.router.handlePrompt('privacy focused browser', { scope: 'mutate', mode: 'llm' })
 
     assert.strictEqual(result.route, 'skill')
     assert.strictEqual(result.skillId, 'b')
@@ -122,14 +122,15 @@ test('a leading // feeds the prompt to the configured LLM model', async function
     assert.strictEqual(runtime.getLlmCalls(), 1)
 })
 
-test('unknown slash text is rejected without asking the model, known explicit skills still run', async function () {
+test('browser mode treats slash text as a search and LLM mode retains explicit skills', async function () {
     const runtime = loadPromptRouter()
-    const unknownResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate' })
-    const skillResult = await runtime.router.handlePrompt('/known args', { scope: 'mutate' })
+    const browserResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate', mode: 'browser' })
+    const skillResult = await runtime.router.handlePrompt('/known args', { scope: 'mutate', mode: 'llm' })
 
-    assert.strictEqual(unknownResult.ok, false)
-    assert.strictEqual(unknownResult.route, 'error')
+    assert.strictEqual(browserResult.ok, true)
+    assert.strictEqual(browserResult.route, 'search')
     assert.strictEqual(skillResult.route, 'skill')
     assert.strictEqual(skillResult.skillId, 'known')
+    assert.deepStrictEqual(runtime.searchCalls, [{ query: '/not-a-skill' }])
     assert.strictEqual(runtime.getLlmCalls(), 0)
 })

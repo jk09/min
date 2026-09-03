@@ -2,7 +2,7 @@ const test = require('node:test')
 const assert = require('node:assert')
 const Module = require('node:module')
 
-function createElement (id) {
+function createElement(id) {
   const classes = new Set()
   const attributes = {}
   return {
@@ -31,7 +31,7 @@ function createElement (id) {
       (this.listeners[name] || []).forEach(fn => fn(event))
     },
     querySelectorAll: () => [],
-    replaceChildren: () => {},
+    replaceChildren: () => { },
     appendChild: function (child) { return child },
     contains: () => false,
     getBoundingClientRect: () => ({ height: 22, width: 800, top: 0 }),
@@ -39,14 +39,15 @@ function createElement (id) {
   }
 }
 
-function loadPromptPanel (handlePrompt) {
+function loadPromptPanel(handlePrompt) {
   const ids = [
     'llm-prompt-overlay', 'llm-prompt-scrim', 'llm-prompt-panel',
-    'llm-prompt-input', 'llm-prompt-send', 'llm-prompt-result',
+    'llm-prompt-input', 'llm-prompt-mode', 'llm-prompt-send', 'llm-prompt-result',
     'llm-prompt-engine-state', 'llm-prompt-build-info', 'llm-prompt-history',
     'llm-prompt-debug', 'llm-prompt-debug-link'
   ]
   const elements = new Map(ids.map(id => [id, createElement(id)]))
+  elements.get('llm-prompt-mode').value = 'browser'
   const bodyClasses = new Set()
   const placeholderRequests = []
   const margins = []
@@ -66,16 +67,16 @@ function loadPromptPanel (handlePrompt) {
     getElementById: id => elements.get(id) || null,
     createElement: () => createElement('created')
   }
-  global.window = { addEventListener: () => {} }
+  global.window = { addEventListener: () => { } }
 
   const modules = {
     'llmPrompt/engineClient.js': { getStatus: async () => ({ providerConfigured: false }) },
-    'llmPrompt/buildInfo.js': { render: () => {} },
+    'llmPrompt/buildInfo.js': { render: () => { } },
     'dist/buildInfo.build.js': { shortCommit: 'abc1234' },
-    'llmPrompt/promptRouter.js': { initialize: () => {}, handlePrompt: handlePrompt || (async () => ({ ok: true, message: 'done' })), toolRegistry: { run: async () => {} } },
+    'llmPrompt/promptRouter.js': { initialize: () => { }, handlePrompt: handlePrompt || (async () => ({ ok: true, message: 'done' })), toolRegistry: { run: async () => { } } },
     'llmPrompt/agents/agentRegistry.js': require('../js/llmPrompt/agents/agentRegistry.js'),
     'llmPrompt/ownModels/ownModelRegistry.js': require('../js/llmPrompt/ownModels/ownModelRegistry.js'),
-    'llmPrompt/debugTab.js': { publish: () => {}, open: () => {} },
+    'llmPrompt/debugTab.js': { publish: () => { }, open: () => { } },
     'webviews.js': {
       adjustMargin: delta => margins.push(delta),
       requestPlaceholder: reason => placeholderRequests.push(reason),
@@ -85,7 +86,7 @@ function loadPromptPanel (handlePrompt) {
           placeholderRequests.splice(index, 1)
         }
       },
-      focus: () => {}
+      focus: () => { }
     },
     'places/places.js': { searchPlaces: async () => [] }
   }
@@ -170,7 +171,7 @@ test('submitting an immediate result closes the prompt', async function () {
   promptPanel.initialize()
   promptPanel.open()
   elements.get('llm-prompt-input').value = 'privacy browser'
-  elements.get('llm-prompt-input').dispatch('keydown', { key: 'Enter', shiftKey: false, preventDefault: () => {} })
+  elements.get('llm-prompt-input').dispatch('keydown', { key: 'Enter', shiftKey: false, preventDefault: () => { } })
   await Promise.resolve()
 
   assert.strictEqual(promptPanel.isOpen(), false)
@@ -186,8 +187,9 @@ test('submitting an LLM result keeps the prompt open', async function () {
 
   promptPanel.initialize()
   promptPanel.open()
-  elements.get('llm-prompt-input').value = '//summarize this'
-  elements.get('llm-prompt-input').dispatch('keydown', { key: 'Enter', shiftKey: false, preventDefault: () => {} })
+  elements.get('llm-prompt-mode').value = 'llm'
+  elements.get('llm-prompt-input').value = 'summarize this'
+  elements.get('llm-prompt-input').dispatch('keydown', { key: 'Enter', shiftKey: false, preventDefault: () => { } })
   await Promise.resolve()
 
   assert.strictEqual(promptPanel.isOpen(), true)

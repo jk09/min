@@ -30,8 +30,8 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:61915e8f71fed2ebc0935c0e937ec7837d7630aa632ac6cf5c53d5063e47907a",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:34a1919d48a18ab2453dfd7e9fcdf0b8575e04f7ce5ce2ee4fcc7fc3317bde64",
+      "lastVerified": "2026-09-03"
     },
     {
       "id": "prompt-panel",
@@ -76,7 +76,7 @@
     {
       "id": "prompt-overlay",
       "title": "On-demand prompt overlay with persistent status bar",
-      "summary": "Centered prompt overlay opened on demand, backed by a one-line always-visible status bar.",
+      "summary": "Centered prompt overlay with selectable browser navigation and LLM prompt modes.",
       "status": "active",
       "specPath": "spec/done/feat-v9t2ce-overlay-prompt-status-bar/SPEC.md",
       "supersedes": [
@@ -101,8 +101,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:8494458577fa5f4ed8580c6c5f57238a6d7f3b7ea6a5c156ced5a1ec8c24bfa5",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:30e3c44cc84c00e4f5046b189947d8ed9290ed2155b9c92655819bcba7994f2f",
+      "lastVerified": "2026-09-03"
     },
     {
       "id": "build-commit-indicator",
@@ -254,7 +254,7 @@
     {
       "id": "prompt-shortcut-url-navigation",
       "title": "Prompt shortcut and direct URL navigation",
-      "summary": "Ctrl+/ opens the prompt, and plain URLs entered there navigate directly.",
+      "summary": "Ctrl+L opens the prompt, which supports browser URL/search input and direct LLM prompts.",
       "status": "active",
       "specPath": "spec/done/fix-q7n2ka-prompt-shortcut-url-navigation/SPEC.md",
       "supersedes": [],
@@ -264,6 +264,7 @@
       "sourceFiles": [
         "js/keybindings.js",
         "js/defaultKeybindings.js",
+        "js/util/keyMap.js",
         "js/util/urlParser.js"
       ],
       "tests": {
@@ -272,8 +273,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:768ca67af0f586b66508ed7bc24911265cf4314d156b077e35ba9558bb09c92b",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:f013b07eb070b937b3ea002825622630e064fba732bb31d25d9459e813974037",
+      "lastVerified": "2026-09-03"
     },
     {
       "id": "empty-state-prompt",

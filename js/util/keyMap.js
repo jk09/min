@@ -25,10 +25,10 @@ var defaultKeyMap = {
   fillPassword: 'mod+\\',
   toggleTabAudio: 'shift+mod+m',
   showHistory: 'shift+mod+h',
-  toggleLLMPrompt: 'mod+/'
+  toggleLLMPrompt: 'mod+l'
 }
 /* Utility function to override default mapping with user settings */
-function userKeyMap (settings) {
+function userKeyMap(settings) {
   var keyMapCopy = Object.assign({}, defaultKeyMap)
   if (settings) {
     // override the default keymap by the user defined ones
