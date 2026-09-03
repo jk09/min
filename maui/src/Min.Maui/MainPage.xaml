@@ -242,35 +242,17 @@
                                    FontSize="12"
                                    VerticalOptions="Center"/>
                             <HorizontalStackLayout Grid.Column="1"
-                                                   Spacing="4"
+                                                   Spacing="8"
                                                    HorizontalOptions="End"
                                                    VerticalOptions="Center">
-                                <Border BackgroundColor="#0f141b"
-                                        Stroke="#303946"
-                                        StrokeThickness="1"
-                                        Padding="3">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="7"/>
-                                    </Border.StrokeShape>
-                                    <HorizontalStackLayout Spacing="3">
-                                        <Button Text="Search"
-                                                FontSize="12"
-                                                HeightRequest="32"
-                                                Padding="12,0"
-                                                BackgroundColor="{Binding IsSearchMode, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#2f3a49|#0f141b'}"
-                                                TextColor="#e4ebf5"
-                                                Command="{Binding SetPromptModeCommand}"
-                                                CommandParameter="search"/>
-                                        <Button Text="Agent"
-                                                FontSize="12"
-                                                HeightRequest="32"
-                                                Padding="12,0"
-                                                BackgroundColor="{Binding IsLlmMode, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#2f3a49|#0f141b'}"
-                                                TextColor="#e4ebf5"
-                                                Command="{Binding SetPromptModeCommand}"
-                                                CommandParameter="agent"/>
-                                    </HorizontalStackLayout>
-                                </Border>
+                                <Picker ItemsSource="{Binding PromptModes}"
+                                        SelectedItem="{Binding SelectedPromptMode}"
+                                        FontSize="12"
+                                        WidthRequest="112"
+                                        HeightRequest="34"
+                                        Title="Mode"
+                                        TextColor="#e4ebf5"
+                                        BackgroundColor="#0f141b"/>
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Grid.Column="2"
                                                    IsVisible="{Binding IsDebugAvailable}"
@@ -282,10 +264,16 @@
                                        FontSize="12"
                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
-                            <Button Grid.Column="3"
-                                    Text="{Binding SendButtonText}"
-                                    BackgroundColor="{Binding IsSendFeedbackActive, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#3b82f6|#2c3440'}"
-                                    Command="{Binding SubmitPromptCommand}"/>
+                            <ImageButton Grid.Column="3"
+                                         Source="send-arrow.svg"
+                                         IsVisible="{Binding HasPromptText}"
+                                         BackgroundColor="{Binding IsSendFeedbackActive, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#3b82f6|#2c3440'}"
+                                         WidthRequest="42"
+                                         HeightRequest="42"
+                                         Padding="12"
+                                         CornerRadius="8"
+                                         Aspect="AspectFit"
+                                         Command="{Binding SubmitPromptCommand}"/>
                         </Grid>
                     </Grid>
                 </Border>

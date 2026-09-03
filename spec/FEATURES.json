@@ -534,6 +534,7 @@
         "maui/src/Min.Maui/Resources/AppIcon/appiconfg.svg",
         "maui/src/Min.Maui/Resources/Fonts/OpenSans-Regular.ttf",
         "maui/src/Min.Maui/Resources/Fonts/OpenSans-Semibold.ttf",
+        "maui/src/Min.Maui/Resources/Images/send-arrow.svg",
         "maui/src/Min.Maui/Resources/Splash/splash.svg",
         "maui/src/Min.Maui/Resources/Styles/Colors.xaml",
         "maui/src/Min.Maui/Resources/Styles/Styles.xaml",
@@ -567,8 +568,8 @@
         "unit",
         "e2e"
       ],
-      "sourceHash": "sha256:077afb29ed8f6390b6e6985da7b6d7a8ad1467e9010b6f1b9c40a32e493f94c6",
-      "lastVerified": "2026-09-01"
+      "sourceHash": "sha256:b133b49defc3f2a3e0bbb24e69bbb7494e7d1c64350dfee1d40f09ad86926c73",
+      "lastVerified": "2026-09-03"
     }
   ]
 }

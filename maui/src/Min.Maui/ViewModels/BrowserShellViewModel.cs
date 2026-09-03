@@ -19,6 +19,7 @@ public sealed class BrowserShellViewModel : ObservableObject
     private bool isSendFeedbackActive;
     private bool isThinking;
     private string promptOutputText = string.Empty;
+    private string selectedPromptMode = "Search";
 
     public BrowserShellViewModel(BrowserSessionService session, PromptRouterService router, SearchEngineRegistry searchEngines, AgentRegistry agents, BuildInfoService buildInfo)
     {
@@ -60,8 +61,16 @@ public sealed class BrowserShellViewModel : ObservableObject
     public string PromptText
     {
         get => promptText;
-        set => SetProperty(ref promptText, value);
+        set
+        {
+            if (SetProperty(ref promptText, value))
+            {
+                OnPropertyChanged(nameof(HasPromptText));
+            }
+        }
     }
+
+    public bool HasPromptText => !string.IsNullOrWhiteSpace(PromptText);
 
     public bool IsPromptOverlayVisible
     {
@@ -101,6 +110,7 @@ public sealed class BrowserShellViewModel : ObservableObject
             var nextMode = value ? PromptInputMode.Llm : PromptInputMode.Browse;
             if (SetProperty(ref inputMode, nextMode))
             {
+                SetProperty(ref selectedPromptMode, IsLlmMode ? "Agent" : "Search", nameof(SelectedPromptMode));
                 OnPropertyChanged(nameof(InputModeLabel));
                 OnPropertyChanged(nameof(InputPlaceholder));
                 OnPropertyChanged(nameof(IsSearchMode));
@@ -117,6 +127,19 @@ public sealed class BrowserShellViewModel : ObservableObject
     public bool IsDebugAvailable => IsLlmMode;
     public string InputModeLabel => IsLlmMode ? "LLM" : "URL/Search";
     public string InputPlaceholder => IsLlmMode ? "Ask the model to use browser tools" : "Enter a URL or search";
+    public IReadOnlyList<string> PromptModes { get; } = ["Search", "Agent"];
+
+    public string SelectedPromptMode
+    {
+        get => selectedPromptMode;
+        set
+        {
+            if (SetProperty(ref selectedPromptMode, value))
+            {
+                IsLlmMode = string.Equals(value, "Agent", StringComparison.OrdinalIgnoreCase);
+            }
+        }
+    }
 
     public bool IsSendFeedbackActive
     {

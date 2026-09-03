@@ -149,6 +149,22 @@ public sealed class PromptRouterTests
     }
 
     [Fact]
+    public void PromptModeDropdownStaysInSyncAndSendAppearsForText()
+    {
+        var services = TestServices.Create();
+        var viewModel = new BrowserShellViewModel(services.Session, services.Router, services.SearchEngines, services.Agents, new BuildInfoService());
+
+        Assert.Equal("Search", viewModel.SelectedPromptMode);
+        Assert.False(viewModel.HasPromptOutput);
+
+        viewModel.SelectedPromptMode = "Agent";
+        viewModel.PromptText = "hello";
+
+        Assert.True(viewModel.IsLlmMode);
+        Assert.True(viewModel.HasPromptText);
+    }
+
+    [Fact]
     public async Task LlmDebugModeOpensDebugTabAfterPromptSubmit()
     {
         var services = TestServices.Create();

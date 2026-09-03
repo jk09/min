@@ -38,10 +38,12 @@ This port reconstructs the behavior represented by the completed feature specs i
 10. Pressing `Enter` submits the prompt, while `Ctrl+Enter` inserts a newline.
 11. Agent mode shows an in-composer thinking indicator while model/tool work is in progress.
 12. Agent mode prints the model/tool output in the prompt composer instead of the status bar.
-13. Debug mode is only available in Agent mode, and opens the LLM debug tab when an Agent prompt is submitted.
-14. The shell supports AI agent handoff through `/ai`.
-15. The shell persists and restores tab URLs and active tab state.
-16. The shell exposes an automation endpoint and named-pipe server for remote end-to-end manipulation.
+13. The prompt mode selector is a dropdown with `Search` and `Agent` options.
+14. The send action is an icon and is visible only while the prompt contains text.
+15. Debug mode is only available in Agent mode, and opens the LLM debug tab when an Agent prompt is submitted.
+16. The shell supports AI agent handoff through `/ai`.
+17. The shell persists and restores tab URLs and active tab state.
+18. The shell exposes an automation endpoint and named-pipe server for remote end-to-end manipulation.
 
 ## 7. Acceptance Criteria
 - [x] `dotnet test maui/Min.Maui.slnx` builds the MAUI app and runs routing/automation tests.
