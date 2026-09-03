@@ -166,14 +166,28 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
 #llm-prompt-mode {
     border: 1px solid rgba(0, 0, 0, 0.18);
     border-radius: 6px;
-    background: transparent;
-    color: inherit;
+    background: rgb(251, 251, 251);
+    color: rgb(41, 44, 52);
+    color-scheme: light;
     font-size: 0.82em;
     padding: 0.25em 0.4em;
 }
 
+#llm-prompt-mode option {
+    background: rgb(251, 251, 251);
+    color: rgb(41, 44, 52);
+}
+
 .dark-mode #llm-prompt-mode {
     border-color: rgba(255, 255, 255, 0.2);
+    background: rgb(41, 44, 52);
+    color: rgb(251, 251, 251);
+    color-scheme: dark;
+}
+
+.dark-mode #llm-prompt-mode option {
+    background: rgb(41, 44, 52);
+    color: rgb(251, 251, 251);
 }
 
 .llm-prompt-toolbar-button {
