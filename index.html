@@ -108,18 +108,17 @@
     <section id="llm-prompt-panel" class="theme-background-color theme-text-color" role="dialog" aria-modal="true"
       aria-label="LLM prompt">
       <div class="llm-prompt-composer">
-        <textarea id="llm-prompt-input" rows="2" spellcheck="true" placeholder="Type an address to visit, text to search, //ask the model, or /skill"
+        <textarea id="llm-prompt-input" rows="2" spellcheck="true" placeholder="Type an address or search the web"
           aria-label="Prompt"></textarea>
         <div id="llm-prompt-history" role="listbox" aria-label="Browsing history suggestions" hidden></div>
       </div>
-      <div id="llm-prompt-status" class="light-fade">
-        <span id="llm-prompt-engine-state"></span>
-        <div id="llm-prompt-status-messages" aria-live="polite">
-          <span id="llm-prompt-result"></span>
-        </div>
-      </div>
       <div class="llm-prompt-toolbar">
         <div class="llm-prompt-toolbar-group">
+          <label class="llm-prompt-mode-label" for="llm-prompt-mode">Mode</label>
+          <select id="llm-prompt-mode" aria-label="Prompt mode">
+            <option value="browser">Browser</option>
+            <option value="llm">LLM prompt</option>
+          </select>
           <button id="llm-prompt-debug" class="llm-prompt-toolbar-button" type="button" aria-pressed="false"
             title="Debug: off - turn on to inspect /b runs in a dedicated tab">Debug</button>
           <button id="llm-prompt-debug-link" class="llm-prompt-toolbar-button llm-prompt-debug-link" type="button"
@@ -129,7 +128,8 @@
           <span id="llm-prompt-build-info" role="note"></span>
         </div>
         <div class="llm-prompt-toolbar-group">
-          <button id="llm-prompt-send" type="button" title="Send prompt" aria-label="Send prompt"><i class="i carbon:arrow-up"></i></button>
+          <button id="llm-prompt-send" type="button" title="Send prompt" aria-label="Send prompt"><i
+              class="i carbon:arrow-up"></i></button>
         </div>
       </div>
     </section>

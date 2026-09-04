@@ -1,10 +1,11 @@
 /*
 Routes prompt text:
 
-  <web address>       -> open in a new tab (protocol-less domains included)
-  text w/o leading '/' -> search with the configured search engine
-  '//<prompt>'         -> the prompt is fed to the configured LLM model
-  '/<skill-name> args' -> explicit skill invocation
+    browser mode: any web address opens in a new tab; all other text searches
+    llm mode: prompt text is fed to the configured LLM model
+
+LLM mode retains slash-prefixed skills for compatibility. Browser mode never
+interprets slash-prefixed text as a skill or model request.
 
 The URL check always runs first, so text that resolves to an address is opened
 even if it also happens to start with '/'. Leading/trailing whitespace is
@@ -24,7 +25,7 @@ const urlParser = require('util/urlParser.js')
 
 let initialized = false
 
-function loadUserSkills () {
+function loadUserSkills() {
     const definitions = settings.get('llmSkills')
 
     if (!Array.isArray(definitions)) {
@@ -40,7 +41,7 @@ function loadUserSkills () {
     })
 }
 
-function initialize () {
+function initialize() {
     if (initialized) {
         return
     }
@@ -50,14 +51,14 @@ function initialize () {
     initialized = true
 }
 
-function createContext (scope, trace, agentId, ownModelId, debug, requestId, onProgress) {
-    async function runTool (id, args) {
+function createContext(scope, trace, agentId, ownModelId, debug, requestId, onProgress) {
+    async function runTool(id, args) {
         const outcome = await toolRegistry.run(id, args, { scope })
         trace.push({ tool: id, args: args || {}, ok: outcome.ok, result: outcome.result, errorMessage: outcome.errorMessage })
         return outcome
     }
 
-    async function runPlan (toolCalls) {
+    async function runPlan(toolCalls) {
         for (const call of toolCalls) {
             const outcome = await runTool(call.tool, call.args)
             if (!outcome.ok) {
@@ -76,7 +77,7 @@ function createContext (scope, trace, agentId, ownModelId, debug, requestId, onP
     return { scope, agentId: agentId || null, ownModelId: ownModelId || null, debug: Boolean(debug), runTool, runPlan, llm }
 }
 
-async function runSkill (skill, argsText, prompt, scope, agentId, ownModelId, debug, requestId, onProgress) {
+async function runSkill(skill, argsText, prompt, scope, agentId, ownModelId, debug, requestId, onProgress) {
     const trace = []
     const context = createContext(scope, trace, agentId, ownModelId, debug, requestId, onProgress)
 
@@ -103,7 +104,7 @@ async function runSkill (skill, argsText, prompt, scope, agentId, ownModelId, de
     }
 }
 
-async function runSearch (prompt, scope) {
+async function runSearch(prompt, scope) {
     const trace = []
     const context = createContext(scope, trace)
     const outcome = await context.runTool('search.web', { query: prompt })
@@ -121,7 +122,7 @@ async function runSearch (prompt, scope) {
     }
 }
 
-async function runURL (url, scope) {
+async function runURL(url, scope) {
     const trace = []
     const context = createContext(scope, trace)
     const outcome = await context.runTool('tabs.open', { url })
@@ -142,11 +143,12 @@ async function runURL (url, scope) {
 options.scope - 'read' or 'mutate'. Prompts typed by the user are mutate-capable;
 the gate exists so non-interactive callers can stay read-only.
 */
-async function handlePrompt (rawPrompt, options = {}) {
+async function handlePrompt(rawPrompt, options = {}) {
     initialize()
 
     const prompt = String(rawPrompt || '').trim()
     const scope = options.scope === 'read' ? 'read' : 'mutate'
+    const mode = options.mode === 'llm' ? 'llm' : 'browser'
 
     if (!prompt) {
         return { ok: false, route: 'error', message: 'Type a request, or / to see the available skills.', trace: [] }
@@ -167,12 +169,19 @@ async function handlePrompt (rawPrompt, options = {}) {
     const requestId = typeof options.requestId === 'string' ? options.requestId : null
     const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null
 
-    if (urlParser.isPossibleURL(prompt)) {
-        return runURL(prompt, scope)
+    if (mode === 'browser') {
+        if (urlParser.isPossibleURL(prompt)) {
+            return runURL(prompt, scope)
+        }
+        return runSearch(prompt, scope)
     }
 
     if (!prompt.startsWith('/')) {
-        return runSearch(prompt, scope)
+        const llmSkill = skillRegistry.get('b')
+        if (llmSkill) {
+            return runSkill(llmSkill, prompt, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
+        }
+        return { ok: false, route: 'error', message: 'No LLM model is configured.', trace: [] }
     }
 
     if (prompt.startsWith('//')) {

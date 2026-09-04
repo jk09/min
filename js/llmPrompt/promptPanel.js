@@ -13,14 +13,11 @@ const RUNNING_MESSAGES = ['Thinking...', 'Reading model output...', 'Waiting for
 
 const state = {
     open: false,
-    providerConfigured: false,
     sending: false,
     activeRequestId: null,
     progressText: '',
     progressMessageIndex: 0,
     progressTimer: null,
-    hasResult: false,
-    engineStatus: null,
     appliedMargins: [0, 0, 0, 0],
     previouslyFocused: null,
     historySuggestions: [],
@@ -35,9 +32,8 @@ function getPanelElements() {
         scrim: document.getElementById('llm-prompt-scrim'),
         panel: document.getElementById('llm-prompt-panel'),
         input: document.getElementById('llm-prompt-input'),
+        mode: document.getElementById('llm-prompt-mode'),
         send: document.getElementById('llm-prompt-send'),
-        result: document.getElementById('llm-prompt-result'),
-        engineState: document.getElementById('llm-prompt-engine-state'),
         buildInfo: document.getElementById('llm-prompt-build-info'),
         history: document.getElementById('llm-prompt-history'),
         debugToggle: document.getElementById('llm-prompt-debug'),
@@ -45,7 +41,7 @@ function getPanelElements() {
     }
 }
 
-function createRequestId () {
+function createRequestId() {
     return 'prompt-panel-' + Date.now() + '-' + Math.floor(Math.random() * 1000000)
 }
 
@@ -105,8 +101,19 @@ function closePanel(els) {
     }
 }
 
+function openModeSelector(els) {
+    if (!state.open) {
+        openPanel(els)
+    }
+
+    els.mode.focus()
+    if (typeof els.mode.showPicker === 'function') {
+        els.mode.showPicker()
+    }
+}
+
 function trapFocus(els, e) {
-    const focusable = Array.from(els.panel.querySelectorAll('textarea, button:not([disabled])'))
+    const focusable = Array.from(els.panel.querySelectorAll('textarea, select, button:not([disabled])'))
     if (focusable.length === 0) {
         return
     }
@@ -124,42 +131,23 @@ function trapFocus(els, e) {
 }
 
 function updateGuidance(els) {
-    // the result line doubles as guidance until the first prompt is sent
-    if (state.hasResult) {
-        return
+    if (els.mode.value === 'llm') {
+        els.input.placeholder = 'Ask the model anything'
+    } else {
+        els.input.placeholder = 'Type an address or search the web'
     }
-
-    els.result.textContent = state.providerConfigured
-        ? 'Type an address, ?query to search, or ask anything. / lists skills.'
-        : '?query to search and / skills work without a model.'
-}
-
-function updateEngineStateLabel(els) {
-    if (!state.engineStatus) {
-        els.engineState.textContent = 'Checking engine...'
-        return
-    }
-
-    if (!state.providerConfigured) {
-        els.engineState.textContent = 'Skills only'
-        return
-    }
-
-    var providerLabel = state.engineStatus.provider || 'configured'
-    var modelLabel = state.engineStatus.model ? (' / ' + state.engineStatus.model) : ''
-    els.engineState.textContent = providerLabel + modelLabel
 }
 
 function updateControls(els) {
     // deterministic skills run without a provider, so the panel is never fully disabled
     const icon = els.send.querySelector && els.send.querySelector('i')
     els.send.classList.toggle('llm-prompt-stop', state.sending)
+    els.input.readOnly = state.sending
     els.send.title = state.sending ? 'Stop prompt' : 'Send prompt'
     els.send.setAttribute('aria-label', state.sending ? 'Stop prompt' : 'Send prompt')
     if (icon) {
         icon.className = state.sending ? 'i carbon:stop-filled' : 'i carbon:arrow-up'
     }
-    updateEngineStateLabel(els)
     updateGuidance(els)
 }
 
@@ -174,15 +162,15 @@ function describeTrace(trace) {
 }
 
 function setResult(els, text, isError) {
-    state.hasResult = true
-    els.result.textContent = text
-    els.result.classList.toggle('llm-prompt-error', Boolean(isError))
+    els.input.value = text
+    els.input.classList.toggle('llm-prompt-error', Boolean(isError))
+    autoGrowInput(els.input)
 }
 
 function clearResult(els) {
-    state.hasResult = false
-    els.result.textContent = ''
-    els.result.classList.toggle('llm-prompt-error', false)
+    els.input.value = ''
+    els.input.classList.toggle('llm-prompt-error', false)
+    autoGrowInput(els.input)
 }
 
 function renderResult(els, result) {
@@ -234,7 +222,7 @@ function cancelPrompt(els) {
     }
 
     if (state.activeRequestId) {
-        engineClient.cancel(state.activeRequestId).catch(function () {})
+        engineClient.cancel(state.activeRequestId).catch(function () { })
     }
     state.sending = false
     state.activeRequestId = null
@@ -268,6 +256,7 @@ async function sendPrompt(els) {
 
     try {
         const result = await promptRouter.handlePrompt(prompt, {
+            mode: els.mode.value,
             scope: 'mutate',
             agentId: agentRegistry.DEFAULT_AGENT_ID,
             ownModelId: ownModelRegistry.DEFAULT_OWN_MODEL_ID,
@@ -368,7 +357,7 @@ async function updateHistorySuggestions(els) {
     const query = els.input.value.trim()
     const requestId = ++state.historyRequestId
 
-    if (!query || query.startsWith('/')) {
+    if (!query || els.mode.value !== 'browser') {
         clearHistorySuggestions(els)
         return
     }
@@ -418,6 +407,11 @@ function bindEvents(els) {
     els.debugLink.addEventListener('click', function (e) {
         e.stopPropagation()
         debugTab.open()
+    })
+
+    els.mode.addEventListener('change', function () {
+        clearHistorySuggestions(els)
+        updateControls(els)
     })
 
     els.panel.addEventListener('keydown', function (e) {
@@ -473,22 +467,6 @@ function bindEvents(els) {
     })
 }
 
-async function initializeEngineState(els) {
-    try {
-        const status = await engineClient.getStatus()
-        state.engineStatus = status
-        state.providerConfigured = Boolean(status && status.providerConfigured)
-    } catch (e) {
-        state.engineStatus = {
-            providerConfigured: false,
-            capabilities: ['read', 'mutate']
-        }
-        state.providerConfigured = false
-    }
-
-    updateControls(els)
-}
-
 var promptPanel = {
     getTargetMargins,
     isOpen: function () {
@@ -496,6 +474,9 @@ var promptPanel = {
     },
     open: function () {
         openPanel(getPanelElements())
+    },
+    openModeSelector: function () {
+        openModeSelector(getPanelElements())
     },
     close: function () {
         const els = getPanelElements()
@@ -531,7 +512,6 @@ var promptPanel = {
         updateControls(els)
         updateDebugToggleLabel(els)
         syncWebviewMargins(els)
-        initializeEngineState(els)
     }
 }
 

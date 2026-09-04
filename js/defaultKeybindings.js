@@ -103,6 +103,14 @@ const defaultKeybindings = {
       promptPanel.toggle()
     })
 
+    keybindings.defineShortcut('openLLMPromptModeSelector', function () {
+      if (modalMode.enabled()) {
+        return
+      }
+
+      promptPanel.openModeSelector()
+    })
+
     // cmd+x should switch to tab x. Cmd+9 should switch to the last tab
 
     for (var i = 1; i < 9; i++) {

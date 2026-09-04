@@ -158,6 +158,38 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     gap: 0.35em;
 }
 
+.llm-prompt-mode-label {
+    opacity: 0.7;
+    font-size: 0.82em;
+}
+
+#llm-prompt-mode {
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 6px;
+    background: rgb(251, 251, 251);
+    color: rgb(41, 44, 52);
+    color-scheme: light;
+    font-size: 0.82em;
+    padding: 0.25em 0.4em;
+}
+
+#llm-prompt-mode option {
+    background: rgb(251, 251, 251);
+    color: rgb(41, 44, 52);
+}
+
+.dark-mode #llm-prompt-mode {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgb(41, 44, 52);
+    color: rgb(251, 251, 251);
+    color-scheme: dark;
+}
+
+.dark-mode #llm-prompt-mode option {
+    background: rgb(41, 44, 52);
+    color: rgb(251, 251, 251);
+}
+
 .llm-prompt-toolbar-button {
     border: 1px solid transparent;
     border-radius: 6px;
@@ -232,25 +264,6 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     background: rgba(179, 38, 30, 0.12);
 }
 
-#llm-prompt-status {
-    display: flex;
-    max-height: min(10rem, 28vh);
-    flex-direction: column;
-    gap: 0.3em;
-    min-width: 0;
-    overflow-y: auto;
-    font-size: 0.82em;
-}
-
-#llm-prompt-status-messages {
-    min-width: 0;
-}
-
-#llm-prompt-engine-state {
-    flex: none;
-    opacity: 0.75;
-}
-
 #llm-prompt-build-info {
     flex: none;
     opacity: 0.6;
@@ -259,15 +272,11 @@ body.llm-prompt-overlay-open #llm-prompt-panel {
     white-space: nowrap;
 }
 
-#llm-prompt-result {
-    white-space: pre-wrap;
-}
-
-#llm-prompt-result.llm-prompt-error {
+#llm-prompt-input.llm-prompt-error {
     color: #b3261e;
 }
 
-.dark-mode #llm-prompt-result.llm-prompt-error {
+.dark-mode #llm-prompt-input.llm-prompt-error {
     color: #f2b8b5;
 }
 
