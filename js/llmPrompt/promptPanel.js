@@ -76,7 +76,7 @@ function openPanel(els) {
     els.overlay.hidden = false
     document.body.classList.add('llm-prompt-overlay-open')
     webviews.requestPlaceholder(PLACEHOLDER_REASON)
-    autoGrowInput(els.input)
+    clearResult(els)
     els.input.focus()
 }
 
