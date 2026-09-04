@@ -231,7 +231,7 @@ function cancelPrompt(els) {
     els.input.value = ''
     autoGrowInput(els.input)
     updateControls(els)
-    closePanel(els)
+    els.input.focus()
     return true
 }
 
@@ -412,6 +412,7 @@ function bindEvents(els) {
     els.mode.addEventListener('change', function () {
         clearHistorySuggestions(els)
         updateControls(els)
+        els.input.focus()
     })
 
     els.panel.addEventListener('keydown', function (e) {
