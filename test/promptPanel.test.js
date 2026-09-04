@@ -9,6 +9,7 @@ function createElement(id) {
     id,
     hidden: false,
     disabled: false,
+    readOnly: false,
     value: '',
     textContent: '',
     style: {},
@@ -42,8 +43,8 @@ function createElement(id) {
 function loadPromptPanel(handlePrompt) {
   const ids = [
     'llm-prompt-overlay', 'llm-prompt-scrim', 'llm-prompt-panel',
-    'llm-prompt-input', 'llm-prompt-mode', 'llm-prompt-send', 'llm-prompt-result',
-    'llm-prompt-engine-state', 'llm-prompt-build-info', 'llm-prompt-history',
+    'llm-prompt-input', 'llm-prompt-mode', 'llm-prompt-send',
+    'llm-prompt-build-info', 'llm-prompt-history',
     'llm-prompt-debug', 'llm-prompt-debug-link'
   ]
   const elements = new Map(ids.map(id => [id, createElement(id)]))
@@ -151,6 +152,16 @@ test('toggle opens and closes the overlay', function () {
   assert.strictEqual(promptPanel.isOpen(), false)
 })
 
+test('mode selector shortcut opens and focuses the mode selector', function () {
+  const { promptPanel, elements } = loadPromptPanel()
+
+  promptPanel.initialize()
+  promptPanel.openModeSelector()
+
+  assert.strictEqual(promptPanel.isOpen(), true)
+  assert.strictEqual(elements.get('llm-prompt-mode').focused, true)
+})
+
 test('the overlay opens on the blank empty state', function () {
   const { promptPanel } = loadPromptPanel()
 
@@ -177,6 +188,30 @@ test('submitting an immediate result closes the prompt', async function () {
   assert.strictEqual(promptPanel.isOpen(), false)
 })
 
+test('model output replaces the input and locks it while pending', async function () {
+  let resolvePrompt
+  const promptPending = new Promise(resolve => {
+    resolvePrompt = resolve
+  })
+  const { promptPanel, elements } = loadPromptPanel(() => promptPending)
+
+  promptPanel.initialize()
+  promptPanel.open()
+  elements.get('llm-prompt-input').value = 'summarize this'
+  elements.get('llm-prompt-input').dispatch('keydown', { key: 'Enter', shiftKey: false, preventDefault: () => { } })
+
+  await Promise.resolve()
+  assert.strictEqual(elements.get('llm-prompt-input').value, 'Thinking...')
+  assert.strictEqual(elements.get('llm-prompt-input').readOnly, true)
+
+  resolvePrompt({ ok: true, route: 'skill', kind: 'llm', message: 'Summary complete.' })
+  await Promise.resolve()
+  await Promise.resolve()
+
+  assert.strictEqual(elements.get('llm-prompt-input').value, 'Summary complete.')
+  assert.strictEqual(elements.get('llm-prompt-input').readOnly, false)
+})
+
 test('submitting an LLM result keeps the prompt open', async function () {
   const { promptPanel, elements } = loadPromptPanel(async () => ({
     ok: true,
@@ -193,4 +228,6 @@ test('submitting an LLM result keeps the prompt open', async function () {
   await Promise.resolve()
 
   assert.strictEqual(promptPanel.isOpen(), true)
+  assert.strictEqual(elements.get('llm-prompt-input').value, 'Model completed the request.')
+  assert.strictEqual(elements.get('llm-prompt-input').readOnly, false)
 })

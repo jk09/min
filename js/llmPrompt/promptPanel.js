@@ -13,14 +13,11 @@ const RUNNING_MESSAGES = ['Thinking...', 'Reading model output...', 'Waiting for
 
 const state = {
     open: false,
-    providerConfigured: false,
     sending: false,
     activeRequestId: null,
     progressText: '',
     progressMessageIndex: 0,
     progressTimer: null,
-    hasResult: false,
-    engineStatus: null,
     appliedMargins: [0, 0, 0, 0],
     previouslyFocused: null,
     historySuggestions: [],
@@ -37,8 +34,6 @@ function getPanelElements() {
         input: document.getElementById('llm-prompt-input'),
         mode: document.getElementById('llm-prompt-mode'),
         send: document.getElementById('llm-prompt-send'),
-        result: document.getElementById('llm-prompt-result'),
-        engineState: document.getElementById('llm-prompt-engine-state'),
         buildInfo: document.getElementById('llm-prompt-build-info'),
         history: document.getElementById('llm-prompt-history'),
         debugToggle: document.getElementById('llm-prompt-debug'),
@@ -106,6 +101,17 @@ function closePanel(els) {
     }
 }
 
+function openModeSelector(els) {
+    if (!state.open) {
+        openPanel(els)
+    }
+
+    els.mode.focus()
+    if (typeof els.mode.showPicker === 'function') {
+        els.mode.showPicker()
+    }
+}
+
 function trapFocus(els, e) {
     const focusable = Array.from(els.panel.querySelectorAll('textarea, select, button:not([disabled])'))
     if (focusable.length === 0) {
@@ -125,48 +131,23 @@ function trapFocus(els, e) {
 }
 
 function updateGuidance(els) {
-    // the result line doubles as guidance until the first prompt is sent
-    if (state.hasResult) {
-        return
-    }
-
     if (els.mode.value === 'llm') {
         els.input.placeholder = 'Ask the model anything'
-        els.result.textContent = state.providerConfigured
-            ? 'Ask anything. Enter sends the prompt to the model.'
-            : 'Configure a model to send prompts.'
     } else {
         els.input.placeholder = 'Type an address or search the web'
-        els.result.textContent = 'Type an address or search the web.'
     }
-}
-
-function updateEngineStateLabel(els) {
-    if (!state.engineStatus) {
-        els.engineState.textContent = 'Checking engine...'
-        return
-    }
-
-    if (!state.providerConfigured) {
-        els.engineState.textContent = 'Skills only'
-        return
-    }
-
-    var providerLabel = state.engineStatus.provider || 'configured'
-    var modelLabel = state.engineStatus.model ? (' / ' + state.engineStatus.model) : ''
-    els.engineState.textContent = providerLabel + modelLabel
 }
 
 function updateControls(els) {
     // deterministic skills run without a provider, so the panel is never fully disabled
     const icon = els.send.querySelector && els.send.querySelector('i')
     els.send.classList.toggle('llm-prompt-stop', state.sending)
+    els.input.readOnly = state.sending
     els.send.title = state.sending ? 'Stop prompt' : 'Send prompt'
     els.send.setAttribute('aria-label', state.sending ? 'Stop prompt' : 'Send prompt')
     if (icon) {
         icon.className = state.sending ? 'i carbon:stop-filled' : 'i carbon:arrow-up'
     }
-    updateEngineStateLabel(els)
     updateGuidance(els)
 }
 
@@ -181,15 +162,15 @@ function describeTrace(trace) {
 }
 
 function setResult(els, text, isError) {
-    state.hasResult = true
-    els.result.textContent = text
-    els.result.classList.toggle('llm-prompt-error', Boolean(isError))
+    els.input.value = text
+    els.input.classList.toggle('llm-prompt-error', Boolean(isError))
+    autoGrowInput(els.input)
 }
 
 function clearResult(els) {
-    state.hasResult = false
-    els.result.textContent = ''
-    els.result.classList.toggle('llm-prompt-error', false)
+    els.input.value = ''
+    els.input.classList.toggle('llm-prompt-error', false)
+    autoGrowInput(els.input)
 }
 
 function renderResult(els, result) {
@@ -486,22 +467,6 @@ function bindEvents(els) {
     })
 }
 
-async function initializeEngineState(els) {
-    try {
-        const status = await engineClient.getStatus()
-        state.engineStatus = status
-        state.providerConfigured = Boolean(status && status.providerConfigured)
-    } catch (e) {
-        state.engineStatus = {
-            providerConfigured: false,
-            capabilities: ['read', 'mutate']
-        }
-        state.providerConfigured = false
-    }
-
-    updateControls(els)
-}
-
 var promptPanel = {
     getTargetMargins,
     isOpen: function () {
@@ -509,6 +474,9 @@ var promptPanel = {
     },
     open: function () {
         openPanel(getPanelElements())
+    },
+    openModeSelector: function () {
+        openModeSelector(getPanelElements())
     },
     close: function () {
         const els = getPanelElements()
@@ -544,7 +512,6 @@ var promptPanel = {
         updateControls(els)
         updateDebugToggleLabel(els)
         syncWebviewMargins(els)
-        initializeEngineState(els)
     }
 }
 
