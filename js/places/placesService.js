@@ -1,4 +1,4 @@
-/* global db performance searchPlaces fullTextPlacesSearch */
+/* global db performance searchPlaces fullTextPlacesSearch historyGraph */
 
 const { ipcRenderer } = require('electron')
 
@@ -84,6 +84,61 @@ function removeFromHistoryCache (url) {
   }
 }
 
+function addNavigationEdge (sourceURL, destinationPlaceId, visitedAt) {
+  if (!sourceURL || sourceURL === undefined) {
+    return Promise.resolve()
+  }
+
+  return db.places.where('url').equals(sourceURL).first(function (source) {
+    if (!source || source.id === destinationPlaceId) {
+      return
+    }
+    return db.navigationEdges.add({
+      sourcePlaceId: source.id,
+      destinationPlaceId: destinationPlaceId,
+      visitedAt: visitedAt
+    })
+  })
+}
+
+function createGraphResults (query, callbackId, cb) {
+  Promise.all([db.places.toArray(), db.notes.toArray(), db.navigationEdges.toArray()]).then(function (values) {
+    const places = values[0]
+    const notes = values[1]
+    const edges = values[2]
+    const notesByPlace = new Map()
+    const edgeCounts = new Map()
+
+    notes.forEach(function (note) {
+      notesByPlace.set(note.placeId, (notesByPlace.get(note.placeId) || []).concat(note))
+    })
+    edges.forEach(function (edge) {
+      edgeCounts.set(edge.sourcePlaceId, (edgeCounts.get(edge.sourcePlaceId) || 0) + 1)
+      edgeCounts.set(edge.destinationPlaceId, (edgeCounts.get(edge.destinationPlaceId) || 0) + 1)
+    })
+
+    const normalizedQuery = (query || '').toLowerCase()
+    const results = places.map(function (place) {
+      const placeNotes = notesByPlace.get(place.id) || []
+      const notesText = placeNotes.map(note => note.text).join(' ')
+      const item = {
+        ...place,
+        notes: placeNotes,
+        notesText: notesText,
+        relationshipCount: edgeCounts.get(place.id) || 0
+      }
+      item.relevance = historyGraph.calculateHistoryRelevance(item, normalizedQuery, Date.now())
+      return item
+    }).filter(function (item) {
+      return !normalizedQuery || [item.url, item.title, item.contentDigest, item.notesText].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery)
+    }).sort(function (first, second) {
+      return second.relevance - first.relevance
+    })
+
+    cb({ result: results, callbackId: callbackId })
+  })
+}
+
 function loadHistoryInMemory () {
   historyInMemoryCache = []
 
@@ -137,19 +192,25 @@ function handleRequest (data, cb) {
   }
 
   if (action === 'updatePlace') {
-    db.transaction('rw', db.places, function () {
+    db.transaction('rw', db.places, db.visits, db.navigationEdges, function () {
       db.places.where('url').equals(pageData.url).first(function (item) {
         var isNewItem = false
+        const visitedAt = Date.now()
         if (!item) {
           isNewItem = true
           item = {
             url: pageData.url,
+            canonicalURL: historyGraph.canonicalizeURL(pageData.url),
             title: pageData.url,
             color: null,
             visitCount: 0,
-            lastVisit: Date.now(),
+            firstVisit: visitedAt,
+            lastVisit: visitedAt,
+            activeDwellTime: 0,
+            attentionScore: 0,
             pageHTML: '',
             extractedText: pageData.extractedText,
+            contentDigest: historyGraph.createContentDigest(pageData.extractedText),
             searchIndex: [],
             isBookmarked: false,
             tags: [],
@@ -160,6 +221,7 @@ function handleRequest (data, cb) {
           if (key === 'extractedText') {
             item.searchIndex = tokenize(pageData.extractedText)
             item.extractedText = pageData.extractedText
+            item.contentDigest = historyGraph.createContentDigest(pageData.extractedText)
           } else if (key === 'tags') {
           // ensure tags are never saved with spaces in them
             item.tags = pageData.tags.map(t => t.replace(/\s/g, '-'))
@@ -170,18 +232,32 @@ function handleRequest (data, cb) {
 
         if (flags.isNewVisit) {
           item.visitCount++
-          item.lastVisit = Date.now()
+          item.lastVisit = visitedAt
         }
 
-        db.places.put(item)
-        if (isNewItem) {
-          addToHistoryCache(item)
-        } else {
-          addOrUpdateHistoryCache(item)
-        }
-        cb({
-          result: null,
-          callbackId: callbackId
+        return db.places.put(item).then(function (placeId) {
+          item.id = placeId
+          if (isNewItem) {
+            addToHistoryCache(item)
+          } else {
+            addOrUpdateHistoryCache(item)
+          }
+          if (!flags.isNewVisit) {
+            return
+          }
+          return db.visits.add({
+            placeId: placeId,
+            visitedAt: visitedAt,
+            tabId: flags.tabId || null,
+            sourcePlaceId: null
+          }).then(function () {
+            return addNavigationEdge(flags.sourceURL, placeId, visitedAt)
+          })
+        }).then(function () {
+          cb({
+            result: { id: item.id },
+            callbackId: callbackId
+          })
         })
       }).catch(function (err) {
         console.warn('failed to update history.')
@@ -189,6 +265,39 @@ function handleRequest (data, cb) {
         console.error(err)
       })
     })
+  }
+
+  if (action === 'recordAttention') {
+    db.places.where('url').equals(pageData.url).first(function (item) {
+      if (!item) {
+        return
+      }
+      item.activeDwellTime = (item.activeDwellTime || 0) + pageData.duration
+      item.attentionScore = Math.min(1, item.activeDwellTime / (10 * 60 * 1000))
+      return db.places.put(item).then(function () {
+        addOrUpdateHistoryCache(item)
+      })
+    })
+  }
+
+  if (action === 'addHistoryNote') {
+    db.places.where('url').equals(pageData.url).first(function (item) {
+      if (!item) {
+        return null
+      }
+      return db.notes.put({
+        id: pageData.id,
+        placeId: item.id,
+        text: pageData.text,
+        updatedAt: Date.now()
+      })
+    }).then(function (noteId) {
+      cb({ result: noteId || null, callbackId: callbackId })
+    })
+  }
+
+  if (action === 'searchHistoryGraph') {
+    createGraphResults(data.text, callbackId, cb)
   }
 
   if (action === 'deleteHistory') {

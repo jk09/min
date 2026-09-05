@@ -40,6 +40,11 @@
   width: 2rem;
 }
 
+#session-sidebar-history {
+  margin-left: auto;
+  width: 2rem;
+}
+
 #session-sidebar-options {
   position: absolute;
   top: 2rem;

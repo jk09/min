@@ -1,0 +1,129 @@
+.history-header,
+#history-results,
+#history-empty {
+  max-width: 72rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #eee;
+}
+
+body.dark-mode {
+  background: rgb(33, 37, 43);
+}
+
+#page-wrapper {
+  position: static;
+  box-sizing: border-box;
+  min-height: 100vh;
+  max-width: none;
+  background: #eee;
+  padding: 2rem;
+  transform: none;
+}
+
+body.dark-mode #page-wrapper {
+  background: rgb(33, 37, 43);
+}
+
+.history-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 28rem);
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.5rem;
+}
+
+.history-header h1 {
+  margin: 0;
+}
+
+.history-header p {
+  margin: 0.35rem 0 0;
+  opacity: 0.72;
+}
+
+.history-search-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+#history-search,
+.history-note {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.24);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0.55rem 0.65rem;
+}
+
+.history-entry {
+  border-top: 1px solid rgba(0, 0, 0, 0.16);
+  padding: 0.9rem 0;
+}
+
+.history-open {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 0;
+  text-align: left;
+}
+
+.history-open:hover,
+.history-open:focus-visible {
+  text-decoration: underline;
+}
+
+.history-url,
+.history-details,
+.history-digest {
+  margin: 0.3rem 0;
+}
+
+.history-url,
+.history-details {
+  font-size: 0.88rem;
+  opacity: 0.72;
+  overflow-wrap: anywhere;
+}
+
+.history-digest {
+  line-height: 1.4;
+  max-height: 5.6em;
+  overflow: hidden;
+}
+
+.history-note {
+  display: block;
+  margin-top: 0.55rem;
+  resize: vertical;
+}
+
+.dark-theme #history-search,
+.dark-theme .history-note {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 640px) {
+  #page-wrapper {
+    padding: 1rem;
+  }
+
+  .history-header {
+    grid-template-columns: 1fr;
+  }
+}

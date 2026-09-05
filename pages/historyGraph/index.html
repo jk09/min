@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>History graph</title>
+    <link rel="stylesheet" href="../pagebase.css" />
+    <link rel="stylesheet" href="historyGraph.css" />
+  </head>
+  <body>
+    <main id="page-wrapper">
+      <header class="history-header">
+        <div>
+          <h1>History graph</h1>
+          <p id="history-summary">Loading local history...</p>
+        </div>
+        <label class="history-search-label" for="history-search">Search history</label>
+        <input id="history-search" type="search" autocomplete="off" placeholder="Search pages, summaries, and notes" />
+      </header>
+      <p id="history-empty" hidden>No matching pages in local history.</p>
+      <section id="history-results" aria-live="polite"></section>
+    </main>
+    <script src="../../js/util/settings/settingsContent.js"></script>
+    <script src="../../js/util/theme.js"></script>
+    <script src="../../dist/localization.build.js"></script>
+    <script src="historyGraph.js"></script>
+  </body>
+</html>
