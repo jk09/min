@@ -2,32 +2,38 @@
   "schemaVersion": 1,
   "features": [
     {
-      "id": "personal-history-graph",
-      "title": "Personal browsing history graph",
-      "summary": "Local visited-page graph with content digests, notes, activity relevance, navigation relationships, LLM retrieval, and an internal history page.",
+      "id": "history-sqlite-migration",
+      "title": "SQLite-backed personal history graph",
+      "summary": "Main-process SQLite history repository with FTS5, graph records, legacy IndexedDB import, LLM retrieval, and a local sync change log.",
       "status": "active",
-      "specPath": "spec/done/feat-q7k3mx-personal-history-graph/SPEC.md",
-      "supersedes": [],
+      "specPath": "spec/done/feat-s8n4vz-history-sqlite-migration/SPEC.md",
+      "supersedes": [
+        "personal-history-graph"
+      ],
       "supersededBy": null,
       "removalReason": null,
       "userVisible": true,
       "sourceFiles": [
+        "package.json",
         "js/places/historyGraph.js",
         "js/places/historyGraphTab.js",
+        "js/places/legacyHistoryExport.html",
+        "js/places/legacyHistoryExport.js",
         "js/places/places.js",
-        "js/places/placesService.html",
-        "js/places/placesService.js",
-        "js/util/database.js",
         "js/preload/historyGraphPreload.js",
         "js/defaultKeybindings.js",
         "js/llmPrompt/tools/browserTools.js",
+        "main/historyRepository.js",
+        "main/historyService.js",
+        "main/main.js",
         "pages/historyGraph/index.html",
         "pages/historyGraph/historyGraph.js",
         "pages/historyGraph/historyGraph.css"
       ],
       "tests": {
         "unit": [
-          "test/historyGraph.test.js"
+          "test/historyGraph.test.js",
+          "test/historyRepository.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -35,8 +41,28 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:b21f7f66c3e79a8104d6845731e3c131ff79622645e12ceefe589ee42604c6ee",
+      "sourceHash": "sha256:85fc9f686058443fdad97517ce520ac4366d64e149dee6cedb24f6f6b71209b2",
       "lastVerified": "2026-09-05"
+    },
+    {
+      "id": "personal-history-graph",
+      "title": "Personal browsing history graph",
+      "summary": "Local visited-page graph with content digests, notes, activity relevance, navigation relationships, LLM retrieval, and an internal history page.",
+      "status": "superseded",
+      "specPath": "spec/done/feat-q7k3mx-personal-history-graph/SPEC.md",
+      "supersedes": [],
+      "supersededBy": "history-sqlite-migration",
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [],
+      "tests": {
+        "unit": [],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [],
+      "sourceHash": null,
+      "lastVerified": null
     },
     {
       "id": "prompt-runtime",
@@ -529,7 +555,7 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:4f43730ef61e35213dde2e0b2ce31e77f5d1aaf126fa2f0f980aa14fb38f1f01",
+      "sourceHash": "sha256:a7f1bfface2604d419b01cac0cac0acc69d3fcb3e0eb459321930bcecc8df8e7",
       "lastVerified": "2026-09-05"
     },
     {
@@ -562,7 +588,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:0bf6b70c9a5c641e68df1852eeb299f18fe2272acabdd33a83dc2d468f77c72d",
+      "sourceHash": "sha256:0ef6f723b015dd2a5e560206530b62c14491c565892436fabd304db7722da08d",
       "lastVerified": "2026-09-05"
     },
     {

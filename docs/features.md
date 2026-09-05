@@ -7,14 +7,15 @@ See [the feature ledger](feature-ledger.md) for how this file is maintained.
 
 ## Active features (16)
 
-### Personal browsing history graph
+### SQLite-backed personal history graph
 
-Local visited-page graph with content digests, notes, activity relevance, navigation relationships, LLM retrieval, and an internal history page.
+Main-process SQLite history repository with FTS5, graph records, legacy IndexedDB import, LLM retrieval, and a local sync change log.
 
-- **id:** `personal-history-graph`
-- **spec:** [spec/done/feat-q7k3mx-personal-history-graph/SPEC.md](../spec/done/feat-q7k3mx-personal-history-graph/SPEC.md)
-- **source:** `js/places/historyGraph.js`, `js/places/historyGraphTab.js`, `js/places/places.js`, `js/places/placesService.html`, `js/places/placesService.js`, `js/util/database.js`, `js/preload/historyGraphPreload.js`, `js/defaultKeybindings.js`, `js/llmPrompt/tools/browserTools.js`, `pages/historyGraph/index.html`, `pages/historyGraph/historyGraph.js`, `pages/historyGraph/historyGraph.css`
-- **tests:** unit (1)
+- **id:** `history-sqlite-migration`
+- **spec:** [spec/done/feat-s8n4vz-history-sqlite-migration/SPEC.md](../spec/done/feat-s8n4vz-history-sqlite-migration/SPEC.md)
+- **source:** `package.json`, `js/places/historyGraph.js`, `js/places/historyGraphTab.js`, `js/places/legacyHistoryExport.html`, `js/places/legacyHistoryExport.js`, `js/places/places.js`, `js/preload/historyGraphPreload.js`, `js/defaultKeybindings.js`, `js/llmPrompt/tools/browserTools.js`, `main/historyRepository.js`, `main/historyService.js`, `main/main.js`, `pages/historyGraph/index.html`, `pages/historyGraph/historyGraph.js`, `pages/historyGraph/historyGraph.css`
+- **tests:** unit (2)
+- **supersedes:** `personal-history-graph`
 
 ### Prompt-driven browser command runtime
 
@@ -153,12 +154,13 @@ TypeScript configuration, ambient type definitions, build transpilation, and typ
 - **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/tsTransform.ts`, `scripts/registerTs.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
 - **tests:** unit (1)
 
-## Retired features (7)
+## Retired features (8)
 
 These are no longer part of the application. Do not reintroduce them without a new specification.
 
 | Feature | Status | Reason |
 | --- | --- | --- |
+| Personal browsing history graph (`personal-history-graph`) | superseded | Superseded by `history-sqlite-migration`. |
 | LLM prompt panel for browser control (`prompt-panel`) | superseded | Superseded by `prompt-overlay`. |
 | Minimalistic LLM prompt without history log (`prompt-panel-minimal`) | superseded | Superseded by `prompt-overlay`. |
 | Fixed-width informational tabs with overflow summary (`fixed-width-tabs`) | superseded | Superseded by `session-sidebar-navigation`. |

@@ -18,18 +18,9 @@ declare module 'pdfjs-dist' {
   export = pdfjs
 }
 
-declare module 'quick-score' {
-  export const quickScore: any
-}
-
 declare module 'regedit' {
   const regedit: any
   export = regedit
-}
-
-declare module 'stemmer' {
-  function stemmer(word: string): string
-  export = stemmer
 }
 
 declare module 'write-file-atomic' {
