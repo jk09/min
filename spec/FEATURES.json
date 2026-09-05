@@ -101,7 +101,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ada82cd6b0f36506f75b15e8f6137dab29a441c1a16da9e33fe980ef05b84a28",
+      "sourceHash": "sha256:e9cd235eb2272ad5d90924b2b4315dd37d2cec5c04c4eeb3b168cf8f712ff942",
       "lastVerified": "2026-09-05"
     },
     {
@@ -452,7 +452,6 @@
         "css/sessionSidebar.css",
         "js/default.js",
         "js/navbar/breadcrumbs.js",
-        "js/navbar/navigationButtons.js",
         "js/navbar/sessionSidebar.js",
         "js/navbar/sessionSidebarState.js",
         "scripts/buildBrowserStyles.js"
@@ -468,7 +467,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:d16ef3861c3c20a966f408b87f134241a5edbcad0c935091c14404a85c409a94",
+      "sourceHash": "sha256:8e5631d9361b24f57629009ed0ebd897d30efe11e571ba41c7f4efdc167ec324",
       "lastVerified": "2026-09-05"
     },
     {
