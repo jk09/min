@@ -1,6 +1,7 @@
 const webviews = require('webviews.js')
 const settings = require('util/settings/settings.js')
 const sessionSidebarState = require('navbar/sessionSidebarState.js')
+const historyGraphTab = require('places/historyGraphTab.js')
 
 const sidebarWidth = 280
 
@@ -8,6 +9,7 @@ var sessionSidebar = {
   container: document.getElementById('session-sidebar'),
   list: document.getElementById('session-sidebar-list'),
   toggleButton: document.getElementById('session-sidebar-toggle'),
+  historyButton: document.getElementById('session-sidebar-history'),
   optionsToggleButton: document.getElementById('session-sidebar-options-toggle'),
   optionsMenu: document.getElementById('session-sidebar-options'),
   visible: false,
@@ -15,7 +17,9 @@ var sessionSidebar = {
   render: function () {
     empty(sessionSidebar.list)
 
-    sessionSidebarState.getSessionItems(tabs.get(), tabs.getSelected()).forEach(function (item) {
+    sessionSidebarState.getSessionItems(tabs.get(), tabs.getSelected()).filter(function (item) {
+      return !historyGraphTab.isHistoryGraphURL(item.url)
+    }).forEach(function (item) {
       var button = document.createElement('button')
       button.className = 'session-sidebar-item'
       button.type = 'button'
@@ -75,6 +79,7 @@ var sessionSidebar = {
   },
   initialize: function () {
     sessionSidebar.toggleButton.addEventListener('click', sessionSidebar.toggle)
+    sessionSidebar.historyButton.addEventListener('click', historyGraphTab.open)
     sessionSidebar.optionsToggleButton.addEventListener('click', sessionSidebar.toggleOptions)
     sessionSidebar.optionsMenu.querySelectorAll('[data-sidebar-position]').forEach(function (button) {
       button.addEventListener('click', function () {

@@ -1,5 +1,6 @@
 const webviews = require('webviews.js')
 const breadcrumbLayout = require('navbar/breadcrumbLayout')
+const historyGraphTab = require('places/historyGraphTab.js')
 
 /*
 Renders a per-tab breadcrumbs bar below the navbar, built directly from the webview's
@@ -16,12 +17,19 @@ var breadcrumbs = {
   update: function () {
     var tabId = tabs.getSelected()
     var tab = tabs.get(tabId)
-    breadcrumbs.showBar()
 
     if (!tab) {
+      breadcrumbs.hide()
       empty(breadcrumbs.inner)
       return
     }
+
+    if (historyGraphTab.isHistoryGraphURL(tab.url)) {
+      breadcrumbs.hide()
+      return
+    }
+
+    breadcrumbs.showBar()
 
     var fallbackHistory = {
       entries: [{ title: tab.title || l('newTabLabel'), url: tab.url }],

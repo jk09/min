@@ -2,8 +2,12 @@ const browserUI = require('browserUI.js')
 
 const HISTORY_GRAPH_URL = 'min://app/pages/historyGraph/index.html'
 
+function isHistoryGraphURL (url) {
+  return typeof url === 'string' && url.startsWith(HISTORY_GRAPH_URL)
+}
+
 function open () {
-  const existingTab = tabs.get().find(tab => tab.url && tab.url.startsWith(HISTORY_GRAPH_URL))
+  const existingTab = tabs.get().find(tab => isHistoryGraphURL(tab.url))
   if (existingTab) {
     browserUI.switchToTab(existingTab.id)
     return
@@ -13,4 +17,4 @@ function open () {
   browserUI.addTab(tabId, { openPrompt: false, openInBackground: false })
 }
 
-module.exports = { open, HISTORY_GRAPH_URL }
+module.exports = { open, HISTORY_GRAPH_URL, isHistoryGraphURL }

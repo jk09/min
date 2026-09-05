@@ -251,7 +251,9 @@ const places = {
         })
       }
       if (request.action === 'open' && request.url) {
-        webviews.update(tabId, request.url)
+        const browserUI = require('browserUI.js')
+        const resultTabId = tabs.add({ url: request.url })
+        browserUI.addTab(resultTabId, { openPrompt: false, openInBackground: false })
       }
     })
     activeTabId = tabs.getSelected()
