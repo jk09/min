@@ -1,9 +1,11 @@
+require('./registerTs.js')
 const browserify = require('browserify')
+const browserResolve = require('browser-resolve')
 const renderify = require('electron-renderify')
 const path = require('path')
 const fs = require('fs')
 
-const tsTransform = require('./tsTransform.js')
+const tsTransform = require('./tsTransform')
 
 const rootDir = path.resolve(__dirname, '../')
 const jsDir = path.resolve(__dirname, '../js')
@@ -16,12 +18,27 @@ const fileList = [
   'js/default.js'
 ]
 
+function customResolve (id, opts, cb) {
+  browserResolve(id, opts, function (err, res) {
+    if (err && typeof id === 'string' && id.endsWith('.js')) {
+      const tsId = id.slice(0, -3) + '.ts'
+      return browserResolve(tsId, opts, function (err2, res2) {
+        if (!err2 && res2) {
+          return cb(null, res2)
+        }
+        cb(err)
+      })
+    }
+    cb(err, res)
+  })
+}
+
 function buildBrowser () {
   // build localization support first, since it is included in the browser bundle
   require('./buildLocalization.js')()
 
   // generated build metadata is required by the bundle, so it has to exist before bundling
-  require('./buildInfo.js')()
+  require('./buildInfo')()
 
   /* concatenate legacy modules */
   let output = ''
@@ -34,6 +51,7 @@ function buildBrowser () {
   const instance = browserify(intermediateOutput, {
     paths: [rootDir, jsDir],
     extensions: ['.js', '.json', '.ts', '.tsx'],
+    resolve: customResolve,
     ignoreMissing: false,
     node: true,
     detectGlobals: false,

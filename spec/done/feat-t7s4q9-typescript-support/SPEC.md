@@ -70,12 +70,13 @@ Capture implementation guidance, architecture, and dependencies.
 ## 11. Acceptance Criteria
 Define how success will be measured.
 
-- [ ] `tsconfig.json` exists and is properly configured for the project.
-- [ ] TypeScript and `@types/node` are installed in `devDependencies`.
-- [ ] `npm run typecheck` executes `tsc --noEmit` and passes with 0 errors.
-- [ ] Comprehensive ambient types exist for Min's globals and key subsystems.
-- [ ] Unit tests verify TypeScript configuration and type checking.
-- [ ] All existing test suites pass.
+- [x] `tsconfig.json` exists and is properly configured for the project.
+- [x] TypeScript and `@types/node` are installed in `devDependencies`.
+- [x] `npm run typecheck` executes `tsc --noEmit` and passes with 0 errors.
+- [x] Comprehensive ambient types exist for Min's globals and key subsystems.
+- [x] Unambiguous modules across subsystems (`js/navbar/`, `js/llmPrompt/`, `js/util/`, `scripts/`) are converted to `.ts` with full type annotations.
+- [x] Unit tests verify TypeScript configuration, type checking, and converted TypeScript module execution.
+- [x] All existing test suites pass.
 
 ## 12. Testing / Verification
 Describe how the feature will be validated.

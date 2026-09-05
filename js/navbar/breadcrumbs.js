@@ -1,5 +1,5 @@
 const webviews = require('webviews.js')
-const breadcrumbLayout = require('navbar/breadcrumbLayout.js')
+const breadcrumbLayout = require('navbar/breadcrumbLayout')
 
 /*
 Renders a per-tab breadcrumbs bar below the navbar, built directly from the webview's

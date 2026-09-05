@@ -3,7 +3,7 @@ var promptPanel = require('llmPrompt/promptPanel.js')
 var tabState = require('tabState.js')
 var settings = require('util/settings/settings.js')
 var searchEngine = require('util/searchEngine.js')
-const { resolveStartupPageURL } = require('util/startupPage.js')
+const { resolveStartupPageURL } = require('util/startupPage')
 const writeFileAtomic = require('write-file-atomic')
 const statistics = require('js/statistics.js')
 

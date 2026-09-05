@@ -10,9 +10,9 @@ const urlParser = require('util/urlParser.js')
 
 const progressBar = require('navbar/progressBar.js')
 const permissionRequests = require('navbar/permissionRequests.js')
-const tabOverflow = require('navbar/tabOverflow.js')
+const tabOverflow = require('navbar/tabOverflow')
 const tabOverflowPanel = require('navbar/tabOverflowPanel.js')
-const tabLabel = require('navbar/tabLabel.js')
+const tabLabel = require('navbar/tabLabel')
 
 var lastTabDeletion = 0 // TODO get rid of this
 

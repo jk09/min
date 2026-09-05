@@ -1,11 +1,11 @@
 /* Built-in skills. Everything here is expressed as tool calls plus, for llm skills, a model call. */
 
 const skillRegistry = require('llmPrompt/skills/skillRegistry.js')
-const agentRegistry = require('llmPrompt/agents/agentRegistry.js')
-const ownModelRegistry = require('llmPrompt/ownModels/ownModelRegistry.js')
+const agentRegistry = require('llmPrompt/agents/agentRegistry')
+const ownModelRegistry = require('llmPrompt/ownModels/ownModelRegistry')
 const toolRegistry = require('llmPrompt/tools/toolRegistry.js')
-const planParser = require('llmPrompt/planParser.js')
-const planningSkill = require('llmPrompt/planningSkill.js')
+const planParser = require('llmPrompt/planParser')
+const planningSkill = require('llmPrompt/planningSkill')
 const debugTab = require('llmPrompt/debugTab.js')
 
 function requireArgs (argsText, usage) {

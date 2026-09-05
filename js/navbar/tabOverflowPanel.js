@@ -1,4 +1,4 @@
-const tabOverflow = require('navbar/tabOverflow.js')
+const tabOverflow = require('navbar/tabOverflow')
 
 const MAX_GROUPS = 12
 const MAX_TABS_PER_GROUP = 8
