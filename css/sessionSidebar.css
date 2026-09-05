@@ -1,0 +1,48 @@
+#session-sidebar {
+  position: fixed;
+  top: calc(36px + var(--control-space-top));
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  width: 280px;
+  overflow-y: auto;
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 0.5rem 0;
+}
+
+.dark-theme #session-sidebar {
+  border-right-color: rgba(255, 255, 255, 0.2);
+}
+
+.session-sidebar-item {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  overflow: hidden;
+  border: 0;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.35;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-sidebar-item:hover,
+.session-sidebar-item:focus,
+.session-sidebar-item.selected {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.dark-theme .session-sidebar-item:hover,
+.dark-theme .session-sidebar-item:focus,
+.dark-theme .session-sidebar-item.selected {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.session-sidebar-item.selected {
+  font-weight: 600;
+}

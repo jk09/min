@@ -101,7 +101,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ddc72844535efdb41afbf556edb8771aaa5d698a9835d70d584793f9ac460e31",
+      "sourceHash": "sha256:ada82cd6b0f36506f75b15e8f6137dab29a441c1a16da9e33fe980ef05b84a28",
       "lastVerified": "2026-09-05"
     },
     {
@@ -327,104 +327,81 @@
       "id": "fixed-width-tabs",
       "title": "Fixed-width informational tabs with overflow summary",
       "summary": "Tabs render at a fixed width with favicon and label, and overflow collapses into a summary panel.",
-      "status": "active",
+      "status": "superseded",
       "specPath": "spec/done/feat-t4b9xq-fixed-width-informational-tabs/SPEC.md",
       "supersedes": [],
-      "supersededBy": null,
+      "supersededBy": "session-sidebar-navigation",
       "removalReason": null,
       "userVisible": true,
-      "sourceFiles": [
-        "js/navbar/tabBar.js",
-        "js/navbar/tabLabel.ts",
-        "js/navbar/tabColor.js",
-        "js/navbar/tabOverflow.ts",
-        "js/navbar/tabOverflowPanel.js",
-        "css/tabBar.css"
-      ],
+      "sourceFiles": [],
       "tests": {
-        "unit": [
-          "test/tabOverflow.test.js"
-        ],
+        "unit": [],
         "integration": [],
         "e2e": []
       },
-      "requiredTiers": [
-        "unit"
-      ],
-      "sourceHash": "sha256:0518fc974d45157bce0029ae822cca90fe99b8c5c5c9151fabd1fc0219a40189",
-      "lastVerified": "2026-09-05"
+      "requiredTiers": [],
+      "sourceHash": null,
+      "lastVerified": null
     },
     {
       "id": "insecure-tab-indicator",
       "title": "Persistent insecure-page indicator in tabs",
       "summary": "The insecure-page indicator stays visible while a tab is hovered.",
-      "status": "active",
+      "status": "superseded",
       "specPath": "spec/done/fix-r8n4xq-persistent-insecure-tab-indicator/SPEC.md",
       "supersedes": [],
-      "supersededBy": null,
+      "supersededBy": "session-sidebar-navigation",
       "removalReason": null,
       "userVisible": true,
-      "sourceFiles": [
-        "js/navbar/tabBar.js"
-      ],
+      "sourceFiles": [],
       "tests": {
         "unit": [],
         "integration": [],
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:8ed3875824d9eb85e8482440b8c20b6c54ad461cb573545ea8c5c709b6f3f039",
-      "lastVerified": "2026-09-05"
+      "sourceHash": null,
+      "lastVerified": null
     },
     {
       "id": "tabbar-drag-region",
       "title": "Draggable empty area in the tab bar",
       "summary": "Empty horizontal space in the tab bar acts as a window drag handle.",
-      "status": "active",
+      "status": "superseded",
       "specPath": "spec/done/feat-p4x9qw-draggable-tabbar-empty-area/SPEC.md",
       "supersedes": [],
-      "supersededBy": null,
+      "supersededBy": "session-sidebar-navigation",
       "removalReason": null,
       "userVisible": true,
-      "sourceFiles": [
-        "css/windowControls.css"
-      ],
+      "sourceFiles": [],
       "tests": {
         "unit": [],
         "integration": [],
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:74295d5f8cfb8436608e74e6aa4650abaa49c18ff8e2b84e08bf0c277757784d",
-      "lastVerified": "2026-09-05"
+      "sourceHash": null,
+      "lastVerified": null
     },
     {
       "id": "nav-breadcrumbs",
       "title": "Navigation breadcrumbs bar",
       "summary": "Shows the in-tab navigation chain as breadcrumbs and allows jumping to any prior page.",
-      "status": "active",
+      "status": "superseded",
       "specPath": "spec/done/feat-x7k2mn-navigation-breadcrumbs/SPEC.md",
       "supersedes": [],
-      "supersededBy": null,
+      "supersededBy": "session-sidebar-navigation",
       "removalReason": null,
       "userVisible": true,
-      "sourceFiles": [
-        "js/navbar/breadcrumbs.js",
-        "js/navbar/breadcrumbLayout.ts",
-        "css/breadcrumbs.css"
-      ],
+      "sourceFiles": [],
       "tests": {
-        "unit": [
-          "test/breadcrumbLayout.test.js"
-        ],
+        "unit": [],
         "integration": [],
         "e2e": []
       },
-      "requiredTiers": [
-        "unit"
-      ],
-      "sourceHash": "sha256:4a79b1c11e30125371fe33fc1c4ca3c1b2a2ff74275879c3f318e042987edbe7",
-      "lastVerified": "2026-09-05"
+      "requiredTiers": [],
+      "sourceHash": null,
+      "lastVerified": null
     },
     {
       "id": "session-restore-on-startup",
@@ -451,6 +428,47 @@
         "unit"
       ],
       "sourceHash": "sha256:da42fe73e62136b4aecd70b5b885e630e4382a046b93f263123233e550c95cc4",
+      "lastVerified": "2026-09-05"
+    },
+    {
+      "id": "session-sidebar-navigation",
+      "title": "Breadcrumb-first session sidebar navigation",
+      "summary": "Promotes navigation breadcrumbs into browser chrome and replaces visible horizontal tabs with an optional session sidebar.",
+      "status": "active",
+      "specPath": "spec/done/feat-q7m3vk-session-sidebar-navigation/SPEC.md",
+      "supersedes": [
+        "fixed-width-tabs",
+        "insecure-tab-indicator",
+        "tabbar-drag-region",
+        "nav-breadcrumbs"
+      ],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "index.html",
+        "css/tabBar.css",
+        "css/breadcrumbs.css",
+        "css/sessionSidebar.css",
+        "js/default.js",
+        "js/navbar/breadcrumbs.js",
+        "js/navbar/navigationButtons.js",
+        "js/navbar/sessionSidebar.js",
+        "js/navbar/sessionSidebarState.js",
+        "scripts/buildBrowserStyles.js"
+      ],
+      "tests": {
+        "unit": [
+          "test/sessionSidebarState.test.js",
+          "test/sessionNavigationBreadcrumbs.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:d16ef3861c3c20a966f408b87f134241a5edbcad0c935091c14404a85c409a94",
       "lastVerified": "2026-09-05"
     },
     {

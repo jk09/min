@@ -15,8 +15,21 @@ var breadcrumbs = {
   renderToken: 0,
   update: function () {
     var tabId = tabs.getSelected()
-    if (!tabId || !tabs.get(tabId).url) {
-      breadcrumbs.hide()
+    var tab = tabs.get(tabId)
+    breadcrumbs.showBar()
+
+    if (!tab) {
+      empty(breadcrumbs.inner)
+      return
+    }
+
+    var fallbackHistory = {
+      entries: [{ title: tab.title || l('newTabLabel'), url: tab.url }],
+      activeIndex: 0
+    }
+
+    if (!tab.url) {
+      breadcrumbs.render(tabId, fallbackHistory)
       return
     }
 
@@ -27,13 +40,13 @@ var breadcrumbs = {
         // a newer update has since been requested, or the user already switched tabs
         return
       }
-      if (!history || !history.entries || history.entries.length <= 1) {
-        breadcrumbs.hide()
+      if (!history || !history.entries || history.entries.length === 0) {
+        breadcrumbs.render(tabId, fallbackHistory)
         return
       }
       breadcrumbs.render(tabId, history)
     }).catch(function () {
-      breadcrumbs.hide()
+      breadcrumbs.render(tabId, fallbackHistory)
     })
   },
   render: function (tabId, history) {
@@ -109,21 +122,12 @@ var breadcrumbs = {
     }
   },
   showBar: function () {
-    if (breadcrumbs.container.hidden) {
-      breadcrumbs.container.hidden = false
-      breadcrumbs.barHeight = breadcrumbs.container.getBoundingClientRect().height
-      webviews.adjustMargin([breadcrumbs.barHeight, 0, 0, 0])
-    }
+    breadcrumbs.container.hidden = false
   },
   hide: function () {
     breadcrumbs.expandedTabId = null
-    if (!breadcrumbs.container.hidden) {
-      webviews.adjustMargin([breadcrumbs.barHeight * -1, 0, 0, 0])
-      breadcrumbs.container.hidden = true
-      breadcrumbs.container.classList.remove('expanded')
-      breadcrumbs.barHeight = 0
-      empty(breadcrumbs.inner)
-    }
+    breadcrumbs.container.classList.remove('expanded')
+    empty(breadcrumbs.inner)
   },
   toggleExpanded: function () {
     var tabId = tabs.getSelected()

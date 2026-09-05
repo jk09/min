@@ -1,15 +1,19 @@
 #breadcrumbs-bar {
   display: flex;
   align-items: center;
-  height: 26px;
-  padding: 0 calc(0.5em + var(--control-space-right)) 0 calc(0.5em + var(--control-space-left));
-  background: rgba(0, 0, 0, 0.04);
-  font-size: 0.8em;
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 0.5em;
+  background: transparent;
+  font-size: 0.9em;
   overflow: hidden;
 }
 
-.dark-theme #breadcrumbs-bar {
-  background: rgba(255, 255, 255, 0.06);
+#session-sidebar-toggle {
+  flex: 0 0 auto;
+  width: 2rem;
+  margin-right: 0.25rem;
 }
 
 #breadcrumbs-overflow-button {

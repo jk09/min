@@ -5,7 +5,7 @@
 The live feature set of the browser, derived from [`spec/FEATURES.json`](../spec/FEATURES.json).
 See [the feature ledger](feature-ledger.md) for how this file is maintained.
 
-## Active features (18)
+## Active features (15)
 
 ### Prompt-driven browser command runtime
 
@@ -107,42 +107,6 @@ Removes the tab dropdown menu and the visible new-tab control from the chrome.
 - **source:** `js/navbar/tabContextMenu.js`
 - **tests:** —
 
-### Fixed-width informational tabs with overflow summary
-
-Tabs render at a fixed width with favicon and label, and overflow collapses into a summary panel.
-
-- **id:** `fixed-width-tabs`
-- **spec:** [spec/done/feat-t4b9xq-fixed-width-informational-tabs/SPEC.md](../spec/done/feat-t4b9xq-fixed-width-informational-tabs/SPEC.md)
-- **source:** `js/navbar/tabBar.js`, `js/navbar/tabLabel.ts`, `js/navbar/tabColor.js`, `js/navbar/tabOverflow.ts`, `js/navbar/tabOverflowPanel.js`, `css/tabBar.css`
-- **tests:** unit (1)
-
-### Persistent insecure-page indicator in tabs
-
-The insecure-page indicator stays visible while a tab is hovered.
-
-- **id:** `insecure-tab-indicator`
-- **spec:** [spec/done/fix-r8n4xq-persistent-insecure-tab-indicator/SPEC.md](../spec/done/fix-r8n4xq-persistent-insecure-tab-indicator/SPEC.md)
-- **source:** `js/navbar/tabBar.js`
-- **tests:** —
-
-### Draggable empty area in the tab bar
-
-Empty horizontal space in the tab bar acts as a window drag handle.
-
-- **id:** `tabbar-drag-region`
-- **spec:** [spec/done/feat-p4x9qw-draggable-tabbar-empty-area/SPEC.md](../spec/done/feat-p4x9qw-draggable-tabbar-empty-area/SPEC.md)
-- **source:** `css/windowControls.css`
-- **tests:** —
-
-### Navigation breadcrumbs bar
-
-Shows the in-tab navigation chain as breadcrumbs and allows jumping to any prior page.
-
-- **id:** `nav-breadcrumbs`
-- **spec:** [spec/done/feat-x7k2mn-navigation-breadcrumbs/SPEC.md](../spec/done/feat-x7k2mn-navigation-breadcrumbs/SPEC.md)
-- **source:** `js/navbar/breadcrumbs.js`, `js/navbar/breadcrumbLayout.ts`, `css/breadcrumbs.css`
-- **tests:** unit (1)
-
 ### Restore the previous session on startup
 
 Reopens the previous tabs and active page instead of starting on an empty surface.
@@ -151,6 +115,16 @@ Reopens the previous tabs and active page instead of starting on an empty surfac
 - **spec:** [spec/done/feat-r7p2qv-restore-session-on-startup/SPEC.md](../spec/done/feat-r7p2qv-restore-session-on-startup/SPEC.md)
 - **source:** `js/sessionRestore.js`, `js/util/startupPage.ts`
 - **tests:** unit (1)
+
+### Breadcrumb-first session sidebar navigation
+
+Promotes navigation breadcrumbs into browser chrome and replaces visible horizontal tabs with an optional session sidebar.
+
+- **id:** `session-sidebar-navigation`
+- **spec:** [spec/done/feat-q7m3vk-session-sidebar-navigation/SPEC.md](../spec/done/feat-q7m3vk-session-sidebar-navigation/SPEC.md)
+- **source:** `index.html`, `css/tabBar.css`, `css/breadcrumbs.css`, `css/sessionSidebar.css`, `js/default.js`, `js/navbar/breadcrumbs.js`, `js/navbar/navigationButtons.js`, `js/navbar/sessionSidebar.js`, `js/navbar/sessionSidebarState.js`, `scripts/buildBrowserStyles.js`
+- **tests:** unit (2)
+- **supersedes:** `fixed-width-tabs`, `insecure-tab-indicator`, `tabbar-drag-region`, `nav-breadcrumbs`
 
 ### Native ES modules in the main process build
 
@@ -170,7 +144,7 @@ TypeScript configuration, ambient type definitions, build transpilation, and typ
 - **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/tsTransform.ts`, `scripts/registerTs.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
 - **tests:** unit (1)
 
-## Retired features (3)
+## Retired features (7)
 
 These are no longer part of the application. Do not reintroduce them without a new specification.
 
@@ -178,4 +152,8 @@ These are no longer part of the application. Do not reintroduce them without a n
 | --- | --- | --- |
 | LLM prompt panel for browser control (`prompt-panel`) | superseded | Superseded by `prompt-overlay`. |
 | Minimalistic LLM prompt without history log (`prompt-panel-minimal`) | superseded | Superseded by `prompt-overlay`. |
+| Fixed-width informational tabs with overflow summary (`fixed-width-tabs`) | superseded | Superseded by `session-sidebar-navigation`. |
+| Persistent insecure-page indicator in tabs (`insecure-tab-indicator`) | superseded | Superseded by `session-sidebar-navigation`. |
+| Draggable empty area in the tab bar (`tabbar-drag-region`) | superseded | Superseded by `session-sidebar-navigation`. |
+| Navigation breadcrumbs bar (`nav-breadcrumbs`) | superseded | Superseded by `session-sidebar-navigation`. |
 | Tasks (tab group) user interface (`tasks-ui`) | removed | Removed as conflicting with the prompt-first, minimal interface goal. Do not reintroduce task grouping UI. |

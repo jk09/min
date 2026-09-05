@@ -77,10 +77,7 @@ body.linux #menu-button {
 /* tab layout */
 
 #navbar #tabs {
-  display: flex;
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+  display: none;
 }
 #tabs #tabs-inner {
   display: flex;
