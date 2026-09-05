@@ -122,7 +122,7 @@ Promotes navigation breadcrumbs into browser chrome and replaces visible horizon
 
 - **id:** `session-sidebar-navigation`
 - **spec:** [spec/done/feat-q7m3vk-session-sidebar-navigation/SPEC.md](../spec/done/feat-q7m3vk-session-sidebar-navigation/SPEC.md)
-- **source:** `index.html`, `css/tabBar.css`, `css/breadcrumbs.css`, `css/sessionSidebar.css`, `js/default.js`, `js/navbar/breadcrumbs.js`, `js/navbar/sessionSidebar.js`, `js/navbar/sessionSidebarState.js`, `scripts/buildBrowserStyles.js`
+- **source:** `index.html`, `css/tabBar.css`, `css/breadcrumbs.css`, `css/sessionSidebar.css`, `css/windowControls.css`, `js/default.js`, `js/navbar/breadcrumbs.js`, `js/navbar/breadcrumbLayout.ts`, `js/navbar/sessionSidebar.js`, `js/navbar/sessionSidebarState.js`, `scripts/buildBrowserStyles.js`
 - **tests:** unit (2)
 - **supersedes:** `fixed-width-tabs`, `insecure-tab-indicator`, `tabbar-drag-region`, `nav-breadcrumbs`
 

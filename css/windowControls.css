@@ -76,6 +76,7 @@ body.rtl.mac:not(.fullscreen):not(.separate-titlebar) {
 
 body.windows:not(.separate-titlebar) {
   --control-space-right: 138px;
+  --windows-drag-area-width: 165px;
 }
 
 .windows-caption-buttons {
@@ -88,6 +89,24 @@ body.windows:not(.separate-titlebar) .windows-caption-buttons {
   top: var(--control-space-top);
   right: 0;
   z-index: 10;
+}
+
+body.windows:not(.fullscreen):not(.separate-titlebar) #navbar {
+  padding-right: calc(var(--control-space-right) + var(--windows-drag-area-width));
+}
+
+#windows-window-drag-area {
+  display: none;
+}
+
+body.windows:not(.fullscreen):not(.separate-titlebar) #windows-window-drag-area {
+  display: block;
+  position: absolute;
+  top: var(--control-space-top);
+  right: var(--control-space-right);
+  width: var(--windows-drag-area-width);
+  height: 36px;
+  -webkit-app-region: drag;
 }
 
 .windows-caption-buttons .element {

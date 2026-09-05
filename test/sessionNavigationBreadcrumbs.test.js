@@ -11,17 +11,17 @@ test('all breadcrumb items are visible when they fit', function () {
     overflowWidth: 32
   })
 
-  assert.deepStrictEqual(layout, { startIndex: 0, visibleCount: 3, hiddenCount: 0 })
+  assert.deepStrictEqual(layout, { startIndex: 0, visibleCount: 3, hiddenCount: 0, visibleIndexes: [0, 1, 2] })
 })
 
-test('the shallowest breadcrumbs are truncated first', function () {
+test('truncated breadcrumbs preserve the first and last entries', function () {
   const layout = breadcrumbLayout.computeVisibleBreadcrumbs({
     itemWidths: [100, 100, 100, 100, 100],
     containerWidth: 250,
     overflowWidth: 30
   })
 
-  assert.deepStrictEqual(layout, { startIndex: 3, visibleCount: 2, hiddenCount: 3 })
+  assert.deepStrictEqual(layout, { startIndex: 4, visibleCount: 2, hiddenCount: 3, visibleIndexes: [0, 4] })
 })
 
 test('breadcrumb labels prefer a page title and fall back to the hostname', function () {

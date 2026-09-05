@@ -92,11 +92,13 @@ var breadcrumbs = {
       return
     }
 
+    breadcrumbs.container.insertBefore(breadcrumbs.overflowButton, breadcrumbs.inner)
     var items = Array.from(breadcrumbs.inner.children)
 
     items.forEach(function (item) {
       item.classList.remove('breadcrumb-hidden')
     })
+    breadcrumbs.inner.classList.remove('is-truncated')
     breadcrumbs.overflowButton.hidden = true
 
     var itemWidths = items.map(function (item) {
@@ -110,15 +112,17 @@ var breadcrumbs = {
     })
 
     items.forEach(function (item, index) {
-      if (index < layout.startIndex) {
+      if (!layout.visibleIndexes.includes(index)) {
         item.classList.add('breadcrumb-hidden')
       }
     })
 
     if (layout.hiddenCount > 0) {
       breadcrumbs.overflowButton.hidden = false
-      breadcrumbs.overflowButton.textContent = '+' + layout.hiddenCount
+      breadcrumbs.overflowButton.textContent = '\u2026'
       breadcrumbs.overflowButton.setAttribute('aria-label', l('breadcrumbsHiddenLabel').replace('%n', layout.hiddenCount))
+      breadcrumbs.inner.insertBefore(breadcrumbs.overflowButton, items[layout.startIndex])
+      breadcrumbs.inner.classList.add('is-truncated')
     }
   },
   showBar: function () {

@@ -17,6 +17,7 @@ export interface VisibleBreadcrumbsResult {
   startIndex: number
   visibleCount: number
   hiddenCount: number
+  visibleIndexes: number[]
 }
 
 /*
@@ -47,8 +48,8 @@ export function getBreadcrumbLabel (entry?: BreadcrumbEntry | null): string {
 
 /*
 Decides which breadcrumb items fit in the available width.
-Items are kept starting from the deepest (last) one, truncating the shallowest (first) ones first,
-so the most recently navigated pages always stay visible.
+When truncation is required, the oldest and newest entries remain visible with an ellipsis between
+them. The most recent entries fill any remaining space after the oldest entry is reserved.
 */
 export function computeVisibleBreadcrumbs ({
   itemWidths,
@@ -60,32 +61,35 @@ export function computeVisibleBreadcrumbs ({
   const available = Math.max(0, Number(containerWidth) || 0)
 
   if (itemCount === 0) {
-    return { startIndex: 0, visibleCount: 0, hiddenCount: 0 }
+    return { startIndex: 0, visibleCount: 0, hiddenCount: 0, visibleIndexes: [] }
   }
 
   const totalWidth = widths.reduce((sum, width) => sum + (Number(width) || 0), 0)
   if (totalWidth <= available) {
-    return { startIndex: 0, visibleCount: itemCount, hiddenCount: 0 }
+    return { startIndex: 0, visibleCount: itemCount, hiddenCount: 0, visibleIndexes: widths.map((width, index) => index) }
   }
 
   const budget = Math.max(0, available - (Number(overflowWidth) || 0))
-  let visibleCount = 0
-  let usedWidth = 0
+  const tailIndexes: number[] = []
+  let usedWidth = Number(widths[0]) || 0
 
-  for (let i = itemCount - 1; i >= 0; i--) {
-    usedWidth += Number(widths[i]) || 0
-    if (usedWidth > budget && visibleCount > 0) {
+  for (let i = itemCount - 1; i > 0; i--) {
+    const itemWidth = Number(widths[i]) || 0
+    if (usedWidth + itemWidth > budget && tailIndexes.length > 0) {
       break
     }
-    visibleCount++
+    usedWidth += itemWidth
+    tailIndexes.unshift(i)
   }
 
-  visibleCount = Math.max(1, Math.min(itemCount, visibleCount))
+  const visibleIndexes = [0].concat(tailIndexes)
+  const startIndex = tailIndexes[0] || 0
 
   return {
-    startIndex: itemCount - visibleCount,
-    visibleCount,
-    hiddenCount: itemCount - visibleCount
+    startIndex,
+    visibleCount: visibleIndexes.length,
+    hiddenCount: itemCount - visibleIndexes.length,
+    visibleIndexes
   }
 }
 

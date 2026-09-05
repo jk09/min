@@ -53,13 +53,13 @@ The existing UI has a horizontal tab bar, a separate breadcrumb bar, and visible
 ## 9. UX / UI Notes
 - User flow: The browsing surface opens with the prominent breadcrumb navigation bar and no horizontal tab strip. The user invokes the optional session sidebar, scans descriptions, selects a page, and dismisses the sidebar when more content width is needed.
 - Visual considerations: Use a restrained, dense vertical list inspired by [Copilot sidebar reference](copilot-sidebar-reference.png), not a task-group UI. The promoted breadcrumb bar replaces the red-outlined tab region in [Current browser chrome reference](browser-chrome-reference.png); backward/forward affordances belong in that bar, while the menu remains as the sole existing chrome control in the blue-outlined region.
-- Edge cases: Handle a one-tab session, a sidebar with more entries than viewport height, duplicate or empty titles, in-progress navigation, and entries whose descriptions are still being derived.
+- Edge cases: Handle a one-tab session, a sidebar with more entries than viewport height, duplicate or empty titles, in-progress navigation, entries whose descriptions are still being derived, narrow title bars that require breadcrumb truncation, and either sidebar placement.
 
 ## 10. Technical Notes
 - Proposed approach: Build on the existing tab state and navigation-history APIs. Separate description derivation from sidebar rendering so that UI updates can use progressively richer page information without changing tab-selection behavior.
 - Dependencies: Existing `nav-breadcrumbs`, tab state, webview navigation events, session restore, theming, and menu infrastructure.
 - Risks / unknowns: The source, computation cost, storage lifetime, and privacy treatment of content-derived descriptions are undecided. The sidebar invocation mechanism and its default visibility are also undecided.
-- Open questions: Should descriptions be deterministic local summaries only, or may an optional configured LLM generate them? Should the sidebar list only live tabs, or retain recently closed/visited pages? Which keyboard shortcut and menu entry should toggle it?
+- Open questions: Should descriptions be deterministic local summaries only, or may an optional configured LLM generate them? Should the sidebar list only live tabs, or retain recently closed/visited pages? Which keyboard shortcut and menu entry should toggle it? Which sidebar options should follow left/right placement?
 
 ## 11. Acceptance Criteria
 - [ ] The horizontal tab bar is absent from the normal browser chrome, and the breadcrumb navigation bar occupies its primary position.

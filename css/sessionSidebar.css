@@ -11,8 +11,69 @@
   padding: 0.5rem 0;
 }
 
+#session-sidebar[data-position="right"] {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-left: 1px solid rgba(0, 0, 0, 0.15);
+}
+
 .dark-theme #session-sidebar {
   border-right-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-theme #session-sidebar[data-position="right"] {
+  border-left-color: rgba(255, 255, 255, 0.2);
+}
+
+#session-sidebar-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.25rem;
+  padding: 0 0.5rem 0 0.75rem;
+  font-weight: 600;
+}
+
+#session-sidebar-options-toggle {
+  width: 2rem;
+}
+
+#session-sidebar-options {
+  position: absolute;
+  top: 2rem;
+  right: 0.5rem;
+  z-index: 4;
+  width: 9rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: var(--theme-background-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.dark-theme #session-sidebar-options {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+#session-sidebar-options button {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+#session-sidebar-options button:hover,
+#session-sidebar-options button:focus {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.dark-theme #session-sidebar-options button:hover,
+.dark-theme #session-sidebar-options button:focus {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .session-sidebar-item {
