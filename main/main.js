@@ -241,7 +241,9 @@ app.once('ready', function () {
   })
   legacyHistoryExportWindow.webContents.once('did-finish-load', function () {
     setTimeout(function () {
-      legacyHistoryExportWindow.close()
+      if (!legacyHistoryExportWindow.isDestroyed()) {
+        legacyHistoryExportWindow.close()
+      }
     }, 30000)
   })
 })
