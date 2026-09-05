@@ -2,10 +2,9 @@
 Routes prompt text:
 
     browser mode: any web address opens in a new tab; all other text searches
-    llm mode: prompt text is fed to the configured LLM model
+    llm mode: prompt text is fed to the configured LLM model as-is
 
-LLM mode retains slash-prefixed skills for compatibility. Browser mode never
-interprets slash-prefixed text as a skill or model request.
+Browser mode never interprets slash-prefixed text as a skill or model request.
 
 The URL check always runs first, so text that resolves to an address is opened
 even if it also happens to start with '/'. Leading/trailing whitespace is
@@ -154,7 +153,7 @@ async function handlePrompt(rawPrompt, options = {}) {
         return { ok: false, route: 'error', message: 'Type a request, or / to see the available skills.', trace: [] }
     }
 
-    if (prompt === '/') {
+    if (mode === 'browser' && prompt === '/') {
         return {
             ok: true,
             route: 'help',
@@ -176,42 +175,13 @@ async function handlePrompt(rawPrompt, options = {}) {
         return runSearch(prompt, scope)
     }
 
-    if (!prompt.startsWith('/')) {
-        const llmSkill = skillRegistry.get('b')
-        if (llmSkill) {
-            return runSkill(llmSkill, prompt, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
-        }
-        return { ok: false, route: 'error', message: 'No LLM model is configured.', trace: [] }
+    const llmSkill = skillRegistry.get('b')
+
+    if (llmSkill) {
+        return runSkill(llmSkill, prompt, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
     }
 
-    if (prompt.startsWith('//')) {
-        const llmPrompt = prompt.slice(2).trim()
-
-        if (!llmPrompt) {
-            return { ok: false, route: 'error', message: 'Type a prompt after //.', trace: [] }
-        }
-
-        const llmSkill = skillRegistry.get('b')
-
-        if (llmSkill) {
-            return runSkill(llmSkill, llmPrompt, llmPrompt, scope, agentId, ownModelId, debug, requestId, onProgress)
-        }
-
-        return { ok: false, route: 'error', message: 'No LLM model is configured.', trace: [] }
-    }
-
-    const explicit = skillRegistry.resolveExplicit(prompt)
-
-    if (explicit && !explicit.unknownSkillId) {
-        return runSkill(explicit.skill, explicit.argsText, prompt, scope, agentId, ownModelId, debug, requestId, onProgress)
-    }
-
-    return {
-        ok: false,
-        route: 'error',
-        message: 'Unknown skill "/' + (explicit ? explicit.unknownSkillId : '') + '". Type / to see the available skills.',
-        trace: []
-    }
+    return { ok: false, route: 'error', message: 'No LLM model is configured.', trace: [] }
 }
 
 module.exports = {
