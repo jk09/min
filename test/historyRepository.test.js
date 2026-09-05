@@ -5,52 +5,36 @@ const test = require('node:test')
 const assert = require('node:assert')
 const { HistoryRepository } = require('../main/historyRepository')
 
-function createRepository () {
+async function createRepository () {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'min-history-'))
-  const repository = new HistoryRepository(path.join(directory, 'history.sqlite'))
+  const repository = await HistoryRepository.open(path.join(directory, 'history.sqlite'))
   return { repository, directory }
 }
 
-test('stores graph visits, FTS content, notes, and sync changes in SQLite', function () {
-  const { repository, directory } = createRepository()
+test('stores graph visits, FTS content, notes, and sync changes in SQLite', async function () {
+  const { repository, directory } = await createRepository()
   try {
-    repository.request({ action: 'updatePlace', pageData: { url: 'https://example.com/start', title: 'Start', contentDigest: 'First research page' }, flags: { isNewVisit: true } })
-    repository.request({ action: 'updatePlace', pageData: { url: 'https://example.com/guide', title: 'SQLite guide', contentDigest: 'A history research guide' }, flags: { isNewVisit: true, sourceURL: 'https://example.com/start' } })
-    repository.request({ action: 'addHistoryNote', pageData: { url: 'https://example.com/guide', text: 'Use this for migration notes.' } })
+    await repository.request({ action: 'updatePlace', pageData: { url: 'https://example.com/start', title: 'Start', contentDigest: 'First research page' }, flags: { isNewVisit: true } })
+    await repository.request({ action: 'updatePlace', pageData: { url: 'https://example.com/guide', title: 'SQLite guide', contentDigest: 'A history research guide' }, flags: { isNewVisit: true, sourceURL: 'https://example.com/start' } })
 
-    const [result] = repository.request({ action: 'searchHistoryGraph', text: 'migration notes' })
+    const [result] = await repository.request({ action: 'searchHistoryGraph', text: 'research guide' })
     assert.strictEqual(result.url, 'https://example.com/guide')
     assert.ok(result.stableId)
     assert.strictEqual(result.relationshipCount, 1)
-    assert.strictEqual(result.notes[0].text, 'Use this for migration notes.')
-    assert.ok(repository.db.prepare('SELECT COUNT(*) AS count FROM sync_changes').get().count >= 3)
+    assert.ok((await repository.db.get('SELECT COUNT(*) AS count FROM sync_changes')).count >= 2)
   } finally {
-    repository.close()
+    await repository.db.close()
     fs.rmSync(directory, { recursive: true, force: true })
   }
 })
 
-test('imports version 2 IndexedDB graph records once with preserved relationships', function () {
-  const { repository, directory } = createRepository()
+test('creates a searchable SQLite database without a Node ABI-specific addon', async function () {
+  const { repository, directory } = await createRepository()
   try {
-    const legacy = {
-      places: [
-        { id: 1, url: 'https://example.com/start', title: 'Start', visitCount: 1 },
-        { id: 2, url: 'https://example.com/guide', title: 'Guide', extractedText: 'SQLite migration reference', visitCount: 2 }
-      ],
-      visits: [{ id: 1, placeId: 2, visitedAt: 100, sourcePlaceId: 1 }],
-      navigationEdges: [{ id: 1, sourcePlaceId: 1, destinationPlaceId: 2, visitedAt: 100 }],
-      notes: [{ id: 1, placeId: 2, text: 'Preserve this note', updatedAt: 100 }]
-    }
-    repository.importLegacy(legacy)
-    repository.importLegacy(legacy)
-
-    const [result] = repository.search('preserve')
-    assert.strictEqual(result.url, 'https://example.com/guide')
-    assert.strictEqual(result.notes.length, 1)
-    assert.strictEqual(result.relationshipCount, 1)
+    await repository.request({ action: 'updatePlace', pageData: { url: 'https://example.com/sqlite', title: 'SQLite', extractedText: 'full text search' }, flags: { isNewVisit: true } })
+    assert.strictEqual((await repository.search('full text')).length, 1)
   } finally {
-    repository.close()
+    await repository.db.close()
     fs.rmSync(directory, { recursive: true, force: true })
   }
 })

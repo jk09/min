@@ -35,7 +35,6 @@
   "dependencies": {
     "@browsermt/bergamot-translator": "^0.4.9",
     "@electron/fuses": "^1.7.0",
-    "better-sqlite3": "^12.6.2",
     "chokidar": "^3.6.0",
     "dexie": "^3.0.3",
     "dragula": "github:minbrowser/dragula",
@@ -47,6 +46,8 @@
     "punycode": "^2.3.1",
     "regedit": "^3.0.3",
     "sortablejs": "^1.15.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1",
     "write-file-atomic": "^6.0.0"
   },
   "devDependencies": {
