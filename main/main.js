@@ -86,6 +86,7 @@ require('./remoteMenu')
 require('./remoteActions')
 require('./llmEngine')
 require('./keychainService')
+require('./historyService')
 require('../js/util/proxy')
 require('./themeMain')
 
@@ -222,24 +223,29 @@ ipc.on('request-tab-state', function (e) {
 
 /* places service */
 
-const placesPage = 'file://' + path.join(appState.appRoot, 'js/places/placesService.html')
+const legacyHistoryExportPage = 'file://' + path.join(appState.appRoot, 'js/places/legacyHistoryExport.html')
 
 app.once('ready', function () {
-  appState.placesWindow = new BrowserWindow({
-    width: 300,
-    height: 300,
+  const legacyHistoryExportWindow = new BrowserWindow({
     show: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
     }
   })
-
-  appState.placesWindow.loadURL(placesPage)
-})
-
-ipc.on('places-connect', function (e) {
-  appState.placesWindow.webContents.postMessage('places-connect', null, e.ports)
+  legacyHistoryExportWindow.loadURL(legacyHistoryExportPage)
+  ipc.once('history:legacyMigrationComplete', function () {
+    if (!legacyHistoryExportWindow.isDestroyed()) {
+      legacyHistoryExportWindow.close()
+    }
+  })
+  legacyHistoryExportWindow.webContents.once('did-finish-load', function () {
+    setTimeout(function () {
+      if (!legacyHistoryExportWindow.isDestroyed()) {
+        legacyHistoryExportWindow.close()
+      }
+    }, 30000)
+  })
 })
 
 /* translate service */

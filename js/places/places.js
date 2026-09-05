@@ -9,28 +9,13 @@ let activeTabStartedAt = 0
 const lastRecordedURLByTab = {}
 
 const places = {
-  messagePort: null,
   sendMessage: function (data) {
-    places.messagePort.postMessage(data)
-  },
-  pendingPromises: {},
-  invokeWithPromise: function (data) {
-    const callbackId = Math.random()
-    const { promise, resolve, reject } = Promise.withResolvers()
-    places.pendingPromises[callbackId] = { promise, resolve, reject }
-    places.messagePort.postMessage({
-      ...data,
-      callbackId
+    ipc.invoke('history:request', data).catch(function (error) {
+      console.warn('failed to update history', error)
     })
-    return promise
   },
-  replyToPromise: function (callbackId, result) {
-    if (places.pendingPromises[callbackId]) {
-      places.pendingPromises[callbackId].resolve(result)
-      delete places.pendingPromises[callbackId]
-    } else {
-      throw new Error('places is missing callbackId')
-    }
+  invokeWithPromise: function (data) {
+    return ipc.invoke('history:request', data)
   },
   savePage: function (tabId, extractedText) {
     /* this prevents pages that are immediately left from being saved to history, and also gives the page-favicon-updated event time to fire (so the colors saved to history are correct). */
@@ -146,11 +131,6 @@ const places = {
       text: url
     })
   },
-  onMessage: function (e) {
-    if (e.data.callbackId) {
-      places.replyToPromise(e.data.callbackId, e.data.result)
-    }
-  },
   getItem: function (url) {
     return places.invokeWithPromise({
       action: 'getPlace',
@@ -226,13 +206,6 @@ const places = {
     })
   },
   initialize: function () {
-    const { port1, port2 } = new MessageChannel()
-
-    ipc.postMessage('places-connect', null, [port1])
-    places.messagePort = port2
-    port2.addEventListener('message', places.onMessage)
-    port2.start()
-
     webviews.bindIPC('pageData', places.receiveHistoryData)
     webviews.bindIPC('historyGraphRequest', function (tabId, args) {
       const request = args[0]

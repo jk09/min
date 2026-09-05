@@ -44,10 +44,10 @@
     "papaparse": "^5.5.1",
     "pdfjs-dist": "4.2.67",
     "punycode": "^2.3.1",
-    "quick-score": "^0.2.0",
     "regedit": "^3.0.3",
     "sortablejs": "^1.15.1",
-    "stemmer": "^1.0.5",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1",
     "write-file-atomic": "^6.0.0"
   },
   "devDependencies": {
