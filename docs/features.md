@@ -5,7 +5,7 @@
 The live feature set of the browser, derived from [`spec/FEATURES.json`](../spec/FEATURES.json).
 See [the feature ledger](feature-ledger.md) for how this file is maintained.
 
-## Active features (17)
+## Active features (18)
 
 ### Prompt-driven browser command runtime
 
@@ -160,6 +160,15 @@ Main process is a real ES module graph instead of a concatenated build artifact.
 - **spec:** [spec/done/feat-x7k2mq-esm-module-refactor/SPEC.md](../spec/done/feat-x7k2mq-esm-module-refactor/SPEC.md)
 - **source:** `main/main.js`, `scripts/buildBrowser.js`
 - **tests:** —
+
+### TypeScript support and intellisense across the codebase
+
+TypeScript configuration, ambient type definitions, build transpilation, and typechecking for development.
+
+- **id:** `typescript-support`
+- **spec:** [spec/done/feat-t7s4q9-typescript-support/SPEC.md](../spec/done/feat-t7s4q9-typescript-support/SPEC.md)
+- **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/tsTransform.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
+- **tests:** unit (1)
 
 ## Retired features (3)
 

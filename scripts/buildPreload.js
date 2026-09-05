@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const ts = require('typescript')
 
 const outFile = path.resolve(__dirname, '../dist/preload.js')
 
@@ -11,14 +12,25 @@ const modules = [
   'js/util/settings/settingsPreload.js',
   'js/preload/passwordFill.js',
   'js/preload/translate.js',
-  'js/llmPrompt/llmDebugPreload.js',
+  'js/llmPrompt/llmDebugPreload.js'
 ]
 
-function buildPreload() {
+function buildPreload () {
   /* concatenate modules */
   let output = ''
   modules.forEach(function (script) {
-    output += fs.readFileSync(path.resolve(__dirname, '../', script)) + ';\n'
+    const filePath = path.resolve(__dirname, '../', script)
+    let content = fs.readFileSync(filePath, 'utf-8')
+    if (script.endsWith('.ts')) {
+      content = ts.transpileModule(content, {
+        fileName: filePath,
+        compilerOptions: {
+          module: ts.ModuleKind.CommonJS,
+          target: ts.ScriptTarget.ES2022
+        }
+      }).outputText
+    }
+    output += content + ';\n'
   })
 
   fs.writeFileSync(outFile, output, 'utf-8')
