@@ -7,6 +7,7 @@ var promptPanel = require('llmPrompt/promptPanel.js')
 var urlParser = require('util/urlParser.js')
 var keyMapModule = require('util/keyMap.js')
 var settings = require('util/settings/settings.js')
+var historyGraphTab = require('places/historyGraphTab.js')
 
 var keyMap = keyMapModule.userKeyMap(settings.get('keyMap'))
 
@@ -109,6 +110,12 @@ const defaultKeybindings = {
       }
 
       promptPanel.openModeSelector()
+    })
+
+    keybindings.defineShortcut('showHistory', function () {
+      if (!modalMode.enabled()) {
+        historyGraphTab.open()
+      }
     })
 
     // cmd+x should switch to tab x. Cmd+9 should switch to the last tab

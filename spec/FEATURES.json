@@ -2,6 +2,43 @@
   "schemaVersion": 1,
   "features": [
     {
+      "id": "personal-history-graph",
+      "title": "Personal browsing history graph",
+      "summary": "Local visited-page graph with content digests, notes, activity relevance, navigation relationships, LLM retrieval, and an internal history page.",
+      "status": "active",
+      "specPath": "spec/done/feat-q7k3mx-personal-history-graph/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": true,
+      "sourceFiles": [
+        "js/places/historyGraph.js",
+        "js/places/historyGraphTab.js",
+        "js/places/places.js",
+        "js/places/placesService.html",
+        "js/places/placesService.js",
+        "js/util/database.js",
+        "js/preload/historyGraphPreload.js",
+        "js/defaultKeybindings.js",
+        "js/llmPrompt/tools/browserTools.js",
+        "pages/historyGraph/index.html",
+        "pages/historyGraph/historyGraph.js",
+        "pages/historyGraph/historyGraph.css"
+      ],
+      "tests": {
+        "unit": [
+          "test/historyGraph.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:148131c962cd79aec0ff17c2dc0ae738d7d40605e2cd3459dbfd988b5ca225d8",
+      "lastVerified": "2026-09-05"
+    },
+    {
       "id": "prompt-runtime",
       "title": "Prompt-driven browser command runtime",
       "summary": "Tool registry, skill registry and router that turn prompt input into browser actions.",
@@ -30,7 +67,7 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:91d5affa388831994917437ec3340d936d77fa1a81b7dd1624e2cb3afa469749",
+      "sourceHash": "sha256:77a573c7f5261394d027c873d5a7b3cf08781541593828317bbfbd72519fe9b0",
       "lastVerified": "2026-09-05"
     },
     {
@@ -273,7 +310,7 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:fe543e37d0dcd5b181a74a783446eed3ff8e440911ec67c39979359add6c137e",
+      "sourceHash": "sha256:430d89a6791205ce89b279b3ead7ca8667dd471a9338c2591c22eb7974451353",
       "lastVerified": "2026-09-05"
     },
     {
@@ -525,7 +562,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ff42d9323348cd592d04164f41846fb99221dcffdea6ff48c862249e44fdb3e9",
+      "sourceHash": "sha256:0bf6b70c9a5c641e68df1852eeb299f18fe2272acabdd33a83dc2d468f77c72d",
       "lastVerified": "2026-09-05"
     },
     {

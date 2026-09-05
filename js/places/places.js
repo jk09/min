@@ -4,6 +4,10 @@ var webviews = require('webviews.js')
 const searchEngine = require('util/searchEngine.js')
 const urlParser = require('util/urlParser.js')
 
+let activeTabId = null
+let activeTabStartedAt = 0
+const lastRecordedURLByTab = {}
+
 const places = {
   messagePort: null,
   sendMessage: function (data) {
@@ -44,9 +48,12 @@ const places = {
           action: 'updatePlace',
           pageData: data,
           flags: {
-            isNewVisit: true
+            isNewVisit: true,
+            tabId: tabId,
+            sourceURL: lastRecordedURLByTab[tabId]
           }
         })
+        lastRecordedURLByTab[tabId] = data.url
       }
     }, 500)
   },
@@ -106,6 +113,32 @@ const places = {
       action: 'searchPlacesFullText',
       text: text
     })
+  },
+  searchHistoryGraph: function (text) {
+    return places.invokeWithPromise({
+      action: 'searchHistoryGraph',
+      text: text
+    })
+  },
+  saveHistoryNote: function (url, text, id) {
+    return places.invokeWithPromise({
+      action: 'addHistoryNote',
+      pageData: { url: url, text: text, id: id }
+    })
+  },
+  recordActiveDwellTime: function () {
+    if (!activeTabId || !activeTabStartedAt) {
+      return
+    }
+    const tab = tabs.get(activeTabId)
+    const duration = Date.now() - activeTabStartedAt
+    activeTabStartedAt = 0
+    if (tab && tab.url && !tab.private && duration > 0) {
+      places.sendMessage({
+        action: 'recordAttention',
+        pageData: { url: urlParser.removeTextFragment(urlParser.getSourceURL(tab.url)), duration: duration }
+      })
+    }
   },
   getPlaceSuggestions: function (url) {
     return places.invokeWithPromise({
@@ -201,6 +234,33 @@ const places = {
     port2.start()
 
     webviews.bindIPC('pageData', places.receiveHistoryData)
+    webviews.bindIPC('historyGraphRequest', function (tabId, args) {
+      const request = args[0]
+      const tab = tabs.get(tabId)
+      if (!tab || !urlParser.isInternalURL(tab.url)) {
+        return
+      }
+      if (request.action === 'search') {
+        places.searchHistoryGraph(request.query).then(function (results) {
+          webviews.callAsync(tabId, 'send', ['receiveHistoryGraphData', { action: 'search', requestId: request.requestId, results: results }])
+        })
+      }
+      if (request.action === 'saveNote') {
+        places.saveHistoryNote(request.url, request.text).then(function () {
+          webviews.callAsync(tabId, 'send', ['receiveHistoryGraphData', { action: 'saveNote' }])
+        })
+      }
+      if (request.action === 'open' && request.url) {
+        webviews.update(tabId, request.url)
+      }
+    })
+    activeTabId = tabs.getSelected()
+    activeTabStartedAt = Date.now()
+    tasks.on('tab-selected', function (tabId) {
+      places.recordActiveDwellTime()
+      activeTabId = tabId
+      activeTabStartedAt = Date.now()
+    })
   }
 }
 

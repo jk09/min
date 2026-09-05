@@ -12,6 +12,7 @@ const modules = [
   'js/util/settings/settingsPreload.js',
   'js/preload/passwordFill.js',
   'js/preload/translate.js',
+  'js/preload/historyGraphPreload.js',
   'js/llmPrompt/llmDebugPreload.js'
 ]
 

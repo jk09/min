@@ -23,6 +23,14 @@ db.version(1).stores({
   readingList: 'url, time, visitCount, pageHTML, article, extraData' // TODO remove this (reading list is no longer used)
 })
 
+db.version(2).stores({
+  places: '++id, &url, canonicalURL, title, color, visitCount, firstVisit, lastVisit, activeDwellTime, attentionScore, pageHTML, extractedText, contentDigest, *searchIndex, isBookmarked, *tags, metadata',
+  readingList: 'url, time, visitCount, pageHTML, article, extraData',
+  visits: '++id, placeId, visitedAt, tabId, sourcePlaceId',
+  navigationEdges: '++id, sourcePlaceId, destinationPlaceId, visitedAt, [sourcePlaceId+destinationPlaceId]',
+  notes: '++id, placeId, updatedAt'
+})
+
 db.open().then(function () {
   console.log('database opened ', performance.now())
 }).catch(function (error) {

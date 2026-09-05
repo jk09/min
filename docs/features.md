@@ -5,7 +5,16 @@
 The live feature set of the browser, derived from [`spec/FEATURES.json`](../spec/FEATURES.json).
 See [the feature ledger](feature-ledger.md) for how this file is maintained.
 
-## Active features (15)
+## Active features (16)
+
+### Personal browsing history graph
+
+Local visited-page graph with content digests, notes, activity relevance, navigation relationships, LLM retrieval, and an internal history page.
+
+- **id:** `personal-history-graph`
+- **spec:** [spec/done/feat-q7k3mx-personal-history-graph/SPEC.md](../spec/done/feat-q7k3mx-personal-history-graph/SPEC.md)
+- **source:** `js/places/historyGraph.js`, `js/places/historyGraphTab.js`, `js/places/places.js`, `js/places/placesService.html`, `js/places/placesService.js`, `js/util/database.js`, `js/preload/historyGraphPreload.js`, `js/defaultKeybindings.js`, `js/llmPrompt/tools/browserTools.js`, `pages/historyGraph/index.html`, `pages/historyGraph/historyGraph.js`, `pages/historyGraph/historyGraph.css`
+- **tests:** unit (1)
 
 ### Prompt-driven browser command runtime
 

@@ -123,27 +123,46 @@ const browserTools = [
     {
         id: 'history.search',
         scope: 'read',
-        description: 'Search visited pages by title and URL.',
+        description: 'Search visited pages, page digests, and personal notes.',
         parameters: {
             query: { type: 'string', required: true, description: 'text to look for' },
             limit: { type: 'number', default: 10, description: 'maximum number of results' }
         },
         handler: async function (args) {
-            const results = await places.searchPlaces(args.query, { limit: args.limit })
-            return { results: (results || []).slice(0, args.limit).map(place => ({ url: place.url, title: place.title, lastVisit: place.lastVisit })) }
+            const results = await places.searchHistoryGraph(args.query)
+            return { results: (results || []).slice(0, args.limit).map(place => ({
+                id: place.id,
+                url: place.url,
+                canonicalURL: place.canonicalURL,
+                title: place.title,
+                contentDigest: place.contentDigest,
+                notes: (place.notes || []).map(note => note.text),
+                lastVisit: place.lastVisit,
+                visitCount: place.visitCount,
+                relationshipCount: place.relationshipCount,
+                relevance: place.relevance
+            })) }
         }
     },
     {
         id: 'history.searchFullText',
         scope: 'read',
-        description: 'Search the full text of visited pages.',
+        description: 'Search visited page content, digests, and personal notes.',
         parameters: {
             query: { type: 'string', required: true, description: 'text to look for' },
             limit: { type: 'number', default: 10, description: 'maximum number of results' }
         },
         handler: async function (args) {
-            const results = await places.searchPlacesFullText(args.query)
-            return { results: (results || []).slice(0, args.limit).map(place => ({ url: place.url, title: place.title, lastVisit: place.lastVisit })) }
+            const results = await places.searchHistoryGraph(args.query)
+            return { results: (results || []).slice(0, args.limit).map(place => ({
+                id: place.id,
+                url: place.url,
+                title: place.title,
+                contentDigest: place.contentDigest,
+                notes: (place.notes || []).map(note => note.text),
+                lastVisit: place.lastVisit,
+                relevance: place.relevance
+            })) }
         }
     },
     {
