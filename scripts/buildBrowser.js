@@ -3,6 +3,8 @@ const renderify = require('electron-renderify')
 const path = require('path')
 const fs = require('fs')
 
+const tsTransform = require('./tsTransform.js')
+
 const rootDir = path.resolve(__dirname, '../')
 const jsDir = path.resolve(__dirname, '../js')
 
@@ -31,6 +33,7 @@ function buildBrowser () {
 
   const instance = browserify(intermediateOutput, {
     paths: [rootDir, jsDir],
+    extensions: ['.js', '.json', '.ts', '.tsx'],
     ignoreMissing: false,
     node: true,
     detectGlobals: false,
@@ -40,6 +43,7 @@ function buildBrowser () {
   instance.exclude('chokidar')
   instance.exclude('write-file-atomic')
 
+  instance.transform(tsTransform)
   instance.transform(renderify)
   const stream = fs.createWriteStream(outFile, { encoding: 'utf-8' })
   instance.bundle()

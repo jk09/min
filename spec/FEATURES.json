@@ -101,8 +101,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:30e3c44cc84c00e4f5046b189947d8ed9290ed2155b9c92655819bcba7994f2f",
-      "lastVerified": "2026-09-03"
+      "sourceHash": "sha256:4fcb8dad65ee6e9e92ee2b4f0395f292de7001808316d6e82b32e232366f0f6b",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "build-commit-indicator",
@@ -273,8 +273,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:f013b07eb070b937b3ea002825622630e064fba732bb31d25d9459e813974037",
-      "lastVerified": "2026-09-03"
+      "sourceHash": "sha256:fe543e37d0dcd5b181a74a783446eed3ff8e440911ec67c39979359add6c137e",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "empty-state-prompt",
@@ -473,8 +473,40 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:c9514599e20df40d890ec6bada8c11676cdb744aa07d605615ae1dae046d89d1",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:643b0dd1590629e0fed2756a880105f74106db3af5640c3af325b11b0f7e0c7f",
+      "lastVerified": "2026-09-05"
+    },
+    {
+      "id": "typescript-support",
+      "title": "TypeScript support and intellisense across the codebase",
+      "summary": "TypeScript configuration, ambient type definitions, build transpilation, and typechecking for development.",
+      "status": "active",
+      "specPath": "spec/done/feat-t7s4q9-typescript-support/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": false,
+      "sourceFiles": [
+        "tsconfig.json",
+        "types/globals.d.ts",
+        "types/min.d.ts",
+        "types/modules.d.ts",
+        "scripts/tsTransform.js",
+        "scripts/buildBrowser.js",
+        "scripts/buildPreload.js"
+      ],
+      "tests": {
+        "unit": [
+          "test/typescript.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:7581aa6da28ab3792cc6bdb542f245ad1f9a75d4d79119b71131a94654ef1927",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "tasks-ui",
