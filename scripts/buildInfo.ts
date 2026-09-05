@@ -1,21 +1,31 @@
 /* collect git metadata at build time and compile it into dist/buildInfo.build.js */
 
-const path = require('path')
-const fs = require('fs')
-const { execFileSync } = require('child_process')
+import * as path from 'path'
+import * as fs from 'fs'
+import { execFileSync } from 'child_process'
 
-const rootDir = path.join(__dirname, '../')
-const outputDir = path.join(__dirname, '../dist')
-const outputFile = path.join(outputDir, 'buildInfo.build.js')
+const rootDir: string = path.join(__dirname, '../')
+const outputDir: string = path.join(__dirname, '../dist')
+const outputFile: string = path.join(outputDir, 'buildInfo.build.js')
 
-const UNKNOWN = 'unknown'
+export const UNKNOWN: string = 'unknown'
 
-function defaultGitRunner (args) {
+export type GitRunner = (args: string[]) => string
+
+export interface CollectedBuildInfo {
+  commit: string
+  shortCommit: string
+  branch: string
+  dirty: boolean
+  buildTime: string
+}
+
+export function defaultGitRunner (args: string[]): string {
   return execFileSync('git', args, { cwd: rootDir, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] })
 }
 
-function collectBuildInfo (runGit = defaultGitRunner, now = new Date()) {
-  const info = {
+export function collectBuildInfo (runGit: GitRunner = defaultGitRunner, now: Date = new Date()): CollectedBuildInfo {
+  const info: CollectedBuildInfo = {
     commit: UNKNOWN,
     shortCommit: UNKNOWN,
     branch: UNKNOWN,
@@ -23,7 +33,7 @@ function collectBuildInfo (runGit = defaultGitRunner, now = new Date()) {
     buildTime: now.toISOString()
   }
 
-  let commit
+  let commit: string
   try {
     commit = runGit(['rev-parse', 'HEAD']).trim()
   } catch (e) {
@@ -52,7 +62,7 @@ function collectBuildInfo (runGit = defaultGitRunner, now = new Date()) {
   return info
 }
 
-function buildBuildInfo () {
+export function buildBuildInfo (): void {
   const contents = 'module.exports = Object.freeze(' + JSON.stringify(collectBuildInfo()) + ');\n'
 
   if (!fs.existsSync(outputDir)) {

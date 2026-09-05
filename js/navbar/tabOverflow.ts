@@ -1,10 +1,47 @@
 /* pure layout calculations for the tab bar - no DOM access, so this stays testable */
 
-const DEFAULT_TAB_WIDTH = 140
-const MIN_TAB_WIDTH = 80
-const MAX_TAB_WIDTH = 400
+export const DEFAULT_TAB_WIDTH: number = 140
+export const MIN_TAB_WIDTH: number = 80
+export const MAX_TAB_WIDTH: number = 400
 
-function clampTabWidth (value) {
+export interface ComputeVisibleTabsOptions {
+  tabCount: number
+  activeIndex?: number
+  containerWidth: number
+  tabWidth?: number
+  labelWidth?: number
+}
+
+export interface VisibleTabsResult {
+  startIndex: number
+  visibleCount: number
+  hiddenCount: number
+}
+
+export interface HiddenTabItem {
+  id?: string
+  domain?: string
+  title?: string
+  url?: string
+  loaded?: boolean
+  hasWebContents?: boolean
+  [key: string]: any
+}
+
+export interface HiddenDomainGroup {
+  domain: string
+  count: number
+  tabs: HiddenTabItem[]
+}
+
+export interface HiddenTabsSummary {
+  total: number
+  loading: number
+  notLoaded: number
+  groups: HiddenDomainGroup[]
+}
+
+export function clampTabWidth (value?: number | null): number {
   const width = Math.round(Number(value))
   if (!Number.isFinite(width)) {
     return DEFAULT_TAB_WIDTH
@@ -16,7 +53,13 @@ function clampTabWidth (value) {
 Returns the slice of tabs that fits into the tab bar.
 The active tab is always part of the returned slice.
 */
-function computeVisibleTabs ({ tabCount, activeIndex = 0, containerWidth, tabWidth, labelWidth = 0 }) {
+export function computeVisibleTabs ({
+  tabCount,
+  activeIndex = 0,
+  containerWidth,
+  tabWidth,
+  labelWidth = 0
+}: ComputeVisibleTabsOptions): VisibleTabsResult {
   const width = clampTabWidth(tabWidth)
   const available = Math.max(0, Number(containerWidth) || 0)
 
@@ -47,9 +90,9 @@ function computeVisibleTabs ({ tabCount, activeIndex = 0, containerWidth, tabWid
 }
 
 /* MVP statistics for the tabs that don't fit on the tab bar */
-function summarizeHiddenTabs (hiddenTabs = []) {
-  const groups = []
-  const groupsByDomain = {}
+export function summarizeHiddenTabs (hiddenTabs: HiddenTabItem[] = []): HiddenTabsSummary {
+  const groups: HiddenDomainGroup[] = []
+  const groupsByDomain: Record<string, HiddenDomainGroup> = {}
   let loading = 0
   let notLoaded = 0
 

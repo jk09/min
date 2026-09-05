@@ -32,7 +32,7 @@ Shows the short commit hash and build metadata of the running build in the statu
 
 - **id:** `build-commit-indicator`
 - **spec:** [spec/done/feat-b7x4qn-build-commit-indicator/SPEC.md](../spec/done/feat-b7x4qn-build-commit-indicator/SPEC.md)
-- **source:** `scripts/buildInfo.js`, `js/llmPrompt/buildInfo.js`
+- **source:** `scripts/buildInfo.ts`, `js/llmPrompt/buildInfo.ts`
 - **tests:** unit (1)
 
 ### Debug tab for the /b command
@@ -50,7 +50,7 @@ Maps free-form instructions to browser tool calls through an LLM planning step.
 
 - **id:** `nl-browser-commands`
 - **spec:** [spec/done/feat-h4qz2r-nl-browser-commands/SPEC.md](../spec/done/feat-h4qz2r-nl-browser-commands/SPEC.md)
-- **source:** `js/llmPrompt/planningSkill.js`, `js/llmPrompt/planParser.js`, `js/llmPrompt/ownModels/ownModelRegistry.js`
+- **source:** `js/llmPrompt/planningSkill.ts`, `js/llmPrompt/planParser.ts`, `js/llmPrompt/ownModels/ownModelRegistry.ts`
 - **tests:** —
 
 ### Plain-text prompt input triggers the default search engine
@@ -68,7 +68,7 @@ Opens an external AI agent in a tab, seeded with the prompt and page context.
 
 - **id:** `ai-agent-handoff`
 - **spec:** [spec/done/feat-x7q3n9-ai-agent-prompt-tabs/SPEC.md](../spec/done/feat-x7q3n9-ai-agent-prompt-tabs/SPEC.md)
-- **source:** `js/llmPrompt/agents/agentRegistry.js`
+- **source:** `js/llmPrompt/agents/agentRegistry.ts`
 - **tests:** —
 
 ### Search-engine selector in the prompt toolbar
@@ -77,7 +77,7 @@ Toolbar control for choosing the search engine, replacing the non-functional mod
 
 - **id:** `prompt-search-engine-selector`
 - **spec:** [spec/done/feat-x9q3rt-agent-search-selectors/SPEC.md](../spec/done/feat-x9q3rt-agent-search-selectors/SPEC.md)
-- **source:** `js/llmPrompt/searchEngines/searchEngineRegistry.js`
+- **source:** `js/llmPrompt/searchEngines/searchEngineRegistry.ts`
 - **tests:** —
 
 ### Prompt shortcut and direct URL navigation
@@ -113,7 +113,7 @@ Tabs render at a fixed width with favicon and label, and overflow collapses into
 
 - **id:** `fixed-width-tabs`
 - **spec:** [spec/done/feat-t4b9xq-fixed-width-informational-tabs/SPEC.md](../spec/done/feat-t4b9xq-fixed-width-informational-tabs/SPEC.md)
-- **source:** `js/navbar/tabBar.js`, `js/navbar/tabLabel.js`, `js/navbar/tabColor.js`, `js/navbar/tabOverflow.js`, `js/navbar/tabOverflowPanel.js`, `css/tabBar.css`
+- **source:** `js/navbar/tabBar.js`, `js/navbar/tabLabel.ts`, `js/navbar/tabColor.js`, `js/navbar/tabOverflow.ts`, `js/navbar/tabOverflowPanel.js`, `css/tabBar.css`
 - **tests:** unit (1)
 
 ### Persistent insecure-page indicator in tabs
@@ -140,7 +140,7 @@ Shows the in-tab navigation chain as breadcrumbs and allows jumping to any prior
 
 - **id:** `nav-breadcrumbs`
 - **spec:** [spec/done/feat-x7k2mn-navigation-breadcrumbs/SPEC.md](../spec/done/feat-x7k2mn-navigation-breadcrumbs/SPEC.md)
-- **source:** `js/navbar/breadcrumbs.js`, `js/navbar/breadcrumbLayout.js`, `css/breadcrumbs.css`
+- **source:** `js/navbar/breadcrumbs.js`, `js/navbar/breadcrumbLayout.ts`, `css/breadcrumbs.css`
 - **tests:** unit (1)
 
 ### Restore the previous session on startup
@@ -149,7 +149,7 @@ Reopens the previous tabs and active page instead of starting on an empty surfac
 
 - **id:** `session-restore-on-startup`
 - **spec:** [spec/done/feat-r7p2qv-restore-session-on-startup/SPEC.md](../spec/done/feat-r7p2qv-restore-session-on-startup/SPEC.md)
-- **source:** `js/sessionRestore.js`, `js/util/startupPage.js`
+- **source:** `js/sessionRestore.js`, `js/util/startupPage.ts`
 - **tests:** unit (1)
 
 ### Native ES modules in the main process build
@@ -167,7 +167,7 @@ TypeScript configuration, ambient type definitions, build transpilation, and typ
 
 - **id:** `typescript-support`
 - **spec:** [spec/done/feat-t7s4q9-typescript-support/SPEC.md](../spec/done/feat-t7s4q9-typescript-support/SPEC.md)
-- **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/tsTransform.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
+- **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/tsTransform.ts`, `scripts/registerTs.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
 - **tests:** unit (1)
 
 ## Retired features (3)

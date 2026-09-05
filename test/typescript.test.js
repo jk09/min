@@ -1,9 +1,10 @@
+require('../scripts/registerTs.js')
 const test = require('node:test')
 const assert = require('node:assert')
 const fs = require('fs')
 const path = require('path')
 const ts = require('typescript')
-const tsTransform = require('../scripts/tsTransform.js')
+const tsTransform = require('../scripts/tsTransform')
 
 test('tsconfig.json exists and is properly configured', function () {
   const tsconfigPath = path.resolve(__dirname, '../tsconfig.json')
@@ -91,4 +92,37 @@ test('TypeScript compiler program runs on project without diagnostic errors', fu
   }
 
   assert.strictEqual(errors.length, 0, 'There should be 0 TypeScript errors')
+})
+
+test('converted TypeScript modules load and execute with correct types', function () {
+  const planParser = require('../js/llmPrompt/planParser')
+  const breadcrumbLayout = require('../js/navbar/breadcrumbLayout')
+  const tabLabel = require('../js/navbar/tabLabel')
+  const tabOverflow = require('../js/navbar/tabOverflow')
+  const planningSkill = require('../js/llmPrompt/planningSkill')
+  const agentRegistry = require('../js/llmPrompt/agents/agentRegistry')
+  const searchEngineRegistry = require('../js/llmPrompt/searchEngines/searchEngineRegistry')
+  const ownModelRegistry = require('../js/llmPrompt/ownModels/ownModelRegistry')
+  const startupPage = require('../js/util/startupPage')
+  const buildInfo = require('../js/llmPrompt/buildInfo')
+
+  assert.strictEqual(typeof planParser.parsePlan, 'function')
+  assert.strictEqual(typeof breadcrumbLayout.computeVisibleBreadcrumbs, 'function')
+  assert.strictEqual(typeof tabLabel.getTabLabel, 'function')
+  assert.strictEqual(typeof tabOverflow.computeVisibleTabs, 'function')
+  assert.strictEqual(typeof planningSkill.buildSystemPrompt, 'function')
+  assert.strictEqual(typeof agentRegistry.getDefault, 'function')
+  assert.strictEqual(typeof searchEngineRegistry.getDefault, 'function')
+  assert.strictEqual(typeof ownModelRegistry.getDefault, 'function')
+  assert.strictEqual(typeof startupPage.resolveStartupPageURL, 'function')
+  assert.strictEqual(typeof buildInfo.formatLabel, 'function')
+
+  const agent = agentRegistry.getDefault()
+  assert.ok(agent && agent.id === 'claude', 'Agent registry returns default agent')
+
+  const searchEngine = searchEngineRegistry.getDefault()
+  assert.ok(searchEngine && searchEngine.id === 'bing', 'Search engine registry returns default engine')
+
+  const ownModel = ownModelRegistry.getDefault()
+  assert.ok(ownModel && ownModel.id === 'configured', 'Own model registry returns default configured model')
 })

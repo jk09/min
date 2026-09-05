@@ -1,12 +1,29 @@
 /* pure layout/label calculations for the breadcrumbs bar - no DOM access, so this stays testable */
 
-const MAX_LABEL_LENGTH = 40
+export const MAX_LABEL_LENGTH: number = 40
+
+export interface BreadcrumbEntry {
+  title?: string | null
+  url?: string | null
+}
+
+export interface VisibleBreadcrumbsOptions {
+  itemWidths?: number[]
+  containerWidth?: number
+  overflowWidth?: number
+}
+
+export interface VisibleBreadcrumbsResult {
+  startIndex: number
+  visibleCount: number
+  hiddenCount: number
+}
 
 /*
 Derives a short, human-readable label for a navigation history entry.
 Prefers the page title, falling back to the URL's hostname, and finally the raw URL.
 */
-function getBreadcrumbLabel (entry) {
+export function getBreadcrumbLabel (entry?: BreadcrumbEntry | null): string {
   if (!entry) {
     return ''
   }
@@ -33,7 +50,11 @@ Decides which breadcrumb items fit in the available width.
 Items are kept starting from the deepest (last) one, truncating the shallowest (first) ones first,
 so the most recently navigated pages always stay visible.
 */
-function computeVisibleBreadcrumbs ({ itemWidths, containerWidth, overflowWidth = 0 }) {
+export function computeVisibleBreadcrumbs ({
+  itemWidths,
+  containerWidth,
+  overflowWidth = 0
+}: VisibleBreadcrumbsOptions): VisibleBreadcrumbsResult {
   const widths = Array.isArray(itemWidths) ? itemWidths : []
   const itemCount = widths.length
   const available = Math.max(0, Number(containerWidth) || 0)

@@ -74,7 +74,7 @@
     "postinstall": "node ./scripts/setupDevEnv.js",
     "typecheck": "tsc --noEmit",
     "test": "npm run verify:features && standard --verbose js/**/*.js main/*.js",
-    "test:unit": "npm run verify:features && node --test test/*.test.js",
+    "test:unit": "npm run verify:features && node -r ./scripts/registerTs.js --test test/*.test.js",
     "verify:features": "node ./scripts/verifyFeatures.js",
     "features:docs": "node ./scripts/featureDocs.js",
     "features:context": "node ./scripts/featureDocs.js",

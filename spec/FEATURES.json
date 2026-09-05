@@ -30,8 +30,8 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:34a1919d48a18ab2453dfd7e9fcdf0b8575e04f7ce5ce2ee4fcc7fc3317bde64",
-      "lastVerified": "2026-09-03"
+      "sourceHash": "sha256:f514cdc77575cb1081a52c16d2872b324315b9380cf60eacddfca5c9f8cca253",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "prompt-panel",
@@ -101,7 +101,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:4fcb8dad65ee6e9e92ee2b4f0395f292de7001808316d6e82b32e232366f0f6b",
+      "sourceHash": "sha256:771077106acb3175577813e0588b1758766a5dcec64479e25e2beec119255994",
       "lastVerified": "2026-09-05"
     },
     {
@@ -115,8 +115,8 @@
       "removalReason": null,
       "userVisible": true,
       "sourceFiles": [
-        "scripts/buildInfo.js",
-        "js/llmPrompt/buildInfo.js"
+        "scripts/buildInfo.ts",
+        "js/llmPrompt/buildInfo.ts"
       ],
       "tests": {
         "unit": [
@@ -128,8 +128,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ee3220f4c7c85bc018a2b9d25226bc1614cea4cf407086796361d7b4eb94ad23",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:6cb2479983af0edc2c63bf24c31e06fab542a1d3d37c62cbd400cd4c03539b9e",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "prompt-debug-tab",
@@ -155,7 +155,7 @@
       },
       "requiredTiers": [],
       "sourceHash": "sha256:38e63cb45a0b932cba990730551e15f9e27ac1c26ec41a11ad198569fa99bb36",
-      "lastVerified": "2026-08-23"
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "nl-browser-commands",
@@ -168,9 +168,9 @@
       "removalReason": null,
       "userVisible": true,
       "sourceFiles": [
-        "js/llmPrompt/planningSkill.js",
-        "js/llmPrompt/planParser.js",
-        "js/llmPrompt/ownModels/ownModelRegistry.js"
+        "js/llmPrompt/planningSkill.ts",
+        "js/llmPrompt/planParser.ts",
+        "js/llmPrompt/ownModels/ownModelRegistry.ts"
       ],
       "tests": {
         "unit": [],
@@ -178,8 +178,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:f97e0f9e6427fe7c8f54603a6f0dd9a4f697efa2379d4532ede88f46498ff6b7",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:d04e0073f61ac573859af9d2a6fdbd44773d2231f9449f4e5adf314f2fc2b0c8",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "prompt-plaintext-search",
@@ -205,7 +205,7 @@
         "unit"
       ],
       "sourceHash": "sha256:f2e8f6f6c1ec28a81d13966bd1d7626dc7ddc0b684ad9ab83dc0503571a45ad0",
-      "lastVerified": "2026-08-23"
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "ai-agent-handoff",
@@ -218,7 +218,7 @@
       "removalReason": null,
       "userVisible": true,
       "sourceFiles": [
-        "js/llmPrompt/agents/agentRegistry.js"
+        "js/llmPrompt/agents/agentRegistry.ts"
       ],
       "tests": {
         "unit": [],
@@ -226,8 +226,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:9870d1812d665a4060d77cbd773978c8345131bce3158fd19ec82f1932ec4827",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:bfda1b3b7daa7f3c7ff130a83c8f4dfa8e286ef11a356415efd8c10afd712243",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "prompt-search-engine-selector",
@@ -240,7 +240,7 @@
       "removalReason": null,
       "userVisible": true,
       "sourceFiles": [
-        "js/llmPrompt/searchEngines/searchEngineRegistry.js"
+        "js/llmPrompt/searchEngines/searchEngineRegistry.ts"
       ],
       "tests": {
         "unit": [],
@@ -248,8 +248,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:47bf0bec9f939f0de2f3cd75bc5d73193e921e0116383018bd115142ee05deb6",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:4144b3c6b8361f552788af571527e3d367252d5781df7927bffdb0785c9979a8",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "prompt-shortcut-url-navigation",
@@ -299,7 +299,7 @@
       },
       "requiredTiers": [],
       "sourceHash": "sha256:41f5c61f5361ca8296249ad5bc3e97b7f634806a2c5b74b0d8838669954fc8ad",
-      "lastVerified": "2026-08-23"
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "simplified-browser-controls",
@@ -321,7 +321,7 @@
       },
       "requiredTiers": [],
       "sourceHash": "sha256:01f605b73e69f7a6791cc9cd7c22f57e6f24b05b6f8d3b6e55343149c0e20a0b",
-      "lastVerified": "2026-08-23"
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "fixed-width-tabs",
@@ -335,9 +335,9 @@
       "userVisible": true,
       "sourceFiles": [
         "js/navbar/tabBar.js",
-        "js/navbar/tabLabel.js",
+        "js/navbar/tabLabel.ts",
         "js/navbar/tabColor.js",
-        "js/navbar/tabOverflow.js",
+        "js/navbar/tabOverflow.ts",
         "js/navbar/tabOverflowPanel.js",
         "css/tabBar.css"
       ],
@@ -351,8 +351,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:04eed39147b51b1777f57993d0575747d01e0022e9ca53830430cb845dabaf50",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:0518fc974d45157bce0029ae822cca90fe99b8c5c5c9151fabd1fc0219a40189",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "insecure-tab-indicator",
@@ -373,8 +373,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:9beb8a35d2a38c494caf7e919021a5adeb5ffbf708355a9403f69c2ca756a1d1",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:8ed3875824d9eb85e8482440b8c20b6c54ad461cb573545ea8c5c709b6f3f039",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "tabbar-drag-region",
@@ -396,7 +396,7 @@
       },
       "requiredTiers": [],
       "sourceHash": "sha256:74295d5f8cfb8436608e74e6aa4650abaa49c18ff8e2b84e08bf0c277757784d",
-      "lastVerified": "2026-08-23"
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "nav-breadcrumbs",
@@ -410,7 +410,7 @@
       "userVisible": true,
       "sourceFiles": [
         "js/navbar/breadcrumbs.js",
-        "js/navbar/breadcrumbLayout.js",
+        "js/navbar/breadcrumbLayout.ts",
         "css/breadcrumbs.css"
       ],
       "tests": {
@@ -423,8 +423,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:51a62bc814f19e56cfd24879635c6fe8055ddcef9f6977f98eb26b7adc150194",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:4a79b1c11e30125371fe33fc1c4ca3c1b2a2ff74275879c3f318e042987edbe7",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "session-restore-on-startup",
@@ -438,7 +438,7 @@
       "userVisible": true,
       "sourceFiles": [
         "js/sessionRestore.js",
-        "js/util/startupPage.js"
+        "js/util/startupPage.ts"
       ],
       "tests": {
         "unit": [
@@ -450,8 +450,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:664f5c76b5cc7443368c2695d379a7ce3ae55643f97af50ebf4d12bee8c1699a",
-      "lastVerified": "2026-08-23"
+      "sourceHash": "sha256:da42fe73e62136b4aecd70b5b885e630e4382a046b93f263123233e550c95cc4",
+      "lastVerified": "2026-09-05"
     },
     {
       "id": "esm-module-refactor",
@@ -473,7 +473,7 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:643b0dd1590629e0fed2756a880105f74106db3af5640c3af325b11b0f7e0c7f",
+      "sourceHash": "sha256:4f43730ef61e35213dde2e0b2ce31e77f5d1aaf126fa2f0f980aa14fb38f1f01",
       "lastVerified": "2026-09-05"
     },
     {
@@ -491,7 +491,8 @@
         "types/globals.d.ts",
         "types/min.d.ts",
         "types/modules.d.ts",
-        "scripts/tsTransform.js",
+        "scripts/tsTransform.ts",
+        "scripts/registerTs.js",
         "scripts/buildBrowser.js",
         "scripts/buildPreload.js"
       ],
@@ -505,7 +506,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:7581aa6da28ab3792cc6bdb542f245ad1f9a75d4d79119b71131a94654ef1927",
+      "sourceHash": "sha256:ff42d9323348cd592d04164f41846fb99221dcffdea6ff48c862249e44fdb3e9",
       "lastVerified": "2026-09-05"
     },
     {
