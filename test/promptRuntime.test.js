@@ -150,7 +150,7 @@ test('plan parser rejects malformed and unsafe output', function () {
     assert.strictEqual(planParser.parsePlan(JSON.stringify(tooMany), ['test.read']).errorCode, 'plan_too_long')
 })
 
-test('/b system prompt lists the tool catalog and instructs JSON-only replies', function () {
+test('LLM Prompt system prompt lists the tool catalog and instructs JSON-only replies', function () {
     const catalog = toolRegistry.getCatalog().filter(tool => tool.id === 'test.read')
     const system = planningSkill.buildSystemPrompt(catalog)
 
@@ -162,14 +162,14 @@ test('/b system prompt lists the tool catalog and instructs JSON-only replies', 
     assert.match(system, /tabs\.close/i)
 })
 
-test('/b outcome summary combines the plan message with a step count', function () {
+test('LLM Prompt outcome summary combines the plan message with a step count', function () {
     const plan = { message: 'Opened 2 tabs.', toolCalls: [{ tool: 'tabs.open', args: {} }, { tool: 'tabs.open', args: {} }] }
     const planResult = { ok: true, steps: [{ tool: 'tabs.open' }, { tool: 'tabs.open' }] }
 
     assert.strictEqual(planningSkill.describePlanOutcome(plan, planResult), 'Opened 2 tabs. 2 steps completed.')
 })
 
-test('a well-formed /b-style plan executes through the tool registry end to end', async function () {
+test('a well-formed browser-action plan executes through the tool registry end to end', async function () {
     const raw = '{"message":"Reading it back.","toolCalls":[{"tool":"test.read","args":{"value":"hi"}}]}'
     const catalog = toolRegistry.getCatalog().map(tool => tool.id)
     const parsed = planParser.parsePlan(raw, catalog)
@@ -182,7 +182,7 @@ test('a well-formed /b-style plan executes through the tool registry end to end'
     assert.strictEqual(planningSkill.describePlanOutcome(parsed.plan, planResult), 'Reading it back. 1 step completed.')
 })
 
-test('the /b debug record captures a successful run and nothing else', function () {
+test('the LLM Prompt debug record captures a successful run and nothing else', function () {
     const record = planningSkill.buildDebugRecord({
         instruction: 'open example.com',
         ownModelId: 'configured',
@@ -199,7 +199,7 @@ test('the /b debug record captures a successful run and nothing else', function 
     assert.strictEqual(JSON.parse(JSON.stringify(record)).trace[0].ok, true)
 })
 
-test('the /b debug record captures a failure reason and never carries credential-shaped fields', function () {
+test('the LLM Prompt debug record captures a failure reason and never carries credential-shaped fields', function () {
     const record = planningSkill.buildDebugRecord({
         instruction: 'do something',
         ownModelId: 'configured',

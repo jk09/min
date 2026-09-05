@@ -379,8 +379,8 @@ function updateDebugToggleLabel(els) {
     els.debugToggle.classList.toggle('active', state.debugEnabled)
     els.debugToggle.setAttribute('aria-pressed', String(state.debugEnabled))
     els.debugToggle.title = state.debugEnabled
-        ? 'Debug: on - /b opens a debug tab with the full model exchange'
-        : 'Debug: off - turn on to inspect /b runs in a dedicated tab'
+        ? 'Debug: on - LLM Prompt opens a debug tab with the full model exchange'
+        : 'Debug: off - turn on to inspect LLM Prompt runs in a dedicated tab'
     els.debugLink.hidden = !state.debugEnabled
 }
 
