@@ -45,13 +45,13 @@ You can find prebuilt binaries for Min [here](https://github.com/minbrowser/min/
 * Min supports installing userscripts to extend its functionality. See the [userscript documentation](https://github.com/minbrowser/min/wiki/userscripts) for instructions on writing userscripts, as well as a collection of scripts written by the community.
 * If you have questions about using Min, need help getting started with development, or want to talk about what we're working on, join our [Discord server](https://discord.gg/bRpqjJ4).
 
-## LLM prompt: `//<command>` browser commands
+## LLM prompt and browser commands
 
-Min's LLM prompt (open it with `Ctrl+/`/`Cmd+/`, or the **Ask** button in the status bar) supports a `//<instruction>` command that turns a plain-language instruction into browser actions - e.g. `//open google.com and bing.com in new tabs`, `//find pages in my history about tax return forms`, `//close all tabs opened for a search`.
+Min's prompt (open it with `Ctrl+/`/`Cmd+/`, or the **Ask** button in the status bar) has a mode selector with **Browser** and **LLM Prompt** options. In **LLM Prompt** mode, any text is sent to the configured model as-is and can turn a plain-language instruction into browser actions - e.g. `open google.com and bing.com in new tabs`, `find pages in my history about tax return forms`, `close all tabs opened for a search`.
 
-Typing an address opens it directly, plain text without a leading `/` searches your configured search engine, `//<instruction>` is sent to the model, and `/<skill-name>` invokes a named skill.
+In **Browser** mode, typing an address opens it directly and any other text searches your configured search engine. The mode selector, rather than a command prefix, determines whether text goes to the browser handler or the model.
 
-`//` uses a bring-your-own-model (BYOM) approach: Min doesn't ship or train a model, it calls whichever model you've already configured. The "Own model" selector in the prompt toolbar lets you pick which model handles `//`; only **Configured model** is functional today (the others are placeholders for future providers).
+LLM Prompt mode uses a bring-your-own-model (BYOM) approach: Min doesn't ship or train a model, it calls whichever model you've already configured. The "Own model" selector in the prompt toolbar lets you pick which model handles the prompt; only **Configured model** is functional today (the others are placeholders for future providers).
 
 ### Configuring a model with Ollama (local, no API key)
 

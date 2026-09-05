@@ -5,6 +5,7 @@ const Module = require('node:module')
 function loadPromptRouter() {
     const registeredTools = new Map()
     let llmCalls = 0
+    const llmPrompts = []
     const searchCalls = []
     const openCalls = []
 
@@ -26,6 +27,7 @@ function loadPromptRouter() {
         id: 'b',
         kind: 'llm',
         run: async function (input, context) {
+            llmPrompts.push(input.argsText)
             const answer = await context.llm.complete({ prompt: input.argsText })
             return { message: answer.ok ? answer.output : 'no model configured' }
         }
@@ -85,7 +87,7 @@ function loadPromptRouter() {
     const router = require(routerPath)
     Module._load = originalLoad
 
-    return { router, searchCalls, openCalls, getLlmCalls: () => llmCalls }
+    return { router, searchCalls, openCalls, llmPrompts, getLlmCalls: () => llmCalls }
 }
 
 test('possible URLs, including protocol-less domains, open in a new tab without a search', async function () {
@@ -122,15 +124,19 @@ test('LLM mode feeds ordinary prompt text to the configured model', async functi
     assert.strictEqual(runtime.getLlmCalls(), 1)
 })
 
-test('browser mode treats slash text as a search and LLM mode retains explicit skills', async function () {
+test('mode selection controls routing without interpreting slash prefixes', async function () {
     const runtime = loadPromptRouter()
     const browserResult = await runtime.router.handlePrompt('/not-a-skill', { scope: 'mutate', mode: 'browser' })
-    const skillResult = await runtime.router.handlePrompt('/known args', { scope: 'mutate', mode: 'llm' })
+    const slashResult = await runtime.router.handlePrompt('/known args', { scope: 'mutate', mode: 'llm' })
+    const doubleSlashResult = await runtime.router.handlePrompt('//open example.com', { scope: 'mutate', mode: 'llm' })
 
     assert.strictEqual(browserResult.ok, true)
     assert.strictEqual(browserResult.route, 'search')
-    assert.strictEqual(skillResult.route, 'skill')
-    assert.strictEqual(skillResult.skillId, 'known')
+    assert.strictEqual(slashResult.route, 'skill')
+    assert.strictEqual(slashResult.skillId, 'b')
+    assert.strictEqual(doubleSlashResult.route, 'skill')
+    assert.strictEqual(doubleSlashResult.skillId, 'b')
     assert.deepStrictEqual(runtime.searchCalls, [{ query: '/not-a-skill' }])
-    assert.strictEqual(runtime.getLlmCalls(), 0)
+    assert.deepStrictEqual(runtime.llmPrompts, ['/known args', '//open example.com'])
+    assert.strictEqual(runtime.getLlmCalls(), 2)
 })
