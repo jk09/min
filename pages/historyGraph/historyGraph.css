@@ -21,8 +21,13 @@ body.dark-mode {
   box-sizing: border-box;
   min-height: 100vh;
   max-width: none;
+  background: #eee;
   padding: 2rem;
   transform: none;
+}
+
+body.dark-mode #page-wrapper {
+  background: rgb(33, 37, 43);
 }
 
 .history-header {
