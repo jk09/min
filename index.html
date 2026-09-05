@@ -74,22 +74,32 @@
     <div id="mac-window-drag-area"></div>
     <button id="menu-button" class="navbar-action-button i carbon:overflow-menu-vertical" data-label="openMenu"
       tabindex="-1"></button>
-    <div id="toolbar-navigation-buttons" hidden>
-      <button id="back-button" class="navbar-action-button i carbon:chevron-left" data-label="goBack"
-        tabindex="-1"></button>
-      <button id="forward-button" class="navbar-action-button i carbon:chevron-right" data-label="goForward"
-        tabindex="-1"></button>
-    </div>
     <div id="tabs">
       <div id="tabs-inner" role="tablist" class="has-thin-scrollbar"></div>
       <button id="tab-overflow-label" hidden tabindex="0"></button>
     </div>
+    <div id="breadcrumbs-bar" class="theme-text-color" role="navigation">
+      <button id="session-sidebar-toggle" class="navbar-action-button i carbon:menu" type="button"
+        aria-label="Show session sidebar" aria-pressed="false" title="Show session sidebar"></button>
+      <button id="breadcrumbs-overflow-button" hidden tabindex="0"></button>
+      <div id="breadcrumbs-inner" role="list"></div>
+    </div>
+    <div id="windows-window-drag-area" aria-hidden="true"></div>
   </div>
 
-  <div id="breadcrumbs-bar" hidden class="theme-background-color theme-text-color" role="navigation">
-    <button id="breadcrumbs-overflow-button" hidden tabindex="0"></button>
-    <div id="breadcrumbs-inner" role="list"></div>
-  </div>
+  <aside id="session-sidebar" class="theme-background-color theme-text-color has-thin-scrollbar" hidden
+    aria-label="Session pages">
+    <div id="session-sidebar-header">
+      <span>Session</span>
+      <button id="session-sidebar-options-toggle" class="navbar-action-button i carbon:overflow-menu-vertical"
+        type="button" aria-label="Session sidebar options" aria-expanded="false" title="Session sidebar options"></button>
+      <div id="session-sidebar-options" hidden role="menu" aria-label="Session sidebar options">
+        <button type="button" role="menuitemradio" data-sidebar-position="left" aria-checked="true">Left side</button>
+        <button type="button" role="menuitemradio" data-sidebar-position="right" aria-checked="false">Right side</button>
+      </div>
+    </div>
+    <div id="session-sidebar-list" role="list"></div>
+  </aside>
 
   <div id="overlay"></div>
 

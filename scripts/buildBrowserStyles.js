@@ -9,6 +9,7 @@ const modules = [
   'css/modal.css',
   'css/tabBar.css',
   'css/breadcrumbs.css',
+  'css/sessionSidebar.css',
   'css/webviews.css',
   'css/llmPrompt.css',
   'css/listItem.css',
