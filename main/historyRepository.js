@@ -43,9 +43,26 @@ class HistoryRepository {
     return Promise.all(rows.map(async page => ({ ...page, stableId: page.stable_id, canonicalURL: page.canonical_url, visitCount: page.visit_count, lastVisit: page.last_visit, contentDigest: page.content_digest, notes: await this.db.all('SELECT id,text,updated_at AS updatedAt FROM notes WHERE page_id=?', page.id), relationshipCount: (await this.db.get('SELECT COUNT(*) AS count FROM navigation_edges WHERE source_page_id=? OR destination_page_id=?', page.id, page.id)).count })))
   }
 
+  async saveNote (data) {
+    const page = await this.db.get('SELECT * FROM pages WHERE url=?', data.url)
+    if (!page) return null
+    const now = Date.now()
+    let note = data.id ? await this.db.get('SELECT * FROM notes WHERE id=? AND page_id=?', data.id, page.id) : await this.db.get('SELECT * FROM notes WHERE page_id=? ORDER BY updated_at DESC LIMIT 1', page.id)
+    if (note) {
+      await this.db.run('UPDATE notes SET text=?,updated_at=? WHERE id=?', data.text, now, note.id)
+    } else {
+      const result = await this.db.run('INSERT INTO notes (stable_id,page_id,text,updated_at) VALUES (?,?,?,?)', crypto.randomUUID(), page.id, data.text, now)
+      note = await this.db.get('SELECT * FROM notes WHERE id=?', result.lastID)
+    }
+    await this.index(page)
+    await this.db.run('INSERT INTO sync_changes (change_id,entity_type,entity_stable_id,operation,changed_at,tombstone) VALUES (?,?,?,?,?,0)', crypto.randomUUID(), 'note', note.stable_id, 'upsert', now)
+    return note.id
+  }
+
   async request (request) {
     const data = request.pageData || {}
     if (request.action === 'updatePlace') return this.save(data, request.flags)
+    if (request.action === 'addHistoryNote') return this.saveNote(data)
     if (request.action === 'searchHistoryGraph' || request.action === 'searchPlaces' || request.action === 'searchPlacesFullText') return this.search(request.text, request.options && request.options.limit)
     if (request.action === 'getAllPlaces' || request.action === 'getPlaceSuggestions') return this.search('', 100)
     return null
