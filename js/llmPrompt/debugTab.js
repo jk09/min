@@ -1,5 +1,5 @@
 /*
-Publishes /b debug records to a dedicated internal tab (min:llmPromptDebug).
+Publishes LLM Prompt debug records to a dedicated internal tab (min:llmPromptDebug).
 Reuses an already-open debug tab instead of opening a new one each run.
 */
 

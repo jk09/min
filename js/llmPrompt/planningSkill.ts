@@ -90,8 +90,8 @@ export function describePlanOutcome (plan: Plan, planResult: PlanExecutionResult
 }
 
 /*
-Builds the /b debug record shown in the debug tab. Only ever includes values
-already computed by the /b skill (instruction, prompts, parsed plan, tool trace)
+Builds the LLM Prompt debug record shown in the debug tab. Only ever includes
+values already computed by the browser planning skill (instruction, prompts, parsed plan, tool trace)
 - never provider credentials, which never reach this module in the first place.
 */
 export function buildDebugRecord (input: DebugRecordInput): DebugRecord {

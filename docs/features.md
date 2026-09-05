@@ -35,9 +35,9 @@ Shows the short commit hash and build metadata of the running build in the statu
 - **source:** `scripts/buildInfo.ts`, `js/llmPrompt/buildInfo.ts`
 - **tests:** unit (1)
 
-### Debug tab for the /b command
+### LLM Prompt debug tab
 
-Dedicated internal tab rendering the full model exchange and tool-call trace of a /b run.
+Dedicated internal tab rendering the full model exchange and tool-call trace of an LLM Prompt run.
 
 - **id:** `prompt-debug-tab`
 - **spec:** [spec/done/feat-d7k2mx-b-command-debug-tab/SPEC.md](../spec/done/feat-d7k2mx-b-command-debug-tab/SPEC.md)

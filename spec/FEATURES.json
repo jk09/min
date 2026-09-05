@@ -101,7 +101,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:771077106acb3175577813e0588b1758766a5dcec64479e25e2beec119255994",
+      "sourceHash": "sha256:ddc72844535efdb41afbf556edb8771aaa5d698a9835d70d584793f9ac460e31",
       "lastVerified": "2026-09-05"
     },
     {
@@ -133,8 +133,8 @@
     },
     {
       "id": "prompt-debug-tab",
-      "title": "Debug tab for the /b command",
-      "summary": "Dedicated internal tab rendering the full model exchange and tool-call trace of a /b run.",
+      "title": "LLM Prompt debug tab",
+      "summary": "Dedicated internal tab rendering the full model exchange and tool-call trace of an LLM Prompt run.",
       "status": "active",
       "specPath": "spec/done/feat-d7k2mx-b-command-debug-tab/SPEC.md",
       "supersedes": [],
@@ -154,7 +154,7 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:38e63cb45a0b932cba990730551e15f9e27ac1c26ec41a11ad198569fa99bb36",
+      "sourceHash": "sha256:fd3caaa5f7cc6a32f708ddfdcb337e718840de47a67397ff2a26f7dd5ae8d70e",
       "lastVerified": "2026-09-05"
     },
     {
@@ -178,7 +178,7 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:d04e0073f61ac573859af9d2a6fdbd44773d2231f9449f4e5adf314f2fc2b0c8",
+      "sourceHash": "sha256:428762d8784de61b3bd14a889259ac57e983b11d84de979e847c7e0698996060",
       "lastVerified": "2026-09-05"
     },
     {

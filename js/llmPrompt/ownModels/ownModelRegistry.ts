@@ -1,6 +1,6 @@
 /*
 Registry of "own model" options the LLM prompt toolbar lets a user pick from to
-handle /b <command> planning (bring-your-own-model - see spec/backlog/feat-h4qz2r-nl-browser-commands/SPEC.md).
+handle browser-action planning (bring-your-own-model - see spec/backlog/feat-h4qz2r-nl-browser-commands/SPEC.md).
 
 Only 'configured' is functional today: it uses whatever provider the user has
 already set up for the whole LLM prompt (llmProvider/llmModel/llmBaseURL/

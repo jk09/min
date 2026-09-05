@@ -1,4 +1,4 @@
-document.title = '/b debug | Min'
+document.title = 'LLM Prompt debug | Min'
 
 var emptyState = document.getElementById('llm-debug-empty')
 var content = document.getElementById('llm-debug-content')
