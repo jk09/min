@@ -1,4 +1,21 @@
+// @ts-check
+
 /* Built-in tools: thin, validated wrappers around existing Min subsystems. */
+
+/**
+ * @typedef {'string' | 'number' | 'boolean' | 'array' | 'object'} ToolParameterType
+ * @typedef {'read' | 'mutate'} ToolScope
+ * @typedef {{ type: ToolParameterType, required?: boolean, default?: unknown, description?: string }} ToolParameter
+ * @typedef {{ id: string, scope: ToolScope, description: string, parameters: Record<string, ToolParameter>, handler: (args: any) => any }} BrowserTool
+ * @typedef {{ url: string, background: boolean }} OpenTabArgs
+ * @typedef {{ tabId: string }} CloseTabArgs
+ * @typedef {{ urls: string[], background: boolean }} OpenManyTabsArgs
+ * @typedef {{ query: string, background: boolean }} SearchWebArgs
+ * @typedef {{ query: string, limit: number }} SearchHistoryArgs
+ * @typedef {{ tabId?: string }} GetPageTextArgs
+ * @typedef {{ key: string }} GetSettingArgs
+ * @typedef {{ key: string, value: string }} SetSettingArgs
+ */
 
 const browserUI = require('browserUI.js')
 const searchEngine = require('util/searchEngine.js')
@@ -12,11 +29,13 @@ const WRITABLE_SETTINGS = ['llmProvider', 'llmModel']
 const MAX_PAGE_TEXT_LENGTH = 12000
 const MAX_TABS_OPEN_MANY = 10
 
+/** @param {string} query */
 function buildSearchURL (query) {
     const engine = searchEngine.getCurrent()
     return engine.searchURL.replace('%s', encodeURIComponent(query))
 }
 
+/** @param {import('../../../types/min').TabItem} tab */
 function describeTab (tab) {
     return {
         id: tab.id,
@@ -26,12 +45,17 @@ function describeTab (tab) {
     }
 }
 
+/**
+ * @param {string} url
+ * @param {boolean} background
+ */
 function openTab (url, background) {
     const tabId = tabs.add({ url: urlParser.parse(url) })
     browserUI.addTab(tabId, { openPrompt: false, openInBackground: Boolean(background) })
     return tabId
 }
 
+/** @param {string} tabId */
 function getPageText (tabId) {
     return new Promise(function (resolve, reject) {
         webviews.callAsync(tabId, 'executeJavaScript', 'document.body ? document.body.innerText : ""', function (err, result) {
@@ -44,6 +68,7 @@ function getPageText (tabId) {
     })
 }
 
+/** @type {BrowserTool[]} */
 const browserTools = [
     {
         id: 'tabs.list',
@@ -51,7 +76,7 @@ const browserTools = [
         description: 'List the tabs open in the current task.',
         parameters: {},
         handler: function () {
-            return { tabs: tabs.get().map(describeTab) }
+            return { tabs: tabs.map(describeTab) }
         }
     },
     {
@@ -62,6 +87,7 @@ const browserTools = [
             url: { type: 'string', required: true, description: 'the URL or search term to open' },
             background: { type: 'boolean', default: false, description: 'open without switching to the tab' }
         },
+        /** @param {OpenTabArgs} args */
         handler: function (args) {
             return { tabId: openTab(args.url, args.background), url: args.url }
         }
@@ -73,6 +99,7 @@ const browserTools = [
         parameters: {
             tabId: { type: 'string', required: true, description: 'id of the tab to close' }
         },
+        /** @param {CloseTabArgs} args */
         handler: function (args) {
             // Model-generated plans occasionally use placeholders; skip these safely.
             if (args.tabId === '*' || args.tabId === '<id>' || args.tabId === 'any') {
@@ -94,6 +121,7 @@ const browserTools = [
             urls: { type: 'array', required: true, description: 'list of URLs or search terms to open' },
             background: { type: 'boolean', default: false, description: 'open without switching to the tabs' }
         },
+        /** @param {OpenManyTabsArgs} args */
         handler: function (args) {
             if (!Array.isArray(args.urls) || args.urls.length === 0) {
                 throw new Error('urls must be a non-empty list')
@@ -114,6 +142,7 @@ const browserTools = [
             query: { type: 'string', required: true, description: 'what to search for' },
             background: { type: 'boolean', default: false, description: 'open without switching to the tab' }
         },
+        /** @param {SearchWebArgs} args */
         handler: function (args) {
             const url = buildSearchURL(args.query)
             openTab(url, args.background)
@@ -128,6 +157,7 @@ const browserTools = [
             query: { type: 'string', required: true, description: 'text to look for' },
             limit: { type: 'number', default: 10, description: 'maximum number of results' }
         },
+        /** @param {SearchHistoryArgs} args */
         handler: async function (args) {
             const results = await places.searchHistoryGraph(args.query)
             return { results: (results || []).slice(0, args.limit).map(place => ({
@@ -152,6 +182,7 @@ const browserTools = [
             query: { type: 'string', required: true, description: 'text to look for' },
             limit: { type: 'number', default: 10, description: 'maximum number of results' }
         },
+        /** @param {SearchHistoryArgs} args */
         handler: async function (args) {
             const results = await places.searchHistoryGraph(args.query)
             return { results: (results || []).slice(0, args.limit).map(place => ({
@@ -172,6 +203,7 @@ const browserTools = [
         parameters: {
             tabId: { type: 'string', description: 'id of the tab to read' }
         },
+        /** @param {GetPageTextArgs} args */
         handler: async function (args) {
             const tabId = args.tabId || tabs.getSelected()
             const tab = tabs.get(tabId)
@@ -196,6 +228,7 @@ const browserTools = [
         parameters: {
             key: { type: 'string', required: true, description: 'setting name' }
         },
+        /** @param {GetSettingArgs} args */
         handler: function (args) {
             if (!READABLE_SETTINGS.includes(args.key)) {
                 throw new Error('setting "' + args.key + '" is not readable from the prompt')
@@ -211,6 +244,7 @@ const browserTools = [
             key: { type: 'string', required: true, description: 'setting name' },
             value: { type: 'string', required: true, description: 'new value' }
         },
+        /** @param {SetSettingArgs} args */
         handler: function (args) {
             if (!WRITABLE_SETTINGS.includes(args.key)) {
                 throw new Error('setting "' + args.key + '" is not writable from the prompt')

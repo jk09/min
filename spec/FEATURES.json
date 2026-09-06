@@ -43,7 +43,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:16883dc9b62af3472628594b91dd518f8b42087cd5ada6e3262ade21bfe69288",
+      "sourceHash": "sha256:b1b3ac3fd8d416eb769673e7c005a4d1635224beb0a01443952a8b80afdab634",
       "lastVerified": "2026-09-06"
     },
     {
@@ -95,8 +95,8 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:77a573c7f5261394d027c873d5a7b3cf08781541593828317bbfbd72519fe9b0",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:ef1b210208c1925f6c6bf5f8b430d48839ccb6534f13ff90fea4d75aec0fbedd",
+      "lastVerified": "2026-09-06"
     },
     {
       "id": "prompt-panel",
