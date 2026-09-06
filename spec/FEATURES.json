@@ -605,18 +605,29 @@
       "userVisible": false,
       "sourceFiles": [
         "main/windowUtils.js",
+        "main/chromeCapabilities.js",
         "main/remoteActions.js",
+        "main/remoteMenu.js",
+        "main/viewManager.js",
+        "main/download.js",
+        "main/llmEngine.js",
+        "main/main.js",
         "scripts/buildPreload.js",
         "js/preload/browserChrome.js",
         "js/preload/chromeBridgeContract.ts",
         "js/windowControls.js",
         "js/webviewMenu.js",
+        "js/webviews.js",
+        "js/remoteMenuRenderer.js",
+        "js/downloadManager.js",
+        "js/llmPrompt/engineClient.js",
         "types/globals.d.ts"
       ],
       "tests": {
         "unit": [
           "test/chromeBridgeContract.test.js",
-          "test/chromePreload.test.js"
+          "test/chromePreload.test.js",
+          "test/chromeCapabilities.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -624,7 +635,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:db6627e17fc358599f9ca515fd0d95819d1e291aa3dd5c9218fc34efd561fbaf",
+      "sourceHash": "sha256:52be8a2b239f9907f65f267217336155c6a99f45f020bdae1c24cdea820dbadf",
       "lastVerified": "2026-09-06"
     },
     {

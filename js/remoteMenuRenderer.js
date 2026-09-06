@@ -27,7 +27,7 @@ function open (menuTemplate, x, y) {
     }
   }
 
-  ipc.send('open-context-menu', {
+  window.min.menu.open({
     id: nextMenuId,
     template: prepareToSend(menuTemplate),
     x,
@@ -35,11 +35,13 @@ function open (menuTemplate, x, y) {
   })
 }
 
-ipc.on('context-menu-item-selected', function (e, data) {
-  menuCallbacks[data.menuId][data.itemId]()
+window.min.menu.onItemSelected(function (data) {
+  if (menuCallbacks[data.menuId] && menuCallbacks[data.menuId][data.itemId]) {
+    menuCallbacks[data.menuId][data.itemId]()
+  }
 })
 
-ipc.on('context-menu-will-close', function (e, data) {
+window.min.menu.onWillClose(function (data) {
   // delay close event until after selected event has been received
   setTimeout(function () {
     delete menuCallbacks[data.menuId]

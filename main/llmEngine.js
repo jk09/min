@@ -1,6 +1,7 @@
 const { ipcMain: ipc } = require('electron')
 const { TextDecoder } = require('util')
 const settings = require('../js/util/settings/settingsMain')
+const { getChromeWindow } = require('./chromeCapabilities')
 const AbortController = global.AbortController
 
 /*
@@ -194,11 +195,13 @@ async function requestCompletion (request, event) {
     }
 }
 
-ipc.handle('llmEngine:getStatus', function () {
+function getStatus (event) {
+    getChromeWindow(event)
     return getEngineStatus()
-})
+}
 
-ipc.handle('llmEngine:complete', async function (event, request = {}) {
+async function complete (event, request = {}) {
+    getChromeWindow(event)
     const prompt = typeof request.prompt === 'string' ? request.prompt.trim() : ''
 
     if (!prompt) {
@@ -214,9 +217,10 @@ ipc.handle('llmEngine:complete', async function (event, request = {}) {
     }
 
     return requestCompletion(Object.assign({}, request, { prompt }), event)
-})
+}
 
-ipc.handle('llmEngine:cancel', function (event, request = {}) {
+function cancel (event, request = {}) {
+    getChromeWindow(event)
     const requestId = typeof request.requestId === 'string' ? request.requestId : null
     const activeRequest = requestId ? activeRequests.get(requestId) : null
 
@@ -227,4 +231,11 @@ ipc.handle('llmEngine:cancel', function (event, request = {}) {
     activeRequest.cancelled = true
     activeRequest.controller.abort()
     return { ok: true }
-})
+}
+
+ipc.handle('llmEngine:getStatus', getStatus)
+ipc.handle('llmEngine:complete', complete)
+ipc.handle('llmEngine:cancel', cancel)
+ipc.handle('chrome:prompt:get-status', getStatus)
+ipc.handle('chrome:prompt:complete', complete)
+ipc.handle('chrome:prompt:cancel', cancel)

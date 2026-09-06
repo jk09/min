@@ -1,5 +1,14 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
+const VIEW_METHODS = Object.freeze([
+  'canGoToOffset', 'copy', 'copyImageAt', 'downloadURL', 'executeJavaScript',
+  'findInPage', 'focus', 'getZoomFactor', 'goBack', 'goForward', 'goToIndex',
+  'goToOffset', 'inspectElement', 'paste', 'pasteAndMatchStyle', 'reload',
+  'reloadIgnoringCache', 'replaceMisspelling', 'savePage', 'send', 'sendToFrame',
+  'setAudioMuted', 'setVisualZoomLevelLimits', 'stop', 'stopFindInPage',
+  'toggleDevTools', 'zoomFactor'
+])
+
 function getArgument (name) {
   const prefix = '--' + name + '='
   const argument = process.argv.find(value => value.startsWith(prefix))
@@ -37,5 +46,57 @@ contextBridge.exposeInMainWorld('min', {
   },
   clipboard: {
     writeText: text => ipcRenderer.invoke('chrome:clipboard:write-text', text)
+  },
+  views: {
+    callMethod: data => {
+      if (!data || !VIEW_METHODS.includes(data.method)) {
+        return Promise.reject(new Error('view method is not allowed'))
+      }
+      return ipcRenderer.send('callViewMethod', data)
+    },
+    capture: data => ipcRenderer.send('getCapture', data),
+    create: data => ipcRenderer.send('createView', data),
+    destroy: id => ipcRenderer.send('destroyView', id),
+    focus: id => ipcRenderer.send('focusView', id),
+    focusMain: () => ipcRenderer.send('focusMainWebContents'),
+    getNavigationHistory: id => ipcRenderer.invoke('getNavigationHistory', id),
+    hideCurrent: () => ipcRenderer.send('hideCurrentView'),
+    loadURL: data => ipcRenderer.send('loadURLInView', data),
+    setBounds: data => ipcRenderer.send('setBounds', data),
+    setCurrent: data => ipcRenderer.send('setView', data),
+    onAsyncCallResult: callback => subscribe('async-call-result', callback),
+    onCapture: callback => subscribe('captureData', callback),
+    onEvent: callback => subscribe('view-event', callback),
+    onIPC: callback => subscribe('view-ipc', callback),
+    onWindowFocus: callback => subscribe('windowFocus', callback)
+  },
+  menu: {
+    onItemSelected: callback => subscribe('context-menu-item-selected', callback),
+    onWillClose: callback => subscribe('context-menu-will-close', callback),
+    open: data => ipcRenderer.send('chrome:menu:open', data)
+  },
+  downloads: {
+    cancel: path => ipcRenderer.send('chrome:downloads:cancel', path),
+    onInfo: callback => subscribe('download-info', callback),
+    open: path => ipcRenderer.invoke('chrome:downloads:open', path),
+    showInFolder: path => ipcRenderer.invoke('chrome:downloads:show-in-folder', path),
+    startFileDrag: path => ipcRenderer.invoke('chrome:downloads:start-file-drag', path)
+  },
+  prompt: {
+    cancel: requestId => ipcRenderer.invoke('chrome:prompt:cancel', { requestId }),
+    complete: request => ipcRenderer.invoke('chrome:prompt:complete', request),
+    getStatus: () => ipcRenderer.invoke('chrome:prompt:get-status'),
+    onProgress: (requestId, callback) => subscribe('llmEngine:progress:' + requestId, callback)
   }
 })
+
+function subscribe (channel, callback) {
+  if (typeof callback !== 'function') {
+    throw new TypeError('listener must be a function')
+  }
+  const listener = function (_event, data) {
+    callback(data)
+  }
+  ipcRenderer.on(channel, listener)
+  return () => ipcRenderer.removeListener(channel, listener)
+}

@@ -2,10 +2,25 @@ const path = require('path')
 const { app, ipcMain: ipc, session } = require('electron')
 const { windows } = require('./windowManagement')
 const { sendIPCToWindow } = require('./windowUtils')
+const { getChromeWindow } = require('./chromeCapabilities')
 
 const currrentDownloadItems = {}
 
 ipc.on('cancelDownload', function (e, path) {
+  getChromeWindow(e)
+  if (typeof path !== 'string' || path.length === 0) {
+    throw new Error('download path must be a non-empty string')
+  }
+  if (currrentDownloadItems[path]) {
+    currrentDownloadItems[path].cancel()
+  }
+})
+
+ipc.on('chrome:downloads:cancel', function (e, path) {
+  getChromeWindow(e)
+  if (typeof path !== 'string' || path.length === 0) {
+    throw new Error('download path must be a non-empty string')
+  }
   if (currrentDownloadItems[path]) {
     currrentDownloadItems[path].cancel()
   }

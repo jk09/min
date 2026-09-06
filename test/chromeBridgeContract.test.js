@@ -7,6 +7,10 @@ test('chrome bridge contract exposes named least-privilege capabilities', functi
   assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.bootstrap, ['appVersion', 'developmentMode', 'platform', 'windowId'])
   assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.window, ['close', 'maximize', 'minimize', 'setFullScreen', 'unmaximize'])
   assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.clipboard, ['readText', 'writeText'])
+  assert.ok(CHROME_BRIDGE_CAPABILITIES.views.includes('onEvent'))
+  assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.menu, ['onItemSelected', 'onWillClose', 'open'])
+  assert.ok(CHROME_BRIDGE_CAPABILITIES.downloads.includes('onInfo'))
+  assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.prompt, ['cancel', 'complete', 'getStatus', 'onProgress'])
   assert.ok(Object.isFrozen(CHROME_BRIDGE_CAPABILITIES))
 
   const capabilityNames = Object.keys(CHROME_BRIDGE_CAPABILITIES)

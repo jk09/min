@@ -4,18 +4,9 @@ Wraps APIs that are only available in the main process in IPC messages, so that 
 
 const { app, ipcMain: ipc, dialog, session, shell } = require('electron')
 const { windows } = require('./windowManagement')
-const { createWindow, getWindowWebContents } = require('./windowUtils')
+const { createWindow } = require('./windowUtils')
+const { getChromeWindow } = require('./chromeCapabilities')
 const { l } = require('./localizationMain')
-
-function getChromeWindow (event) {
-  const windowState = windows.windowFromContents(event.sender)
-
-  if (!windowState || getWindowWebContents(windowState.win) !== event.sender) {
-    throw new Error('chrome capability request rejected for non-chrome sender')
-  }
-
-  return windowState.win
-}
 
 function registerChromeWindowAction (name, action) {
   ipc.handle('chrome:window:' + name, function (event, value) {
@@ -50,7 +41,32 @@ ipc.handle('chrome:clipboard:write-text', function (event, text) {
   require('electron').clipboard.writeText(text)
 })
 
+function requireDownloadPath (event, path) {
+  if (typeof path !== 'string' || path.length === 0) {
+    throw new Error('download path must be a non-empty string')
+  }
+  getChromeWindow(event)
+}
+
+ipc.handle('chrome:downloads:open', function (event, path) {
+  requireDownloadPath(event, path)
+  return shell.openPath(path)
+})
+
+ipc.handle('chrome:downloads:show-in-folder', function (event, path) {
+  requireDownloadPath(event, path)
+  shell.showItemInFolder(path)
+})
+
+ipc.handle('chrome:downloads:start-file-drag', function (event, path) {
+  requireDownloadPath(event, path)
+  return app.getFileIcon(path, {}).then(function (icon) {
+    event.sender.startDrag({ file: path, icon })
+  })
+})
+
 ipc.handle('startFileDrag', function (e, path) {
+  requireDownloadPath(e, path)
   app.getFileIcon(path, {}).then(function (icon) {
     e.sender.startDrag({
       file: path,
@@ -152,6 +168,7 @@ ipc.handle('setFullScreen', function (e, fullScreen) {
 
 //workaround for https://github.com/electron/electron/issues/38540
 ipc.handle('showItemInFolder', function (e, path) {
+  requireDownloadPath(e, path)
   shell.showItemInFolder(path)
 })
 

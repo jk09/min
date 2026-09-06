@@ -15,6 +15,7 @@ const settings = require('../js/util/settings/settingsMain')
 const { windows } = require('./windowManagement')
 const { registerBundleProtocol } = require('./minInternalProtocol')
 const { registryInstaller } = require('./registryConfig')
+const { getChromeWindow } = require('./chromeCapabilities')
 const { buildAppMenu, createDockMenu } = require('./menu')
 const {
   createWindow,
@@ -168,8 +169,14 @@ app.on('activate', function (/* e, hasVisibleWindows */) {
   }
 })
 
-ipc.on('focusMainWebContents', function () {
-  getWindowWebContents(windows.getCurrent()).focus()
+ipc.on('focusMainWebContents', function (event) {
+  getChromeWindow(event)
+  event.sender.focus()
+})
+
+ipc.on('chrome:views:focus-main', function (event) {
+  getChromeWindow(event)
+  event.sender.focus()
 })
 
 ipc.on('showSecondaryMenu', function (event, data) {

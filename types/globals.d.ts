@@ -19,10 +19,47 @@ interface ChromeBridge {
     minimize: () => Promise<void>
     setFullScreen: (enabled: boolean) => Promise<void>
     unmaximize: () => Promise<void>
+    onStateChange: (callback: (state: string) => void) => () => void
   }>
   clipboard: Readonly<{
     readText: () => Promise<string>
     writeText: (text: string) => Promise<void>
+  }>
+  views: Readonly<{
+    callMethod: (data: { id: string | number, callId?: number, method: string, args: any[] }) => void
+    capture: (data: { id: string | number, width: number, height: number }) => void
+    create: (data: any) => void
+    destroy: (id: string | number) => void
+    focus: (id: string | number) => void
+    focusMain: () => void
+    getNavigationHistory: (id: string | number) => Promise<any>
+    hideCurrent: () => void
+    loadURL: (data: { id: string | number, url: string }) => void
+    setBounds: (data: any) => void
+    setCurrent: (data: any) => void
+    onAsyncCallResult: (callback: (data: any) => void) => () => void
+    onCapture: (callback: (data: any) => void) => () => void
+    onEvent: (callback: (data: any) => void) => () => void
+    onIPC: (callback: (data: any) => void) => () => void
+    onWindowFocus: (callback: () => void) => () => void
+  }>
+  menu: Readonly<{
+    onItemSelected: (callback: (data: { menuId: number, itemId: number }) => void) => () => void
+    onWillClose: (callback: (data: { menuId: number }) => void) => () => void
+    open: (data: { id: number, template: any[], x: number, y: number }) => void
+  }>
+  downloads: Readonly<{
+    cancel: (path: string) => void
+    onInfo: (callback: (data: any) => void) => () => void
+    open: (path: string) => Promise<string>
+    showInFolder: (path: string) => Promise<void>
+    startFileDrag: (path: string) => Promise<void>
+  }>
+  prompt: Readonly<{
+    cancel: (requestId: string) => Promise<any>
+    complete: (request: any) => Promise<any>
+    getStatus: () => Promise<any>
+    onProgress: (requestId: string, callback: (data: any) => void) => () => void
   }>
 }
 

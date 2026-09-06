@@ -1,6 +1,23 @@
 const { ipcMain: ipc, Menu, MenuItem } = require('electron')
+const { getChromeWindow } = require('./chromeCapabilities')
 
 ipc.on('open-context-menu', function (e, data) {
+  getChromeWindow(e)
+  if (!data || !Array.isArray(data.template) || !Number.isFinite(data.x) || !Number.isFinite(data.y)) {
+    throw new Error('invalid context menu request')
+  }
+  openContextMenu(e, data)
+})
+
+ipc.on('chrome:menu:open', function (e, data) {
+  getChromeWindow(e)
+  if (!data || !Array.isArray(data.template) || !Number.isFinite(data.x) || !Number.isFinite(data.y)) {
+    throw new Error('invalid context menu request')
+  }
+  openContextMenu(e, data)
+})
+
+function openContextMenu (e, data) {
   var menu = new Menu()
 
   data.template.forEach(function (section) {
@@ -26,4 +43,4 @@ ipc.on('open-context-menu', function (e, data) {
     e.sender.send('context-menu-will-close', { menuId: data.id })
   })
   menu.popup({ x: data.x, y: data.y })
-})
+}
