@@ -100,10 +100,14 @@ export function buildSystemPrompt (catalog: ToolCatalogEntry[]): string {
 
 /* plan: { message, toolCalls }, planResult: { ok, steps } from toolRegistry.runPlan */
 export function describePlanOutcome (plan: Plan, planResult: PlanExecutionResult): string {
-  const completed = planResult.steps.length + (planResult.steps.length === 1 ? ' step' : ' steps')
-  const summary = planResult.ok ? completed + ' completed.' : completed + ' completed before the plan failed.'
-  const failure = planResult.ok ? '' : ' ' + (planResult.errorMessage || 'The plan failed.')
-  return (plan.message ? plan.message + ' ' : '') + summary + failure
+  const summary = planResult.ok ? 'Plan completed' : `Plan FAILED: ${planResult.errorMessage || 'unknown error'}`
+  return summary + '\n' + planResult.steps.map(step => {
+    const outcome = step.outcome
+    if (outcome.ok === true) {
+      return `- ${step.tool}(${JSON.stringify(step.args)}): OK -> ${JSON.stringify(outcome.result)}`
+    }
+    return `- ${step.tool}(${JSON.stringify(step.args)}): FAILED (${outcome.errorCode}: ${outcome.errorMessage})`
+  }).join('\n')
 }
 
 /*
