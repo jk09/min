@@ -24,7 +24,12 @@ export function tsTransform (file: string, opts?: TsTransformOptions): Transform
             module: ts.ModuleKind.CommonJS,
             target: ts.ScriptTarget.ES2022,
             esModuleInterop: true,
-            allowSyntheticDefaultImports: true
+            allowSyntheticDefaultImports: true,
+            // type erasure shifts line numbers (e.g. removed interfaces), so an inline
+            // map is required for browserify to compose correct positions in the bundle map
+            sourceMap: true,
+            inlineSourceMap: true,
+            inlineSources: true
           }
         })
         this.push(result.outputText)
