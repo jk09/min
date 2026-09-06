@@ -40,58 +40,54 @@ function initialize () {
     updateCaptionButtons()
 
     captionMinimize.addEventListener('click', function (e) {
-      ipc.invoke('minimize')
+      window.min.window.minimize()
     })
 
     captionMaximize.addEventListener('click', function (e) {
-      ipc.invoke('maximize')
+      window.min.window.maximize()
     })
 
     captionRestore.addEventListener('click', function (e) {
       if (windowIsFullscreen) {
-        ipc.invoke('setFullScreen', false)
+        window.min.window.setFullScreen(false)
       } else {
-        ipc.invoke('unmaximize')
+        window.min.window.unmaximize()
       }
     })
 
     captionClose.addEventListener('click', function (e) {
-      ipc.invoke('close')
+      window.min.window.close()
     })
   }
 
-  ipc.on('maximize', function (e) {
-    windowIsMaximized = true
-    updateCaptionButtons()
-  })
-  ipc.on('unmaximize', function (e) {
-    windowIsMaximized = false
-    updateCaptionButtons()
-  })
-  ipc.on('enter-full-screen', function (e) {
-    windowIsFullscreen = true
-    updateCaptionButtons()
-  })
-  ipc.on('leave-full-screen', function (e) {
-    windowIsFullscreen = false
+  window.min.window.onStateChange(function (state) {
+    if (state === 'maximize') {
+      windowIsMaximized = true
+    } else if (state === 'unmaximize') {
+      windowIsMaximized = false
+    } else if (state === 'enter-full-screen') {
+      windowIsFullscreen = true
+    } else if (state === 'leave-full-screen') {
+      windowIsFullscreen = false
+    }
     updateCaptionButtons()
   })
 
   if (window.platformType === 'linux') {
     linuxClose.addEventListener('click', function (e) {
-      ipc.invoke('close')
+      window.min.window.close()
     })
     linuxMaximize.addEventListener('click', function (e) {
       if (windowIsFullscreen) {
-        ipc.invoke('setFullScreen', false)
+        window.min.window.setFullScreen(false)
       } else if (windowIsMaximized) {
-        ipc.invoke('unmaximize')
+        window.min.window.unmaximize()
       } else {
-        ipc.invoke('maximize')
+        window.min.window.maximize()
       }
     })
     linuxMinimize.addEventListener('click', function (e) {
-      ipc.invoke('minimize')
+      window.min.window.minimize()
     })
   }
 }

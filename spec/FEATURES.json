@@ -558,7 +558,7 @@
       },
       "requiredTiers": [],
       "sourceHash": "sha256:0282a14396398556bdd38940e4519244db22094ea7fcffaa0f37063503e7f4ed",
-      "lastVerified": "2026-09-05"
+      "lastVerified": "2026-09-06"
     },
     {
       "id": "typescript-support",
@@ -605,9 +605,12 @@
       "userVisible": false,
       "sourceFiles": [
         "main/windowUtils.js",
+        "main/remoteActions.js",
         "scripts/buildPreload.js",
         "js/preload/browserChrome.js",
         "js/preload/chromeBridgeContract.ts",
+        "js/windowControls.js",
+        "js/webviewMenu.js",
         "types/globals.d.ts"
       ],
       "tests": {
@@ -621,7 +624,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:5a41cc92997dbf59f4b2c2c8f584d31ab8f4d28814e68a4da43f68091a115494",
+      "sourceHash": "sha256:db6627e17fc358599f9ca515fd0d95819d1e291aa3dd5c9218fc34efd561fbaf",
       "lastVerified": "2026-09-06"
     },
     {

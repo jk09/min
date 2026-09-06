@@ -4,8 +4,51 @@ Wraps APIs that are only available in the main process in IPC messages, so that 
 
 const { app, ipcMain: ipc, dialog, session, shell } = require('electron')
 const { windows } = require('./windowManagement')
-const { createWindow } = require('./windowUtils')
+const { createWindow, getWindowWebContents } = require('./windowUtils')
 const { l } = require('./localizationMain')
+
+function getChromeWindow (event) {
+  const windowState = windows.windowFromContents(event.sender)
+
+  if (!windowState || getWindowWebContents(windowState.win) !== event.sender) {
+    throw new Error('chrome capability request rejected for non-chrome sender')
+  }
+
+  return windowState.win
+}
+
+function registerChromeWindowAction (name, action) {
+  ipc.handle('chrome:window:' + name, function (event, value) {
+    action(getChromeWindow(event), value)
+  })
+}
+
+registerChromeWindowAction('minimize', function (window) {
+  window.minimize()
+})
+registerChromeWindowAction('maximize', function (window) {
+  window.maximize()
+})
+registerChromeWindowAction('unmaximize', function (window) {
+  window.unmaximize()
+})
+registerChromeWindowAction('close', function (window) {
+  window.close()
+})
+registerChromeWindowAction('set-full-screen', function (window, enabled) {
+  if (typeof enabled !== 'boolean') {
+    throw new Error('fullscreen state must be a boolean')
+  }
+  window.setFullScreen(enabled)
+})
+
+ipc.handle('chrome:clipboard:write-text', function (event, text) {
+  if (typeof text !== 'string') {
+    throw new Error('clipboard text must be a string')
+  }
+  getChromeWindow(event)
+  require('electron').clipboard.writeText(text)
+})
 
 ipc.handle('startFileDrag', function (e, path) {
   app.getFileIcon(path, {}).then(function (icon) {

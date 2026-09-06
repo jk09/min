@@ -160,7 +160,7 @@ Staged migration to a context-isolated chrome renderer with a typed, least-privi
 
 - **id:** `secure-renderer-architecture`
 - **spec:** [spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md](../spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md)
-- **source:** `main/windowUtils.js`, `scripts/buildPreload.js`, `js/preload/browserChrome.js`, `js/preload/chromeBridgeContract.ts`, `types/globals.d.ts`
+- **source:** `main/windowUtils.js`, `main/remoteActions.js`, `scripts/buildPreload.js`, `js/preload/browserChrome.js`, `js/preload/chromeBridgeContract.ts`, `js/windowControls.js`, `js/webviewMenu.js`, `types/globals.d.ts`
 - **tests:** unit (2)
 
 ## Retired features (8)
