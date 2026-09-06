@@ -187,9 +187,10 @@ const builtinSkills = [
             record.trace = planResult.steps
 
             if (!planResult.ok) {
-                record.failureMessage = planResult.errorMessage
+                const failureMessage = planningSkill.describePlanOutcome(parsed.plan, planResult)
+                record.failureMessage = failureMessage
                 publishDebug()
-                throw new Error(planResult.errorMessage)
+                throw new Error(failureMessage)
             }
 
             publishDebug()

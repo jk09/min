@@ -169,6 +169,13 @@ test('LLM Prompt outcome summary combines the plan message with a step count', f
     assert.strictEqual(planningSkill.describePlanOutcome(plan, planResult), 'Opened 2 tabs. 2 steps completed.')
 })
 
+test('LLM Prompt outcome summary describes partial plan failures', function () {
+    const plan = { message: 'Search history.', toolCalls: [{ tool: 'history.search', args: {} }] }
+    const planResult = { ok: false, steps: [{ tool: 'history.search' }], errorMessage: 'history.search: access denied' }
+
+    assert.strictEqual(planningSkill.describePlanOutcome(plan, planResult), 'Search history. 1 step completed before the plan failed. history.search: access denied')
+})
+
 test('a well-formed browser-action plan executes through the tool registry end to end', async function () {
     const raw = '{"message":"Reading it back.","toolCalls":[{"tool":"test.read","args":{"value":"hi"}}]}'
     const catalog = toolRegistry.getCatalog().map(tool => tool.id)
