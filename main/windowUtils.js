@@ -18,6 +18,7 @@ const windowManagement = require('./windowManagement')
 const touchbar = require('./touchbar')
 
 const browserPage = 'min://app/index.html'
+const pendingIPCMessages = new WeakMap()
 
 function clamp (n, min, max) {
   return Math.max(Math.min(n, max), min)
@@ -34,6 +35,29 @@ function getWindowWebContents (win) {
   return windowManagement.getWindowWebContents(win)
 }
 
+function sendPendingIPCMessages (webContents) {
+  const messages = pendingIPCMessages.get(webContents)
+  pendingIPCMessages.delete(webContents)
+
+  messages.forEach(function ({ action, data }) {
+    webContents.send(action, data)
+  })
+}
+
+function queueIPCMessage (webContents, action, data) {
+  const messages = pendingIPCMessages.get(webContents)
+
+  if (messages) {
+    messages.push({ action, data })
+    return
+  }
+
+  pendingIPCMessages.set(webContents, [{ action, data }])
+  webContents.once('did-finish-load', function () {
+    sendPendingIPCMessages(webContents)
+  })
+}
+
 function sendIPCToWindow (window, action, data) {
   if (window && window.isDestroyed()) {
     console.warn('ignoring message ' + action + ' sent to destroyed window')
@@ -45,9 +69,7 @@ function sendIPCToWindow (window, action, data) {
     // so wait a bit to confirm that the page is really loading
     setTimeout(function () {
       if (getWindowWebContents(window).isLoadingMainFrame()) {
-        getWindowWebContents(window).once('did-finish-load', function () {
-          getWindowWebContents(window).send(action, data || {})
-        })
+        queueIPCMessage(getWindowWebContents(window), action, data || {})
       } else {
         getWindowWebContents(window).send(action, data || {})
       }
