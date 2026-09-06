@@ -20,43 +20,6 @@ interface BrowserTool {
   handler: (args: any) => unknown | Promise<unknown>
 }
 
-interface OpenTabArgs {
-  url: string
-  background: boolean
-}
-
-interface CloseTabArgs {
-  tabId: string
-}
-
-interface OpenManyTabsArgs {
-  urls: string[]
-  background: boolean
-}
-
-interface SearchWebArgs {
-  query: string
-  background: boolean
-}
-
-interface SearchHistoryArgs {
-  query: string
-  limit: number
-}
-
-interface GetPageTextArgs {
-  tabId?: string
-}
-
-interface GetSettingArgs {
-  key: string
-}
-
-interface SetSettingArgs {
-  key: string
-  value: string
-}
-
 const browserUI = require('browserUI.js')
 const searchEngine = require('util/searchEngine.js')
 const urlParser = require('util/urlParser.js')
@@ -119,7 +82,7 @@ const browserTools: BrowserTool[] = [
       url: { type: 'string', required: true, description: 'the URL or search term to open' },
       background: { type: 'boolean', default: false, description: 'open without switching to the tab' }
     },
-    handler: function (args: OpenTabArgs) {
+    handler: function (args: { url: string; background: boolean }) {
       return { tabId: openTab(args.url, args.background), url: args.url }
     }
   },
@@ -130,7 +93,7 @@ const browserTools: BrowserTool[] = [
     parameters: {
       tabId: { type: 'string', required: true, description: 'id of the tab to close' }
     },
-    handler: function (args: CloseTabArgs) {
+    handler: function (args: { tabId: string }) {
       // Model-generated plans occasionally use placeholders; skip these safely.
       if (args.tabId === '*' || args.tabId === '<id>' || args.tabId === 'any') {
         return { closed: null, skipped: true, reason: 'placeholder tab id' }
@@ -151,7 +114,7 @@ const browserTools: BrowserTool[] = [
       urls: { type: 'array', required: true, description: 'list of URLs or search terms to open' },
       background: { type: 'boolean', default: false, description: 'open without switching to the tabs' }
     },
-    handler: function (args: OpenManyTabsArgs) {
+    handler: function (args: { urls: string[]; background: boolean }) {
       if (!Array.isArray(args.urls) || args.urls.length === 0) {
         throw new Error('urls must be a non-empty list')
       }
@@ -171,7 +134,7 @@ const browserTools: BrowserTool[] = [
       query: { type: 'string', required: true, description: 'what to search for' },
       background: { type: 'boolean', default: false, description: 'open without switching to the tab' }
     },
-    handler: function (args: SearchWebArgs) {
+    handler: function (args: { query: string; background: boolean }) {
       const url = buildSearchURL(args.query)
       openTab(url, args.background)
       return { engine: searchEngine.getCurrent().name, url }
@@ -185,7 +148,7 @@ const browserTools: BrowserTool[] = [
       query: { type: 'string', required: true, description: 'text to look for' },
       limit: { type: 'number', default: 10, description: 'maximum number of results' }
     },
-    handler: async function (args: SearchHistoryArgs) {
+    handler: async function (args: { query: string; limit: number }) {
       const results = await places.searchHistoryGraph(args.query)
       return { results: (results || []).slice(0, args.limit).map((place: any) => ({
         id: place.id,
@@ -209,7 +172,7 @@ const browserTools: BrowserTool[] = [
       query: { type: 'string', required: true, description: 'text to look for' },
       limit: { type: 'number', default: 10, description: 'maximum number of results' }
     },
-    handler: async function (args: SearchHistoryArgs) {
+    handler: async function (args: { query: string; limit: number }) {
       const results = await places.searchHistoryGraph(args.query)
       return { results: (results || []).slice(0, args.limit).map((place: any) => ({
         id: place.id,
@@ -229,7 +192,7 @@ const browserTools: BrowserTool[] = [
     parameters: {
       tabId: { type: 'string', description: 'id of the tab to read' }
     },
-    handler: async function (args: GetPageTextArgs) {
+    handler: async function (args: { tabId?: string }) {
       const tabId = args.tabId || tabs.getSelected()
       const tab = tabs.get(tabId)
 
@@ -253,7 +216,7 @@ const browserTools: BrowserTool[] = [
     parameters: {
       key: { type: 'string', required: true, description: 'setting name' }
     },
-    handler: function (args: GetSettingArgs) {
+    handler: function (args: { key: string }) {
       if (!READABLE_SETTINGS.includes(args.key)) {
         throw new Error('setting "' + args.key + '" is not readable from the prompt')
       }
@@ -268,7 +231,7 @@ const browserTools: BrowserTool[] = [
       key: { type: 'string', required: true, description: 'setting name' },
       value: { type: 'string', required: true, description: 'new value' }
     },
-    handler: function (args: SetSettingArgs) {
+    handler: function (args: { key: string; value: string }) {
       if (!WRITABLE_SETTINGS.includes(args.key)) {
         throw new Error('setting "' + args.key + '" is not writable from the prompt')
       }
