@@ -590,7 +590,34 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ee778ef37485d1c861ff54478db4e3c052eea54288000163c0b28fbc5007f982",
+      "sourceHash": "sha256:99b59af130e5bef2324e558349eb867cd2be6f450c4c3111e94dd10ec33bbf11",
+      "lastVerified": "2026-09-06"
+    },
+    {
+      "id": "secure-renderer-architecture",
+      "title": "Secure Chromium-only chrome renderer",
+      "summary": "Staged migration to a context-isolated chrome renderer with a typed, least-privilege preload bridge and esbuild-managed bundles.",
+      "status": "active",
+      "specPath": "spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": false,
+      "sourceFiles": [
+        "js/preload/chromeBridgeContract.ts",
+        "types/globals.d.ts"
+      ],
+      "tests": {
+        "unit": [
+          "test/chromeBridgeContract.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:554ef0adcf1dc0a3ca7b1d727c739a94060c93ab57835f41ec48641633f14d32",
       "lastVerified": "2026-09-06"
     },
     {

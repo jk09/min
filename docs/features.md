@@ -5,7 +5,7 @@
 The live feature set of the browser, derived from [`spec/FEATURES.json`](../spec/FEATURES.json).
 See [the feature ledger](feature-ledger.md) for how this file is maintained.
 
-## Active features (16)
+## Active features (17)
 
 ### SQLite-backed personal history graph
 
@@ -152,6 +152,15 @@ TypeScript configuration, ambient type definitions, build transpilation, and typ
 - **id:** `typescript-support`
 - **spec:** [spec/done/feat-t7s4q9-typescript-support/SPEC.md](../spec/done/feat-t7s4q9-typescript-support/SPEC.md)
 - **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/tsTransform.ts`, `scripts/registerTs.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
+- **tests:** unit (1)
+
+### Secure Chromium-only chrome renderer
+
+Staged migration to a context-isolated chrome renderer with a typed, least-privilege preload bridge and esbuild-managed bundles.
+
+- **id:** `secure-renderer-architecture`
+- **spec:** [spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md](../spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md)
+- **source:** `js/preload/chromeBridgeContract.ts`, `types/globals.d.ts`
 - **tests:** unit (1)
 
 ## Retired features (8)

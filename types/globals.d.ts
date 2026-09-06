@@ -6,6 +6,26 @@ import type * as FSType from 'fs'
 import type { EventEmitter as NodeEventEmitter } from 'events'
 import type { TabList, TaskList } from './min'
 
+interface ChromeBridge {
+  bootstrap: Readonly<{
+    appVersion: string
+    developmentMode: boolean
+    platform: 'darwin' | 'linux' | 'win32'
+    windowId: string
+  }>
+  window: Readonly<{
+    close: () => Promise<void>
+    maximize: () => Promise<void>
+    minimize: () => Promise<void>
+    setFullScreen: (enabled: boolean) => Promise<void>
+    unmaximize: () => Promise<void>
+  }>
+  clipboard: Readonly<{
+    readText: () => Promise<string>
+    writeText: (text: string) => Promise<void>
+  }>
+}
+
 declare global {
   // Global variables attached to window in renderer
   var globalArgs: Record<string, any>
@@ -29,6 +49,7 @@ declare global {
   function empty(node: Node | Element | null): void
 
   interface Window {
+    min: ChromeBridge
     globalArgs: Record<string, any>
     windowId: string | undefined
     electron: typeof import('electron')
