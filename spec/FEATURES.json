@@ -23,7 +23,7 @@
         "js/places/historyEligibility.js",
         "js/preload/historyGraphPreload.js",
         "js/defaultKeybindings.js",
-        "js/llmPrompt/tools/browserTools.js",
+        "js/llmPrompt/tools/browserTools.ts",
         "main/historyRepository.js",
         "main/historyService.js",
         "main/main.js",
@@ -43,7 +43,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:b1b3ac3fd8d416eb769673e7c005a4d1635224beb0a01443952a8b80afdab634",
+      "sourceHash": "sha256:7bc380251e14edf6dedb1c70d98d4dbb5fcdf3c09955d7e21678658dfd6d3d5e",
       "lastVerified": "2026-09-06"
     },
     {
@@ -79,7 +79,7 @@
       "sourceFiles": [
         "js/llmPrompt/promptRouter.js",
         "js/llmPrompt/tools/toolRegistry.js",
-        "js/llmPrompt/tools/browserTools.js",
+        "js/llmPrompt/tools/browserTools.ts",
         "js/llmPrompt/skills/skillRegistry.js",
         "js/llmPrompt/skills/builtinSkills.js",
         "js/llmPrompt/engineClient.js",
@@ -95,7 +95,7 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:ef1b210208c1925f6c6bf5f8b430d48839ccb6534f13ff90fea4d75aec0fbedd",
+      "sourceHash": "sha256:8219ddb82eae2a5e391985658fa8a696ad432136598039bd745e1c0802dafb44",
       "lastVerified": "2026-09-06"
     },
     {
@@ -270,7 +270,7 @@
         "unit"
       ],
       "sourceHash": "sha256:f2e8f6f6c1ec28a81d13966bd1d7626dc7ddc0b684ad9ab83dc0503571a45ad0",
-      "lastVerified": "2026-09-05"
+      "lastVerified": "2026-09-06"
     },
     {
       "id": "ai-agent-handoff",

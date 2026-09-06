@@ -13,7 +13,7 @@ Main-process SQLite history repository with FTS5, graph records, legacy IndexedD
 
 - **id:** `history-sqlite-migration`
 - **spec:** [spec/done/feat-s8n4vz-history-sqlite-migration/SPEC.md](../spec/done/feat-s8n4vz-history-sqlite-migration/SPEC.md)
-- **source:** `package.json`, `js/places/historyGraph.js`, `js/places/historyGraphTab.js`, `js/places/legacyHistoryExport.html`, `js/places/legacyHistoryExport.js`, `js/places/places.js`, `js/places/historyEligibility.js`, `js/preload/historyGraphPreload.js`, `js/defaultKeybindings.js`, `js/llmPrompt/tools/browserTools.js`, `main/historyRepository.js`, `main/historyService.js`, `main/main.js`, `pages/historyGraph/index.html`, `pages/historyGraph/historyGraph.js`, `pages/historyGraph/historyGraph.css`
+- **source:** `package.json`, `js/places/historyGraph.js`, `js/places/historyGraphTab.js`, `js/places/legacyHistoryExport.html`, `js/places/legacyHistoryExport.js`, `js/places/places.js`, `js/places/historyEligibility.js`, `js/preload/historyGraphPreload.js`, `js/defaultKeybindings.js`, `js/llmPrompt/tools/browserTools.ts`, `main/historyRepository.js`, `main/historyService.js`, `main/main.js`, `pages/historyGraph/index.html`, `pages/historyGraph/historyGraph.js`, `pages/historyGraph/historyGraph.css`
 - **tests:** unit (3)
 - **supersedes:** `personal-history-graph`
 
@@ -23,7 +23,7 @@ Tool registry, skill registry and router that turn prompt input into browser act
 
 - **id:** `prompt-runtime`
 - **spec:** [spec/done/feat-q4m8zt-prompt-command-runtime/SPEC.md](../spec/done/feat-q4m8zt-prompt-command-runtime/SPEC.md)
-- **source:** `js/llmPrompt/promptRouter.js`, `js/llmPrompt/tools/toolRegistry.js`, `js/llmPrompt/tools/browserTools.js`, `js/llmPrompt/skills/skillRegistry.js`, `js/llmPrompt/skills/builtinSkills.js`, `js/llmPrompt/engineClient.js`, `main/llmEngine.js`
+- **source:** `js/llmPrompt/promptRouter.js`, `js/llmPrompt/tools/toolRegistry.js`, `js/llmPrompt/tools/browserTools.ts`, `js/llmPrompt/skills/skillRegistry.js`, `js/llmPrompt/skills/builtinSkills.js`, `js/llmPrompt/engineClient.js`, `main/llmEngine.js`
 - **tests:** integration (1)
 
 ### On-demand prompt overlay with persistent status bar

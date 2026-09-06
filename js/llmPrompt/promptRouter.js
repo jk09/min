@@ -15,7 +15,7 @@ registry, so the capability surface stays auditable.
 */
 
 const toolRegistry = require('llmPrompt/tools/toolRegistry.js')
-const browserTools = require('llmPrompt/tools/browserTools.js')
+const browserTools = require('llmPrompt/tools/browserTools.ts')
 const skillRegistry = require('llmPrompt/skills/skillRegistry.js')
 const builtinSkills = require('llmPrompt/skills/builtinSkills.js')
 const engineClient = require('llmPrompt/engineClient.js')

@@ -52,7 +52,7 @@ function loadPromptRouter() {
 
     const modules = {
         'llmPrompt/tools/toolRegistry.js': toolRegistry,
-        'llmPrompt/tools/browserTools.js': [{
+        'llmPrompt/tools/browserTools.ts': [{
             id: 'tabs.open',
             handler: async function (args) {
                 openCalls.push(args)
