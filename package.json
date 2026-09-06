@@ -77,7 +77,7 @@
     "postinstall": "node ./scripts/setupDevEnv.js",
     "typecheck": "tsc --noEmit",
     "test": "npm run verify:features && standard --verbose js/**/*.js main/*.js",
-    "lint:eslint": "eslint js/**/*.js main/*.js js/**/*.ts scripts/**/*.ts",
+    "lint:eslint": "npm run typecheck && eslint js/**/*.js main/*.js js/**/*.ts scripts/**/*.ts",
     "test:unit": "npm run verify:features && node -r ./scripts/registerTs.js --test test/*.test.js",
     "verify:features": "node ./scripts/verifyFeatures.js",
     "features:docs": "node ./scripts/featureDocs.js",

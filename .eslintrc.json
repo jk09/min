@@ -47,7 +47,8 @@
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
       ],
       "rules": {
-        "no-undef": "off"
+        "no-undef": "off",
+        "@typescript-eslint/strict-boolean-expressions": "error"
       }
     }
   ]

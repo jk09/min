@@ -194,6 +194,11 @@ const browserTools: BrowserTool[] = [
     },
     handler: async function (args: { tabId?: string }) {
       const tabId = args.tabId || tabs.getSelected()
+
+      if (!tabId) {
+        throw new Error('there is no page to read')
+      }
+
       const tab = tabs.get(tabId)
 
       if (!tab || !tab.url) {

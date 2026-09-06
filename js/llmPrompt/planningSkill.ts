@@ -40,7 +40,7 @@ export type ToolExecutionOutcome = ToolSuccessOutcome | ToolFailureOutcome
 export interface PlanResultStep {
   tool: string
   args: Record<string, any>
-  outcome: ToolExecutionOutcome
+  outcome?: ToolExecutionOutcome
 }
 
 export interface PlanExecutionResult {
@@ -103,6 +103,11 @@ export function describePlanOutcome (plan: Plan, planResult: PlanExecutionResult
   const summary = planResult.ok ? 'Plan completed' : `Plan FAILED: ${planResult.errorMessage || 'unknown error'}`
   return summary + '\n' + planResult.steps.map(step => {
     const outcome = step.outcome
+
+    if (!outcome) {
+      return `- ${step.tool}(${JSON.stringify(step.args)}): FAILED (invalid_result: tool returned no outcome)`
+    }
+
     if (outcome.ok === true) {
       return `- ${step.tool}(${JSON.stringify(step.args)}): OK -> ${JSON.stringify(outcome.result)}`
     }

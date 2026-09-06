@@ -175,6 +175,13 @@ test('LLM Prompt outcome summary combines the plan message with a step count', f
     assert.match(planningSkill.describePlanOutcome(plan, planResult), /tabs\.open\(\{\}\): OK -> \{"tabId":"tab-1"\}/)
 })
 
+test('LLM Prompt outcome summary handles a missing tool outcome', function () {
+    const plan = { message: 'Open a tab.', toolCalls: [{ tool: 'tabs.open', args: {} }] }
+    const planResult = { ok: false, steps: [{ tool: 'tabs.open', args: {} }] }
+
+    assert.match(planningSkill.describePlanOutcome(plan, planResult), /tabs\.open\(\{\}\): FAILED \(invalid_result: tool returned no outcome\)/)
+})
+
 test('LLM Prompt outcome summary describes partial plan failures', function () {
     const plan = { message: 'Search history.', toolCalls: [{ tool: 'history.search', args: {} }] }
     const planResult = {

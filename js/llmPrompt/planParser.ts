@@ -25,7 +25,7 @@ export type ParsePlanResult =
 export function extractJSON (raw?: string | null): any {
   const text = String(raw || '').trim()
   const fenced = /```(?:json)?\s*([\s\S]*?)```/i.exec(text)
-  const candidate = fenced ? fenced[1].trim() : text
+  const candidate = fenced?.[1]?.trim() || text
 
   const start = candidate.indexOf('{')
   const end = candidate.lastIndexOf('}')
