@@ -3,6 +3,7 @@ const fs = require('fs')
 const ts = require('typescript')
 
 const outFile = path.resolve(__dirname, '../dist/preload.js')
+const chromeOutFile = path.resolve(__dirname, '../dist/preload-chrome.js')
 
 const modules = [
   'js/preload/default.js',
@@ -35,6 +36,8 @@ function buildPreload () {
   })
 
   fs.writeFileSync(outFile, output, 'utf-8')
+
+  fs.copyFileSync(path.resolve(__dirname, '../js/preload/browserChrome.js'), chromeOutFile)
 }
 
 if (module.parent) {

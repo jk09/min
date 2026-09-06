@@ -190,8 +190,9 @@ function createWindowWithBounds (bounds, customArgs) {
   const mainView = new WebContentsView({
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
       nodeIntegrationInWorker: true, // used by ProcessSpawner
+      preload: path.join(appState.appRoot, 'dist/preload-chrome.js'),
       additionalArguments: [
         '--user-data-path=' + appState.userDataPath,
         '--app-version=' + app.getVersion(),
