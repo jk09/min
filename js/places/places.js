@@ -3,6 +3,7 @@
 var webviews = require('webviews.js')
 const searchEngine = require('util/searchEngine.js')
 const urlParser = require('util/urlParser.js')
+const historyEligibility = require('./historyEligibility.js')
 
 let activeTabId = null
 let activeTabStartedAt = 0
@@ -69,7 +70,7 @@ const places = {
     }
 
     // don't save to history if in private mode, or the page is a browser page (unless it contains the content of a normal page)
-    if (tab.private === false && !isNonIndexableInternalPage) {
+    if (historyEligibility.shouldSavePage(tab.url, tab.private, isSearchPage, isNonIndexableInternalPage)) {
       places.savePage(tabId, data.extractedText)
     }
   },

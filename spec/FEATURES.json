@@ -20,6 +20,7 @@
         "js/places/legacyHistoryExport.html",
         "js/places/legacyHistoryExport.js",
         "js/places/places.js",
+        "js/places/historyEligibility.js",
         "js/preload/historyGraphPreload.js",
         "js/defaultKeybindings.js",
         "js/llmPrompt/tools/browserTools.js",
@@ -33,7 +34,8 @@
       "tests": {
         "unit": [
           "test/historyGraph.test.js",
-          "test/historyRepository.test.js"
+          "test/historyRepository.test.js",
+          "test/historyEligibility.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -41,8 +43,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:3ca2da2e8a9b697bcf2ef43b6d3768e77c8fc3cf58363ffd72d3a410e352656e",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:16883dc9b62af3472628594b91dd518f8b42087cd5ada6e3262ade21bfe69288",
+      "lastVerified": "2026-09-06"
     },
     {
       "id": "personal-history-graph",

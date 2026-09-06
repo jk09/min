@@ -13,8 +13,8 @@ Main-process SQLite history repository with FTS5, graph records, legacy IndexedD
 
 - **id:** `history-sqlite-migration`
 - **spec:** [spec/done/feat-s8n4vz-history-sqlite-migration/SPEC.md](../spec/done/feat-s8n4vz-history-sqlite-migration/SPEC.md)
-- **source:** `package.json`, `js/places/historyGraph.js`, `js/places/historyGraphTab.js`, `js/places/legacyHistoryExport.html`, `js/places/legacyHistoryExport.js`, `js/places/places.js`, `js/preload/historyGraphPreload.js`, `js/defaultKeybindings.js`, `js/llmPrompt/tools/browserTools.js`, `main/historyRepository.js`, `main/historyService.js`, `main/main.js`, `pages/historyGraph/index.html`, `pages/historyGraph/historyGraph.js`, `pages/historyGraph/historyGraph.css`
-- **tests:** unit (2)
+- **source:** `package.json`, `js/places/historyGraph.js`, `js/places/historyGraphTab.js`, `js/places/legacyHistoryExport.html`, `js/places/legacyHistoryExport.js`, `js/places/places.js`, `js/places/historyEligibility.js`, `js/preload/historyGraphPreload.js`, `js/defaultKeybindings.js`, `js/llmPrompt/tools/browserTools.js`, `main/historyRepository.js`, `main/historyService.js`, `main/main.js`, `pages/historyGraph/index.html`, `pages/historyGraph/historyGraph.js`, `pages/historyGraph/historyGraph.css`
+- **tests:** unit (3)
 - **supersedes:** `personal-history-graph`
 
 ### Prompt-driven browser command runtime

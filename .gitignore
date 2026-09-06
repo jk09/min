@@ -7,3 +7,4 @@ dist
 /spec/CONTEXT.md
 package-lock.json
 yarn.lock
+%APPDATA%/Min-development
