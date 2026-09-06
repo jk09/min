@@ -1,13 +1,7 @@
-var { ipcRenderer } = require('electron')
-var fs = require('fs')
-var path = require('path')
-
 var webviews = require('webviews.js')
 var settings = require('util/settings/settings.js')
 var browserUI = require('browserUI.js')
 var modalMode = require('modalMode.js')
-var ProcessSpawner = require('util/process.js')
-
 var dialog = document.getElementById('manager-setup-dialog')
 
 var primaryInstructions = document.getElementById('manager-setup-instructions-primary')
@@ -102,18 +96,18 @@ const setupDialog = {
 
       dragBox.innerHTML = l('passwordManagerSetupInstalling')
 
-      const filePath = electron.webUtils.getPathForFile(e.dataTransfer.files[0])
+      const file = e.dataTransfer.files[0]
 
       // try to filter out anything that isn't an executable (note: not 100% accurate)
-      if (e.dataTransfer.files[0].type !== '' && !e.dataTransfer.files[0].name.endsWith('.exe')) {
+      if (file.type !== '' && !file.name.endsWith('.exe')) {
         dragBox.innerHTML = l('passwordManagerSetupRetry')
         return
       }
 
       if (setupDialog.setupMode === 'installer') {
-        launchInstaller(filePath, window.platformType)
+        window.min.passwordManager.launchInstaller('onepassword', file)
       } else {
-        install(filePath).then(afterInstall)
+        window.min.passwordManager.installTool(getManagerId(), file).then(afterInstall)
       }
 
       return false
@@ -132,39 +126,12 @@ function waitForInstallerComplete () {
   })
 }
 
-// Install the tool into the Min user folder.
-function install (filePath, callback) {
-  return new Promise((resolve, reject) => {
-    try {
-      const toolsDir = path.join(window.globalArgs['user-data-path'], 'tools')
-      if (!fs.existsSync(toolsDir)) {
-        fs.mkdirSync(toolsDir)
-      }
-
-      const targetFilePath = setupDialog.manager.getLocalPath()
-      fs.createReadStream(filePath).pipe(fs.createWriteStream(targetFilePath)).on('finish', function () {
-        fs.chmodSync(targetFilePath, '755')
-        resolve(targetFilePath)
-      }).on('error', function (error) {
-        reject(error)
-      })
-    } catch (e) {
-      reject(e)
-    }
-  })
+function getManagerId () {
+  return setupDialog.manager.name === 'Bitwarden' ? 'bitwarden' : 'onepassword'
 }
 
-// Launch installer file.
-function launchInstaller (filePath, platform) {
-  if (platform === 'mac') {
-    return new ProcessSpawner('open', [filePath]).execute()
-  } else {
-    return new ProcessSpawner(filePath).execute()
-  }
-}
-
-function afterInstall (toolPath) {
-  setupDialog.manager.signInAndSave(toolPath)
+function afterInstall () {
+  setupDialog.manager.signInAndSave()
     .then(() => {
       setupDialog.hide()
     })
@@ -175,11 +142,6 @@ function afterInstall (toolPath) {
         afterInstall()
       } else {
         // Cleanup after we failed.
-        const targetFilePath = setupDialog.manager.getLocalPath()
-        if (fs.existsSync(targetFilePath)) {
-          fs.unlinkSync(targetFilePath)
-        }
-
         const message = (e.error || '').replace(/\n$/gm, '')
         dragBox.innerHTML = l('passwordManagerSetupUnlockError') + message + ' ' + l('passwordManagerSetupRetry')
       }

@@ -21,6 +21,7 @@
       "debounce",
       "empty",
       "alert",
+      "Blob",
       "confirm",
       "requestAnimationFrame",
       "requestIdleCallback",

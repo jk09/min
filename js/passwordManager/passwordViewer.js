@@ -2,7 +2,6 @@ const webviews = require('webviews.js')
 const settings = require('util/settings/settings.js')
 const PasswordManagers = require('passwordManager/passwordManager.js')
 const modalMode = require('modalMode.js')
-const { ipcRenderer } = require('electron')
 const papaparse = require('papaparse')
 
 const passwordViewer = {
@@ -134,7 +133,7 @@ const passwordViewer = {
       const shouldShowConsent = credentials.length > 0
 
       if (shouldShowConsent) {
-        const securityConsent = ipcRenderer.sendSync('prompt', {
+        const securityConsent = window.min.passwordManager.prompt({
           text: l('importCredentialsConfirmation'),
           ok: l('dialogConfirmButton'),
           cancel: l('dialogCancelButton'),
@@ -144,16 +143,9 @@ const passwordViewer = {
         if (!securityConsent) return
       }
 
-      const filePaths = await ipcRenderer.invoke('showOpenDialog', {
-        filters: [
-          { name: 'CSV', extensions: ['csv'] },
-          { name: 'All Files', extensions: ['*'] }
-        ]
-      })
+      const fileContents = await window.min.passwordManager.readImport()
 
-      if (!filePaths || !filePaths[0]) return
-
-      const fileContents = fs.readFileSync(filePaths[0], 'utf8')
+      if (!fileContents) return
 
       manager.importCredentials(fileContents).then(function (credentials) {
         if (credentials.length === 0) return
@@ -167,7 +159,7 @@ const passwordViewer = {
         throw new Error('unsupported password manager')
       }
 
-      const securityConsent = ipcRenderer.sendSync('prompt', {
+      const securityConsent = window.min.passwordManager.prompt({
         text: l('exportCredentialsConfirmation'),
         ok: l('dialogConfirmButton'),
         cancel: l('dialogCancelButton'),

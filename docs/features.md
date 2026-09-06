@@ -160,8 +160,8 @@ Staged migration to a context-isolated chrome renderer with a typed, least-privi
 
 - **id:** `secure-renderer-architecture`
 - **spec:** [spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md](../spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md)
-- **source:** `main/windowUtils.js`, `main/chromeCapabilities.js`, `main/sessionPersistence.js`, `main/userscriptService.js`, `main/remoteActions.js`, `main/remoteMenu.js`, `main/viewManager.js`, `main/download.js`, `main/llmEngine.js`, `main/main.js`, `scripts/buildPreload.js`, `js/preload/browserChrome.js`, `js/preload/chromeBridgeContract.ts`, `js/default.js`, `js/navbar/tabBar.js`, `js/sessionRestore.js`, `js/userscripts.js`, `js/util/settings/settings.js`, `js/util/settings/settingsMain.js`, `js/windowControls.js`, `js/webviewMenu.js`, `js/webviews.js`, `js/remoteMenuRenderer.js`, `js/downloadManager.js`, `js/llmPrompt/engineClient.js`, `types/globals.d.ts`
-- **tests:** unit (6)
+- **source:** `package.json`, `main/windowUtils.js`, `main/chromeCapabilities.js`, `main/sessionPersistence.js`, `main/userscriptService.js`, `main/remoteActions.js`, `main/remoteMenu.js`, `main/viewManager.js`, `main/download.js`, `main/llmEngine.js`, `main/main.js`, `main/passwordManagerService.js`, `scripts/buildPreload.js`, `js/preload/browserChrome.js`, `js/preload/chromeBridgeContract.ts`, `js/default.js`, `js/navbar/tabBar.js`, `js/sessionRestore.js`, `js/userscripts.js`, `js/util/settings/settings.js`, `js/util/settings/settingsMain.js`, `js/windowControls.js`, `js/webviewMenu.js`, `js/webviews.js`, `js/remoteMenuRenderer.js`, `js/downloadManager.js`, `js/llmPrompt/engineClient.js`, `js/passwordManager/bitwarden.js`, `js/passwordManager/keychain.js`, `js/passwordManager/managerSetup.js`, `js/passwordManager/onePassword.js`, `js/passwordManager/passwordManager.js`, `js/passwordManager/passwordViewer.js`, `types/globals.d.ts`
+- **tests:** unit (7)
 
 ## Retired features (8)
 

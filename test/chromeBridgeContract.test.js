@@ -14,6 +14,7 @@ test('chrome bridge contract exposes named least-privilege capabilities', functi
   assert.ok(CHROME_BRIDGE_CAPABILITIES.downloads.includes('onInfo'))
   assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.files, ['toFileURL'])
   assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.userscripts, ['list', 'onChanged', 'openDirectory', 'unwatch', 'watch'])
+  assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.passwordManager, ['bitwarden', 'checkTool', 'credentials', 'installTool', 'launchInstaller', 'onePassword', 'prompt', 'readImport'])
   assert.deepStrictEqual(CHROME_BRIDGE_CAPABILITIES.prompt, ['cancel', 'complete', 'getStatus', 'onProgress'])
   assert.ok(Object.isFrozen(CHROME_BRIDGE_CAPABILITIES))
 

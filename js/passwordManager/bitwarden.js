@@ -1,8 +1,3 @@
-const ProcessSpawner = require('util/process.js')
-const path = require('path')
-const fs = require('fs')
-var { ipcRenderer } = require('electron')
-
 // Bitwarden password manager. Requires session key to unlock the vault.
 class Bitwarden {
   constructor () {
@@ -22,10 +17,6 @@ class Bitwarden {
     }
   }
 
-  getLocalPath () {
-    return path.join(window.globalArgs['user-data-path'], 'tools', (platformType === 'windows' ? 'bw.exe' : 'bw'))
-  }
-
   getSetupMode () {
     return 'dragdrop'
   }
@@ -35,25 +26,7 @@ class Bitwarden {
   // by checking the settings value. If that is not set or doesn't point
   // to a valid executable, it checks if 'bw' is available globally.
   async _getToolPath () {
-    const localPath = this.getLocalPath()
-    if (localPath) {
-      let local = false
-      try {
-        await fs.promises.access(localPath, fs.constants.X_OK)
-        local = true
-      } catch (e) { }
-      if (local) {
-        return localPath
-      }
-    }
-
-    const global = await new ProcessSpawner('bw').checkCommandExists()
-
-    if (global) {
-      return 'bw'
-    }
-
-    return null
+    return (await window.min.passwordManager.checkTool('bitwarden')) ? 'configured' : null
   }
 
   // Checks if Bitwarden integration is configured properly by trying to
@@ -75,8 +48,7 @@ class Bitwarden {
       return this.lastCallList[domain]
     }
 
-    const command = this.path
-    if (!command) {
+    if (!this.path) {
       return Promise.resolve([])
     }
 
@@ -84,7 +56,7 @@ class Bitwarden {
       throw new Error()
     }
 
-    this.lastCallList[domain] = this.loadSuggestions(command, domain).then(suggestions => {
+    this.lastCallList[domain] = this.loadSuggestions(domain).then(suggestions => {
       this.lastCallList[domain] = null
       return suggestions
     }).catch(ex => {
@@ -95,10 +67,9 @@ class Bitwarden {
   }
 
   // Loads credential suggestions for given domain name.
-  async loadSuggestions (command, domain) {
+  async loadSuggestions (domain) {
     try {
-      const process = new ProcessSpawner(command, ['list', 'items', '--url', this.sanitize(domain), '--session', this.sessionKey])
-      const data = await process.execute()
+      const data = await window.min.passwordManager.bitwarden('suggestions', { domain: this.sanitize(domain), sessionKey: this.sessionKey })
 
       const matches = JSON.parse(data)
       const credentials = matches.map(match => {
@@ -114,10 +85,9 @@ class Bitwarden {
     }
   }
 
-  async forceSync (command) {
+  async forceSync () {
     try {
-      const process = new ProcessSpawner(command, ['sync', '--session', this.sessionKey])
-      await process.execute()
+      await window.min.passwordManager.bitwarden('sync', { sessionKey: this.sessionKey })
     } catch (ex) {
       const { error, data } = ex
       console.error('Error accessing Bitwarden CLI. STDOUT: ' + data + '. STDERR: ' + error)
@@ -127,15 +97,14 @@ class Bitwarden {
   // Tries to unlock the password store with given master password.
   async unlockStore (password) {
     try {
-      const process = new ProcessSpawner(this.path, ['unlock', '--raw', password])
-      const result = await process.execute()
+      const result = await window.min.passwordManager.bitwarden('unlock', { password })
 
       if (!result) {
         throw new Error()
       }
 
       this.sessionKey = result
-      await this.forceSync(this.path)
+      await this.forceSync()
 
       return true
     } catch (ex) {
@@ -152,11 +121,10 @@ class Bitwarden {
     }
   }
 
-  async signInAndSave (path = this.path) {
+  async signInAndSave () {
     // It's possible to be already logged in
-    const logoutProcess = new ProcessSpawner(path, ['logout'])
     try {
-      await logoutProcess.execute()
+      await window.min.passwordManager.bitwarden('logout', {})
     } catch (e) {
       console.warn(e)
     }
@@ -168,7 +136,7 @@ class Bitwarden {
       { placeholder: 'Client Secret', id: 'clientSecret', type: 'password' }
     ]
 
-    const credentials = ipcRenderer.sendSync('prompt', {
+    const credentials = window.min.passwordManager.prompt({
       text: l('passwordManagerBitwardenSignIn'),
       values: signInFields,
       ok: l('dialogConfirmButton'),
@@ -183,12 +151,7 @@ class Bitwarden {
       }
     }
 
-    const process = new ProcessSpawner(path, ['login', '--apikey'], {
-      BW_CLIENTID: credentials.clientID.trim(),
-      BW_CLIENTSECRET: credentials.clientSecret.trim()
-    })
-
-    await process.execute()
+    await window.min.passwordManager.bitwarden('sign-in', credentials)
 
     return true
   }

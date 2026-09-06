@@ -1,5 +1,3 @@
-const { ipcRenderer } = require('electron')
-
 const settings = require('util/settings/settings.js')
 const webviews = require('webviews.js')
 const keybindings = require('keybindings.js')
@@ -48,7 +46,7 @@ const PasswordManagers = {
   // Shows a prompt dialog for password store's master password.
   promptForMasterPassword: async function (manager) {
     return new Promise((resolve, reject) => {
-      const { password } = ipcRenderer.sendSync('prompt', {
+      const { password } = window.min.passwordManager.prompt({
         text: l('passwordManagerUnlock').replace('%p', manager.name),
         values: [{ placeholder: l('password'), id: 'password', type: 'password' }],
         ok: l('dialogConfirmButton'),

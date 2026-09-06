@@ -75,6 +75,21 @@ interface ChromeBridge {
     unwatch: () => Promise<void>
     onChanged: (callback: () => void) => () => void
   }>
+  passwordManager: Readonly<{
+    bitwarden: (operation: string, data: Record<string, string>) => Promise<string>
+    checkTool: (manager: 'bitwarden' | 'onepassword') => Promise<boolean>
+    installTool: (manager: 'bitwarden' | 'onepassword', file: File) => Promise<void>
+    launchInstaller: (manager: 'bitwarden' | 'onepassword', file: File) => Promise<void>
+    onePassword: (operation: string, data: Record<string, string>) => Promise<string>
+    prompt: (options: Record<string, any>) => any
+    readImport: () => Promise<string | null>
+    credentials: Readonly<{
+      delete: (account: { domain: string, username: string }) => Promise<void>
+      getAll: () => Promise<Array<{ domain: string, username: string, password: string }>>
+      set: (account: { domain: string, username: string, password: string }) => Promise<void>
+      setAll: (accounts: Array<{ domain: string, username: string, password: string }>) => Promise<void>
+    }>
+  }>
   prompt: Readonly<{
     cancel: (requestId: string) => Promise<any>
     complete: (request: any) => Promise<any>

@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const { ipcMain: ipc, safeStorage } = require('electron')
 const appState = require('./appState')
+const { getChromeWindow } = require('./chromeCapabilities')
 
 const passwordFilePath = path.join(appState.userDataPath, 'passwordStore')
 
@@ -68,14 +69,26 @@ function credentialStoreSetPassword (account) {
 }
 
 ipc.handle('credentialStoreSetPasswordBulk', async function (event, accounts) {
+  getChromeWindow(event)
+  if (!Array.isArray(accounts) || accounts.some(account => !account || typeof account.domain !== 'string' || typeof account.username !== 'string' || typeof account.password !== 'string')) {
+    throw new Error('credentials must be valid accounts')
+  }
   return credentialStoreSetPasswordBulk(accounts)
 })
 
 ipc.handle('credentialStoreSetPassword', async function (event, account) {
+  getChromeWindow(event)
+  if (!account || typeof account.domain !== 'string' || typeof account.username !== 'string' || typeof account.password !== 'string') {
+    throw new Error('credential must be a valid account')
+  }
   return credentialStoreSetPassword(account)
 })
 
 ipc.handle('credentialStoreDeletePassword', async function (event, account) {
+  getChromeWindow(event)
+  if (!account || typeof account.domain !== 'string' || typeof account.username !== 'string') {
+    throw new Error('credential identity must be valid')
+  }
   const fileContent = readSavedPasswordFile()
 
   // delete matching credentials
@@ -89,6 +102,7 @@ ipc.handle('credentialStoreDeletePassword', async function (event, account) {
   return writeSavedPasswordFile(fileContent)
 })
 
-ipc.handle('credentialStoreGetCredentials', async function () {
+ipc.handle('credentialStoreGetCredentials', async function (event) {
+  getChromeWindow(event)
   return readSavedPasswordFile().credentials
 })

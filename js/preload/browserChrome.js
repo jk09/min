@@ -109,6 +109,21 @@ contextBridge.exposeInMainWorld('min', {
     unwatch: () => ipcRenderer.invoke('chrome:userscripts:unwatch'),
     onChanged: callback => subscribe('chrome:userscripts:changed', callback)
   },
+  passwordManager: {
+    checkTool: manager => ipcRenderer.invoke('chrome:password-manager:check-tool', manager),
+    bitwarden: (operation, data) => ipcRenderer.invoke('chrome:password-manager:bitwarden', operation, data),
+    onePassword: (operation, data) => ipcRenderer.invoke('chrome:password-manager:onepassword', operation, data),
+    installTool: (manager, file) => ipcRenderer.invoke('chrome:password-manager:install-tool', manager, getFilePath(file)),
+    launchInstaller: (manager, file) => ipcRenderer.invoke('chrome:password-manager:launch-installer', manager, getFilePath(file)),
+    readImport: () => ipcRenderer.invoke('chrome:password-manager:read-import'),
+    prompt: options => ipcRenderer.sendSync('chrome:password-manager:prompt', options),
+    credentials: {
+      delete: account => ipcRenderer.invoke('credentialStoreDeletePassword', account),
+      getAll: () => ipcRenderer.invoke('credentialStoreGetCredentials'),
+      set: account => ipcRenderer.invoke('credentialStoreSetPassword', account),
+      setAll: accounts => ipcRenderer.invoke('credentialStoreSetPasswordBulk', accounts)
+    }
+  },
   prompt: {
     cancel: requestId => ipcRenderer.invoke('chrome:prompt:cancel', { requestId }),
     complete: request => ipcRenderer.invoke('chrome:prompt:complete', request),
@@ -126,4 +141,11 @@ function subscribe (channel, callback) {
   }
   ipcRenderer.on(channel, listener)
   return () => ipcRenderer.removeListener(channel, listener)
+}
+
+function getFilePath (file) {
+  if (!file || typeof file !== 'object') {
+    throw new TypeError('file is required')
+  }
+  return webUtils.getPathForFile(file)
 }

@@ -5,6 +5,7 @@ const { BrowserWindow, ipcMain: ipc } = require('electron')
 const settings = require('../js/util/settings/settingsMain')
 const appState = require('./appState')
 const { windows } = require('./windowManagement')
+const { getChromeWindow } = require('./chromeCapabilities')
 
 var promptAnswer
 var promptOptions
@@ -60,6 +61,16 @@ ipc.on('close-prompt', function (event, data) {
 })
 
 ipc.on('prompt', function (event, data) {
+  createPrompt(data, function (result) {
+    event.returnValue = result
+  })
+})
+
+ipc.on('chrome:password-manager:prompt', function (event, data) {
+  getChromeWindow(event)
+  if (!data || typeof data !== 'object' || typeof data.text !== 'string' || typeof data.ok !== 'string' || typeof data.cancel !== 'string') {
+    throw new Error('password manager prompt is invalid')
+  }
   createPrompt(data, function (result) {
     event.returnValue = result
   })
