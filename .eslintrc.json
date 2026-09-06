@@ -1,0 +1,55 @@
+{
+  "root": true,
+  "extends": "eslint:recommended",
+  "env": {
+    "node": true,
+    "browser": true,
+    "es2020": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "script"
+  },
+  "globals": {
+    "l": "readonly",
+    "tabs": "readonly",
+    "tasks": "readonly",
+    "globalArgs": "readonly",
+    "platformType": "readonly",
+    "throttle": "readonly",
+    "debounce": "readonly",
+    "empty": "readonly",
+    "alert": "readonly",
+    "confirm": "readonly",
+    "requestAnimationFrame": "readonly",
+    "requestIdleCallback": "readonly",
+    "fetch": "readonly",
+    "localStorage": "readonly",
+    "performance": "readonly",
+    "IntersectionObserver": "readonly",
+    "Node": "readonly",
+    "Event": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "./tsconfig.json",
+        "sourceType": "module"
+      },
+      "plugins": ["@typescript-eslint"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ],
+      "rules": {
+        "no-undef": "off",
+        "@typescript-eslint/strict-boolean-expressions": "error"
+      }
+    }
+  ]
+}

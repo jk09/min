@@ -22,10 +22,25 @@ export interface ToolCatalogEntry {
   parameters: ToolCatalogParameter[]
 }
 
+export interface ToolSuccessOutcome {
+  ok: true
+  toolId: string
+  result: unknown
+}
+
+export interface ToolFailureOutcome {
+  ok: false
+  toolId?: string
+  errorCode: string
+  errorMessage: string
+}
+
+export type ToolExecutionOutcome = ToolSuccessOutcome | ToolFailureOutcome
+
 export interface PlanResultStep {
   tool: string
   args: Record<string, any>
-  outcome: any
+  outcome?: ToolExecutionOutcome
 }
 
 export interface PlanExecutionResult {
@@ -85,8 +100,19 @@ export function buildSystemPrompt (catalog: ToolCatalogEntry[]): string {
 
 /* plan: { message, toolCalls }, planResult: { ok, steps } from toolRegistry.runPlan */
 export function describePlanOutcome (plan: Plan, planResult: PlanExecutionResult): string {
-  const summary = planResult.steps.length + (planResult.steps.length === 1 ? ' step' : ' steps') + ' completed.'
-  return (plan.message ? plan.message + ' ' : '') + summary
+  const summary = planResult.ok ? 'Plan completed' : `Plan FAILED: ${planResult.errorMessage || 'unknown error'}`
+  return summary + '\n' + planResult.steps.map(step => {
+    const outcome = step.outcome
+
+    if (!outcome) {
+      return `- ${step.tool}(${JSON.stringify(step.args)}): FAILED (invalid_result: tool returned no outcome)`
+    }
+
+    if (outcome.ok === true) {
+      return `- ${step.tool}(${JSON.stringify(step.args)}): OK -> ${JSON.stringify(outcome.result)}`
+    }
+    return `- ${step.tool}(${JSON.stringify(step.args)}): FAILED (${outcome.errorCode}: ${outcome.errorMessage})`
+  }).join('\n')
 }
 
 /*

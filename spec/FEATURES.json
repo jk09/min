@@ -43,7 +43,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:7bc380251e14edf6dedb1c70d98d4dbb5fcdf3c09955d7e21678658dfd6d3d5e",
+      "sourceHash": "sha256:448736b5850bd9074e127daa50c66221e0a43c8d143c089e98f9e23ed1d6c093",
       "lastVerified": "2026-09-06"
     },
     {
@@ -95,7 +95,7 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:8219ddb82eae2a5e391985658fa8a696ad432136598039bd745e1c0802dafb44",
+      "sourceHash": "sha256:d3e56836b324db5227ccd9e6db4ab60dbddda105bc670ab015c0ab8e50310ca4",
       "lastVerified": "2026-09-06"
     },
     {
@@ -243,8 +243,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:428762d8784de61b3bd14a889259ac57e983b11d84de979e847c7e0698996060",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:6f2db0981da2f448a93c3b8be1f2834472cdd1a3072c06ab3ba96dd060e02c13",
+      "lastVerified": "2026-09-06"
     },
     {
       "id": "prompt-plaintext-search",
@@ -590,8 +590,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:0ef6f723b015dd2a5e560206530b62c14491c565892436fabd304db7722da08d",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:ee778ef37485d1c861ff54478db4e3c052eea54288000163c0b28fbc5007f982",
+      "lastVerified": "2026-09-06"
     },
     {
       "id": "tasks-ui",

@@ -10,11 +10,13 @@
     "strict": false,
     "noImplicitAny": false,
     "noImplicitThis": false,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
+    "sourceMap": true,
     "paths": {
       "*": ["./*", "./js/*"]
     },

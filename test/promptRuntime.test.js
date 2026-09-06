@@ -164,9 +164,37 @@ test('LLM Prompt system prompt lists the tool catalog and instructs JSON-only re
 
 test('LLM Prompt outcome summary combines the plan message with a step count', function () {
     const plan = { message: 'Opened 2 tabs.', toolCalls: [{ tool: 'tabs.open', args: {} }, { tool: 'tabs.open', args: {} }] }
-    const planResult = { ok: true, steps: [{ tool: 'tabs.open' }, { tool: 'tabs.open' }] }
+    const planResult = {
+        ok: true,
+        steps: [
+            { tool: 'tabs.open', args: {}, outcome: { ok: true, toolId: 'tabs.open', result: { tabId: 'tab-1' } } },
+            { tool: 'tabs.open', args: {}, outcome: { ok: true, toolId: 'tabs.open', result: { tabId: 'tab-2' } } }
+        ]
+    }
 
-    assert.strictEqual(planningSkill.describePlanOutcome(plan, planResult), 'Opened 2 tabs. 2 steps completed.')
+    assert.match(planningSkill.describePlanOutcome(plan, planResult), /tabs\.open\(\{\}\): OK -> \{"tabId":"tab-1"\}/)
+})
+
+test('LLM Prompt outcome summary handles a missing tool outcome', function () {
+    const plan = { message: 'Open a tab.', toolCalls: [{ tool: 'tabs.open', args: {} }] }
+    const planResult = { ok: false, steps: [{ tool: 'tabs.open', args: {} }] }
+
+    assert.match(planningSkill.describePlanOutcome(plan, planResult), /tabs\.open\(\{\}\): FAILED \(invalid_result: tool returned no outcome\)/)
+})
+
+test('LLM Prompt outcome summary describes partial plan failures', function () {
+    const plan = { message: 'Search history.', toolCalls: [{ tool: 'history.search', args: {} }] }
+    const planResult = {
+        ok: false,
+        steps: [{
+            tool: 'history.search',
+            args: { query: 'hackers' },
+            outcome: { ok: false, toolId: 'history.search', errorCode: 'scope_denied', errorMessage: 'history.search: access denied' }
+        }],
+        errorMessage: 'history.search: access denied'
+    }
+
+    assert.match(planningSkill.describePlanOutcome(plan, planResult), /history\.search\(\{"query":"hackers"\}\): FAILED \(scope_denied: history\.search: access denied\)/)
 })
 
 test('a well-formed browser-action plan executes through the tool registry end to end', async function () {
@@ -179,7 +207,7 @@ test('a well-formed browser-action plan executes through the tool registry end t
     const planResult = await toolRegistry.runPlan(parsed.plan.toolCalls, { scope: 'read' })
 
     assert.strictEqual(planResult.ok, true)
-    assert.strictEqual(planningSkill.describePlanOutcome(parsed.plan, planResult), 'Reading it back. 1 step completed.')
+    assert.match(planningSkill.describePlanOutcome(parsed.plan, planResult), /test\.read\(\{"value":"hi"\}\): OK -> \{"value":"hi","count":1\}/)
 })
 
 test('the LLM Prompt debug record captures a successful run and nothing else', function () {
