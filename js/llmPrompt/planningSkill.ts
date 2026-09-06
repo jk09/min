@@ -22,10 +22,25 @@ export interface ToolCatalogEntry {
   parameters: ToolCatalogParameter[]
 }
 
+export interface ToolSuccessOutcome {
+  ok: true
+  toolId: string
+  result: unknown
+}
+
+export interface ToolFailureOutcome {
+  ok: false
+  toolId?: string
+  errorCode: string
+  errorMessage: string
+}
+
+export type ToolExecutionOutcome = ToolSuccessOutcome | ToolFailureOutcome
+
 export interface PlanResultStep {
   tool: string
   args: Record<string, any>
-  outcome: any
+  outcome: ToolExecutionOutcome
 }
 
 export interface PlanExecutionResult {
