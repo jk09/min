@@ -7,8 +7,8 @@ export const CHROME_BRIDGE_CAPABILITIES = Object.freeze({
   settings: Object.freeze(['onChanged', 'read', 'set']),
   session: Object.freeze(['backup', 'read', 'write']),
   downloads: Object.freeze(['cancel', 'onInfo', 'open', 'showInFolder', 'startFileDrag']),
-  files: Object.freeze(['choose', 'save']),
-  userscripts: Object.freeze(['list', 'openDirectory']),
+  files: Object.freeze(['toFileURL']),
+  userscripts: Object.freeze(['list', 'onChanged', 'openDirectory', 'unwatch', 'watch']),
   passwordManager: Object.freeze(['checkTool', 'copyTool', 'import', 'export']),
   prompt: Object.freeze(['cancel', 'complete', 'getStatus', 'onProgress'])
 })

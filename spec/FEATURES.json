@@ -43,7 +43,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:78164b58506a168a4fffb34ff5f4ec4282a7439a66eb4883900233aea28e6e02",
+      "sourceHash": "sha256:277845df457d70ebfd08c7bbb1121ff04ba164039b609b5feab801ee3647e7a2",
       "lastVerified": "2026-09-06"
     },
     {
@@ -557,7 +557,7 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:91bf900b0fa6a6cc78b3fbae4f58919e7f9f1d39e12ad5a9d57a3d8089d1cbcc",
+      "sourceHash": "sha256:21472dccdd149133d5a2ddd6f55153c999f085ef701b8552e13f4ef59efab1ad",
       "lastVerified": "2026-09-06"
     },
     {
@@ -590,7 +590,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:0c8b46bec35565210374451b286e3b8802c25ded0c7e00a9bba032977e9a1ea9",
+      "sourceHash": "sha256:bacc0ebc630683959ea2d29709ae617a8d2cd97c83cd1a59fdeda20ecf5a9371",
       "lastVerified": "2026-09-06"
     },
     {
@@ -607,6 +607,7 @@
         "main/windowUtils.js",
         "main/chromeCapabilities.js",
         "main/sessionPersistence.js",
+        "main/userscriptService.js",
         "main/remoteActions.js",
         "main/remoteMenu.js",
         "main/viewManager.js",
@@ -617,7 +618,9 @@
         "js/preload/browserChrome.js",
         "js/preload/chromeBridgeContract.ts",
         "js/default.js",
+        "js/navbar/tabBar.js",
         "js/sessionRestore.js",
+        "js/userscripts.js",
         "js/util/settings/settings.js",
         "js/util/settings/settingsMain.js",
         "js/windowControls.js",
@@ -634,7 +637,8 @@
           "test/chromePreload.test.js",
           "test/chromeCapabilities.test.js",
           "test/sessionPersistence.test.js",
-          "test/settingsCapabilities.test.js"
+          "test/settingsCapabilities.test.js",
+          "test/userscriptService.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -642,7 +646,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:e0190fbc515e718d1261d040b3119a2de8b641575b723fcc0a0bd203cc90799d",
+      "sourceHash": "sha256:2c0fbf4d86e18199cb37d84a034061271431367fb1aadb4ac25d95c86254cbac",
       "lastVerified": "2026-09-06"
     },
     {

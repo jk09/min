@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron')
+const { webUtils } = require('electron')
 
 const VIEW_METHODS = Object.freeze([
   'canGoToOffset', 'copy', 'copyImageAt', 'downloadURL', 'executeJavaScript',
@@ -91,6 +92,22 @@ contextBridge.exposeInMainWorld('min', {
     open: path => ipcRenderer.invoke('chrome:downloads:open', path),
     showInFolder: path => ipcRenderer.invoke('chrome:downloads:show-in-folder', path),
     startFileDrag: path => ipcRenderer.invoke('chrome:downloads:start-file-drag', path)
+  },
+  files: {
+    toFileURL: file => {
+      if (!file || typeof file !== 'object') {
+        return null
+      }
+      const filePath = webUtils.getPathForFile(file)
+      return filePath ? 'file://' + filePath.replace(/\\/g, '/') : null
+    }
+  },
+  userscripts: {
+    list: () => ipcRenderer.invoke('chrome:userscripts:list'),
+    openDirectory: () => ipcRenderer.invoke('chrome:userscripts:open-directory'),
+    watch: () => ipcRenderer.invoke('chrome:userscripts:watch'),
+    unwatch: () => ipcRenderer.invoke('chrome:userscripts:unwatch'),
+    onChanged: callback => subscribe('chrome:userscripts:changed', callback)
   },
   prompt: {
     cancel: requestId => ipcRenderer.invoke('chrome:prompt:cancel', { requestId }),

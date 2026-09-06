@@ -13,6 +13,7 @@ const {
 const appState = require('./appState')
 const settings = require('../js/util/settings/settingsMain')
 const { registerSessionPersistenceCapabilities } = require('./sessionPersistence')
+const { registerUserscriptCapabilities } = require('./userscriptService')
 const { windows } = require('./windowManagement')
 const { registerBundleProtocol } = require('./minInternalProtocol')
 const { registryInstaller } = require('./registryConfig')
@@ -61,6 +62,7 @@ app.commandLine.appendSwitch('disable-backgrounding-occluded-windows', 'true')
 
 settings.initialize(appState.userDataPath)
 registerSessionPersistenceCapabilities(appState.userDataPath)
+registerUserscriptCapabilities(appState.userDataPath)
 
 if (settings.get('userSelectedLanguage')) {
   app.commandLine.appendSwitch('lang', settings.get('userSelectedLanguage'))

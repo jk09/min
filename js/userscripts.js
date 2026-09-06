@@ -1,8 +1,5 @@
 /* implements userscript support */
 
-var path = require('path')
-var chokidar = require('chokidar')
-
 var webviews = require('webviews.js')
 var settings = require('util/settings/settings.js')
 var urlParser = require('util/urlParser.js')
@@ -65,102 +62,70 @@ function urlMatchesPattern (url, pattern) {
 }
 
 const userscripts = {
-  scriptDir: path.join(window.globalArgs['user-data-path'], 'userscripts'),
   scripts: [], // {options: {}, content}
   showDirectory: function () {
-    electron.shell.openPath(userscripts.scriptDir)
+    return window.min.userscripts.openDirectory()
   },
-  ensureDirectoryExists: function () {
-    fs.access(userscripts.scriptDir, fs.constants.R_OK, function (err) {
-      if (err) {
-        fs.mkdir(userscripts.scriptDir, function (err) {
-          if (err) {
-            console.warn('failed to create userscripts directory', err)
-          }
-        })
-      }
-    })
-  },
-  loadScripts: function () {
+  loadScripts: async function () {
     userscripts.scripts = []
+    const files = await window.min.userscripts.list()
 
-    fs.readdir(userscripts.scriptDir, function (err, files) {
-      if (err) {
-        userscripts.ensureDirectoryExists()
+    files.forEach(function ({ name: filename, content: file }) {
+      if (!file) {
         return
-      } else if (files.length === 0) {
+      }
+      var domain = filename.slice(0, -3)
+      if (domain.startsWith('www.')) {
+        domain = domain.slice(4)
+      }
+      if (!domain) {
         return
       }
 
-      // store the scripts in memory
-      files.forEach(function (filename) {
-        if (filename.endsWith('.js')) {
-          fs.readFile(path.join(userscripts.scriptDir, filename), 'utf-8', function (err, file) {
-            if (err || !file) {
-              return
-            }
-
-            var domain = filename.slice(0, -3)
-            if (domain.startsWith('www.')) {
-              domain = domain.slice(4)
-            }
-            if (!domain) {
-              return
-            }
-
-            var tampermonkeyFeatures = parseTampermonkeyFeatures(file)
-            if (tampermonkeyFeatures) {
-              var scriptName = tampermonkeyFeatures['name:local'] || tampermonkeyFeatures.name
-              if (scriptName) {
-                scriptName = scriptName[0]
-              } else {
-                scriptName = filename
-              }
-              userscripts.scripts.push({ options: tampermonkeyFeatures, content: file, name: scriptName })
-            } else {
-              // legacy script
-              if (domain === 'global') {
-                userscripts.scripts.push({
-                  options: {
-                    match: ['*']
-                  },
-                  content: file,
-                  name: filename
-                })
-              } else {
-                userscripts.scripts.push({
-                  options: {
-                    match: ['*://' + domain]
-                  },
-                  content: file,
-                  name: filename
-                })
-              }
-            }
+      var tampermonkeyFeatures = parseTampermonkeyFeatures(file)
+      if (tampermonkeyFeatures) {
+        var scriptName = tampermonkeyFeatures['name:local'] || tampermonkeyFeatures.name
+        if (scriptName) {
+          scriptName = scriptName[0]
+        } else {
+          scriptName = filename
+        }
+        userscripts.scripts.push({ options: tampermonkeyFeatures, content: file, name: scriptName })
+      } else {
+        // legacy script
+        if (domain === 'global') {
+          userscripts.scripts.push({
+            options: {
+              match: ['*']
+            },
+            content: file,
+            name: filename
+          })
+        } else {
+          userscripts.scripts.push({
+            options: {
+              match: ['*://' + domain]
+            },
+            content: file,
+            name: filename
           })
         }
-      })
+      }
     })
   },
   startDirWatcher: function () {
-    userscripts.stopDirWatcher() // destroy any previous instance
-    userscripts.watcherInstance = chokidar.watch(userscripts.scriptDir, {
-      ignoreInitial: true,
-      disableGlobbing: true,
-      awaitWriteFinish: {
-        stabilityThreshold: 500,
-        pollInterval: 100
-      }
+    userscripts.stopDirWatcher()
+    userscripts.watcherInstance = window.min.userscripts.onChanged(function () {
+      userscripts.loadScripts().catch(error => console.warn('failed to load userscripts', error))
     })
-    userscripts.watcherInstance.on('all', debounce(function () {
-      userscripts.loadScripts()
-    }, 100))
+    window.min.userscripts.watch().catch(error => console.warn('failed to watch userscripts', error))
   },
   stopDirWatcher: function () {
     if (userscripts.watcherInstance) {
-      userscripts.watcherInstance.close()
+      userscripts.watcherInstance()
       userscripts.watcherInstance = null
     }
+    window.min.userscripts.unwatch().catch(error => console.warn('failed to stop watching userscripts', error))
   },
   getMatchingScripts: function (src) {
     return userscripts.scripts.filter(function (script) {

@@ -65,6 +65,16 @@ interface ChromeBridge {
     showInFolder: (path: string) => Promise<void>
     startFileDrag: (path: string) => Promise<void>
   }>
+  files: Readonly<{
+    toFileURL: (file: File) => string | null
+  }>
+  userscripts: Readonly<{
+    list: () => Promise<Array<{ name: string, content: string }>>
+    openDirectory: () => Promise<string>
+    watch: () => Promise<void>
+    unwatch: () => Promise<void>
+    onChanged: (callback: () => void) => () => void
+  }>
   prompt: Readonly<{
     cancel: (requestId: string) => Promise<any>
     complete: (request: any) => Promise<any>
