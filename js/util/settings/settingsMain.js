@@ -2,6 +2,23 @@ const fs = require('fs')
 const writeFileAtomic = require('write-file-atomic')
 const { ipcMain: ipc } = require('electron')
 const { windows, getWindowWebContents } = require('../../../main/windowManagement')
+const { getChromeWindow } = require('../../../main/chromeCapabilities')
+
+function isSerializableSettingValue (value) {
+  if (value === undefined || value === null || typeof value === 'string' || typeof value === 'boolean') {
+    return true
+  }
+  if (typeof value === 'number') {
+    return Number.isFinite(value)
+  }
+  if (Array.isArray(value)) {
+    return value.every(isSerializableSettingValue)
+  }
+  if (Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.values(value).every(isSerializableSettingValue)
+  }
+  return false
+}
 
 var settings = {
   filePath: null,
@@ -66,7 +83,7 @@ var settings = {
     settings.runChangeCallbacks(key)
 
     windows.getAll().forEach(function (win) {
-      getWindowWebContents(win).send('settingChanged', key, value)
+      getWindowWebContents(win).send('settingChanged', [key, value])
     })
   },
   initialize: function (userDataPath) {
@@ -90,11 +107,23 @@ var settings = {
 
       windows.getAll().forEach(function (win) {
         if (getWindowWebContents(win).id !== e.sender.id) {
-          getWindowWebContents(win).send('settingChanged', key, value)
+          getWindowWebContents(win).send('settingChanged', [key, value])
         }
       })
+    })
+
+    ipc.handle('chrome:settings:read', function (event) {
+      getChromeWindow(event)
+      return JSON.parse(JSON.stringify(settings.list))
+    })
+    ipc.handle('chrome:settings:set', function (event, key, value) {
+      getChromeWindow(event)
+      if (typeof key !== 'string' || key.length === 0 || !isSerializableSettingValue(value)) {
+        throw new Error('invalid setting update')
+      }
+      settings.set(key, value)
     })
   }
 }
 
-module.exports = settings
+module.exports = { ...settings, isSerializableSettingValue }

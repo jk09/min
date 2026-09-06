@@ -492,8 +492,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:da42fe73e62136b4aecd70b5b885e630e4382a046b93f263123233e550c95cc4",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:ea2cd82add698637f4e469122fb50e4aca6c385bcb0afbadc2deb99bef1b60c6",
+      "lastVerified": "2026-09-06"
     },
     {
       "id": "session-sidebar-navigation",
@@ -606,6 +606,7 @@
       "sourceFiles": [
         "main/windowUtils.js",
         "main/chromeCapabilities.js",
+        "main/sessionPersistence.js",
         "main/remoteActions.js",
         "main/remoteMenu.js",
         "main/viewManager.js",
@@ -615,6 +616,10 @@
         "scripts/buildPreload.js",
         "js/preload/browserChrome.js",
         "js/preload/chromeBridgeContract.ts",
+        "js/default.js",
+        "js/sessionRestore.js",
+        "js/util/settings/settings.js",
+        "js/util/settings/settingsMain.js",
         "js/windowControls.js",
         "js/webviewMenu.js",
         "js/webviews.js",
@@ -627,7 +632,9 @@
         "unit": [
           "test/chromeBridgeContract.test.js",
           "test/chromePreload.test.js",
-          "test/chromeCapabilities.test.js"
+          "test/chromeCapabilities.test.js",
+          "test/sessionPersistence.test.js",
+          "test/settingsCapabilities.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -635,7 +642,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:52be8a2b239f9907f65f267217336155c6a99f45f020bdae1c24cdea820dbadf",
+      "sourceHash": "sha256:e0190fbc515e718d1261d040b3119a2de8b641575b723fcc0a0bd203cc90799d",
       "lastVerified": "2026-09-06"
     },
     {

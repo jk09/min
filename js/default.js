@@ -103,73 +103,79 @@ window.empty = function (node) {
   }
 }
 
+var settings = require('util/settings/settings.js')
+
+function initializeBrowser () {
 /* prevent a click event from firing after dragging the window */
 
-window.addEventListener('load', function () {
-  var isMouseDown = false
-  var isDragging = false
-  var distance = 0
+  window.addEventListener('load', function () {
+    var isMouseDown = false
+    var isDragging = false
+    var distance = 0
 
-  document.body.addEventListener('mousedown', function () {
-    isMouseDown = true
-    isDragging = false
-    distance = 0
-  })
-
-  document.body.addEventListener('mouseup', function () {
-    isMouseDown = false
-  })
-
-  var dragHandles = document.getElementsByClassName('windowDragHandle')
-
-  for (var i = 0; i < dragHandles.length; i++) {
-    dragHandles[i].addEventListener('mousemove', function (e) {
-      if (isMouseDown) {
-        isDragging = true
-        distance += Math.abs(e.movementX) + Math.abs(e.movementY)
-      }
-    })
-  }
-
-  document.body.addEventListener('click', function (e) {
-    if (isDragging && distance >= 10.0) {
-      e.stopImmediatePropagation()
+    document.body.addEventListener('mousedown', function () {
+      isMouseDown = true
       isDragging = false
+      distance = 0
+    })
+
+    document.body.addEventListener('mouseup', function () {
+      isMouseDown = false
+    })
+
+    var dragHandles = document.getElementsByClassName('windowDragHandle')
+
+    for (var i = 0; i < dragHandles.length; i++) {
+      dragHandles[i].addEventListener('mousemove', function (e) {
+        if (isMouseDown) {
+          isDragging = true
+          distance += Math.abs(e.movementX) + Math.abs(e.movementY)
+        }
+      })
     }
-  }, true)
-})
 
-require('tabState.js').initialize()
-require('tabState/windowSync.js').initialize()
-require('windowControls.js').initialize()
-require('navbar/menuButton.js').initialize()
+    document.body.addEventListener('click', function (e) {
+      if (isDragging && distance >= 10.0) {
+        e.stopImmediatePropagation()
+        isDragging = false
+      }
+    }, true)
+  })
 
-require('navbar/tabContextMenu.js').initialize()
-require('navbar/tabActivity.js').initialize()
-require('navbar/tabColor.js').initialize()
-require('navbar/breadcrumbs.js').initialize()
-require('navbar/sessionSidebar.js').initialize()
-require('downloadManager.js').initialize()
-require('webviewMenu.js').initialize()
-require('contextMenu.js').initialize()
-require('menuRenderer.js').initialize()
-require('defaultKeybindings.js').initialize()
-require('pdfViewer.js').initialize()
-require('autofillSetup.js').initialize()
-require('passwordManager/passwordManager.js').initialize()
-require('passwordManager/passwordCapture.js').initialize()
-require('passwordManager/passwordViewer.js').initialize()
-require('util/theme.js').initialize()
-require('userscripts.js').initialize()
-require('statistics.js').initialize()
-try {
-  require('llmPrompt/promptPanel.js').initialize()
-} catch (e) {
-  console.error('failed to initialize LLM prompt panel', e)
+  require('tabState.js').initialize()
+  require('tabState/windowSync.js').initialize()
+  require('windowControls.js').initialize()
+  require('navbar/menuButton.js').initialize()
+
+  require('navbar/tabContextMenu.js').initialize()
+  require('navbar/tabActivity.js').initialize()
+  require('navbar/tabColor.js').initialize()
+  require('navbar/breadcrumbs.js').initialize()
+  require('navbar/sessionSidebar.js').initialize()
+  require('downloadManager.js').initialize()
+  require('webviewMenu.js').initialize()
+  require('contextMenu.js').initialize()
+  require('menuRenderer.js').initialize()
+  require('defaultKeybindings.js').initialize()
+  require('pdfViewer.js').initialize()
+  require('autofillSetup.js').initialize()
+  require('passwordManager/passwordManager.js').initialize()
+  require('passwordManager/passwordCapture.js').initialize()
+  require('passwordManager/passwordViewer.js').initialize()
+  require('util/theme.js').initialize()
+  require('userscripts.js').initialize()
+  require('statistics.js').initialize()
+  try {
+    require('llmPrompt/promptPanel.js').initialize()
+  } catch (e) {
+    console.error('failed to initialize LLM prompt panel', e)
+  }
+  require('sessionRestore.js').initialize()
+  require('bookmarkConverter.js').initialize()
+  require('macHandoff.js').initialize()
+
+  // once everything's loaded, start the session
+  require('sessionRestore.js').restore()
 }
-require('sessionRestore.js').initialize()
-require('bookmarkConverter.js').initialize()
-require('macHandoff.js').initialize()
 
-// once everything's loaded, start the session
-require('sessionRestore.js').restore()
+settings.initialize().then(initializeBrowser)

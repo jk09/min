@@ -25,6 +25,16 @@ interface ChromeBridge {
     readText: () => Promise<string>
     writeText: (text: string) => Promise<void>
   }>
+  settings: Readonly<{
+    read: () => Promise<Record<string, any>>
+    set: (key: string, value: any) => Promise<void>
+    onChanged: (callback: (data: [string, any]) => void) => () => void
+  }>
+  session: Readonly<{
+    backup: (data: string) => Promise<string>
+    read: () => Promise<string | null>
+    write: (data: string) => Promise<void>
+  }>
   views: Readonly<{
     callMethod: (data: { id: string | number, callId?: number, method: string, args: any[] }) => void
     capture: (data: { id: string | number, width: number, height: number }) => void

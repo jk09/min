@@ -160,8 +160,8 @@ Staged migration to a context-isolated chrome renderer with a typed, least-privi
 
 - **id:** `secure-renderer-architecture`
 - **spec:** [spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md](../spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md)
-- **source:** `main/windowUtils.js`, `main/chromeCapabilities.js`, `main/remoteActions.js`, `main/remoteMenu.js`, `main/viewManager.js`, `main/download.js`, `main/llmEngine.js`, `main/main.js`, `scripts/buildPreload.js`, `js/preload/browserChrome.js`, `js/preload/chromeBridgeContract.ts`, `js/windowControls.js`, `js/webviewMenu.js`, `js/webviews.js`, `js/remoteMenuRenderer.js`, `js/downloadManager.js`, `js/llmPrompt/engineClient.js`, `types/globals.d.ts`
-- **tests:** unit (3)
+- **source:** `main/windowUtils.js`, `main/chromeCapabilities.js`, `main/sessionPersistence.js`, `main/remoteActions.js`, `main/remoteMenu.js`, `main/viewManager.js`, `main/download.js`, `main/llmEngine.js`, `main/main.js`, `scripts/buildPreload.js`, `js/preload/browserChrome.js`, `js/preload/chromeBridgeContract.ts`, `js/default.js`, `js/sessionRestore.js`, `js/util/settings/settings.js`, `js/util/settings/settingsMain.js`, `js/windowControls.js`, `js/webviewMenu.js`, `js/webviews.js`, `js/remoteMenuRenderer.js`, `js/downloadManager.js`, `js/llmPrompt/engineClient.js`, `types/globals.d.ts`
+- **tests:** unit (5)
 
 ## Retired features (8)
 

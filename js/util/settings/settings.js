@@ -1,5 +1,4 @@
 var settings = {
-  filePath: window.globalArgs['user-data-path'] + (process.platform === 'win32' ? '\\' : '/') + 'settings.json',
   list: {},
   onChangeCallbacks: [],
   runChangeCallbacks (key) {
@@ -27,30 +26,27 @@ var settings = {
   },
   set: function (key, value) {
     settings.list[key] = value
-    ipc.send('settingChanged', key, value)
+    window.min.settings.set(key, value).catch(function (error) {
+      console.warn('failed to save setting', error)
+    })
     settings.runChangeCallbacks(key)
   },
   initialize: function () {
-    var fileData
-    try {
-      fileData = fs.readFileSync(settings.filePath, 'utf-8')
-    } catch (e) {
-      if (e.code !== 'ENOENT') {
-        console.warn(e)
-      }
-    }
-    if (fileData) {
-      settings.list = JSON.parse(fileData)
-    }
-
-    settings.runChangeCallbacks()
-
-    ipc.on('settingChanged', function (e, key, value) {
-      settings.list[key] = value
-      settings.runChangeCallbacks(key)
+    return window.min.settings.read().then(function (list) {
+      settings.list = list || {}
+      settings.runChangeCallbacks()
+    }).catch(function (error) {
+      console.warn('failed to load settings', error)
+      settings.runChangeCallbacks()
+    }).then(function () {
+      window.min.settings.onChanged(function (data) {
+        var key = data[0]
+        var value = data[1]
+        settings.list[key] = value
+        settings.runChangeCallbacks(key)
+      })
     })
   }
 }
 
-settings.initialize()
 module.exports = settings

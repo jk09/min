@@ -47,6 +47,16 @@ contextBridge.exposeInMainWorld('min', {
   clipboard: {
     writeText: text => ipcRenderer.invoke('chrome:clipboard:write-text', text)
   },
+  settings: {
+    read: () => ipcRenderer.invoke('chrome:settings:read'),
+    set: (key, value) => ipcRenderer.invoke('chrome:settings:set', key, value),
+    onChanged: callback => subscribe('settingChanged', callback)
+  },
+  session: {
+    backup: data => ipcRenderer.invoke('chrome:session:backup', data),
+    read: () => ipcRenderer.invoke('chrome:session:read'),
+    write: data => ipcRenderer.invoke('chrome:session:write', data)
+  },
   views: {
     callMethod: data => {
       if (!data || !VIEW_METHODS.includes(data.method)) {

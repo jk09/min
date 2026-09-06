@@ -14,6 +14,8 @@ test('buildPreload creates the isolated chrome preload', function () {
   assert.match(content, /bootstrap/)
   assert.match(content, /chrome:window:minimize/)
   assert.match(content, /chrome:clipboard:write-text/)
+  assert.match(content, /chrome:settings:read/)
+  assert.match(content, /chrome:session:write/)
   assert.match(content, /create:\s*data\s*=>\s*ipcRenderer\.send\('createView'/)
   assert.match(content, /chrome:menu:open/)
   assert.match(content, /chrome:downloads:cancel/)
