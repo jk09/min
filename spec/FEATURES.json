@@ -668,7 +668,8 @@
           "test/settingsCapabilities.test.js",
           "test/userscriptService.test.js",
           "test/chromeAppService.test.js",
-          "test/eventBus.test.js"
+          "test/eventBus.test.js",
+          "test/rendererTrustBoundary.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -676,7 +677,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:4b1808ba5c604b3aee0c303a9705aa3ff5abaf4fd2298f4edd0160c56b6212de",
+      "sourceHash": "sha256:b66fc0ef0d71a9c790000b6949926160322ad18ae9c5873789c6bdf9a0b4f9cc",
       "lastVerified": "2026-09-22"
     },
     {

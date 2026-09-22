@@ -35,6 +35,75 @@ function getWindowWebContents (win) {
   return windowManagement.getWindowWebContents(win)
 }
 
+/*
+Reports whether the chrome renderer really is Chromium-only. Nothing in the
+regular test suite loads the bundle in a browser, so without this a renderer
+that had regained Node access - or one that crashed on startup - would still
+look healthy. Runs only under --startup-diagnostics; test/rendererTrustBoundary
+asserts on the result.
+*/
+function probeRendererTrustBoundary (webContents, windowId, securityPreferences) {
+  if (!appState.isStartupDiagnosticsEnabled) {
+    return
+  }
+
+  const probe = `(function () {
+    var absent = function (name) { return typeof globalThis[name] === 'undefined' }
+    var bridge = globalThis.min
+
+    /*
+    The renderer initializes asynchronously, so wait for the tab state that
+    js/tabState.js publishes. A bundle that throws on startup still leaves the
+    preload bridge intact, so without this the probe would call a dead renderer
+    healthy - which is how a broken renderer survived several migration stages.
+    */
+    var waitForInitialization = function (remainingMs) {
+      // checked through a method rather than with typeof, because index.html has an
+      // element with id="tabs" and the browser exposes element ids on window, so a
+      // plain existence check is satisfied by the DOM node even in a dead renderer
+      var tabs = globalThis.tabs
+      if (tabs && typeof tabs.get === 'function') {
+        return Promise.resolve(true)
+      }
+      if (remainingMs <= 0) {
+        return Promise.resolve(false)
+      }
+      return new Promise(function (resolve) {
+        setTimeout(function () { resolve(waitForInitialization(remainingMs - 100)) }, 100)
+      })
+    }
+
+    return waitForInitialization(10000).then(function (rendererInitialized) { return {
+      rendererInitialized: rendererInitialized,
+      require: absent('require'),
+      process: absent('process'),
+      Buffer: absent('Buffer'),
+      module: absent('module'),
+      global: typeof globalThis.global,
+      electron: absent('electron'),
+      fs: absent('fs'),
+      ipc: absent('ipc'),
+      EventEmitter: absent('EventEmitter'),
+      globalArgs: absent('globalArgs'),
+      bridgeGroups: bridge ? Object.keys(bridge).sort() : [],
+      bridgeLeaks: bridge ? Object.keys(bridge).filter(function (key) {
+        return ['ipcRenderer', 'send', 'invoke', 'require', 'shell', 'webUtils'].indexOf(key) !== -1
+      }) : ['missing'],
+      windowId: bridge && bridge.bootstrap ? bridge.bootstrap.windowId : null,
+      platform: bridge && bridge.bootstrap ? bridge.bootstrap.platform : null,
+      appVersion: bridge && bridge.bootstrap ? bridge.bootstrap.appVersion : null
+    } })
+  })()`
+
+  webContents.executeJavaScript(probe, true)
+    .then(function (result) {
+      console.log('[renderer-trust-boundary]', JSON.stringify(Object.assign({ windowId, securityPreferences }, result)))
+    })
+    .catch(function (error) {
+      console.log('[renderer-trust-boundary]', JSON.stringify({ windowId, error: String(error) }))
+    })
+}
+
 function sendPendingIPCMessages (webContents) {
   const messages = pendingIPCMessages.get(webContents)
   pendingIPCMessages.delete(webContents)
@@ -187,14 +256,21 @@ function createWindowWithBounds (bounds, customArgs) {
     newWin.setMenuBarVisibility(false)
   }
 
+  // the chrome renderer is Chromium-only: every privileged operation goes through
+  // the named window.min capabilities in dist/preload-chrome.js. These four settings
+  // are the trust boundary, so they are reported to the startup probe as well.
+  const chromeSecurityPreferences = {
+    nodeIntegration: false,
+    nodeIntegrationInWorker: false,
+    contextIsolation: true,
+    sandbox: true
+  }
+
   const mainView = new WebContentsView({
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: true,
-      nodeIntegrationInWorker: true, // used by ProcessSpawner
+      ...chromeSecurityPreferences,
       preload: path.join(appState.appRoot, 'dist/preload-chrome.js'),
       additionalArguments: [
-        '--user-data-path=' + appState.userDataPath,
         '--app-version=' + app.getVersion(),
         '--app-name=' + app.getName(),
         ...((appState.isDevelopmentMode ? ['--development-mode'] : [])),
@@ -226,6 +302,7 @@ function createWindowWithBounds (bounds, customArgs) {
       windowId: startupWindowId,
       url: mainView.webContents.getURL()
     })
+    probeRendererTrustBoundary(mainView.webContents, startupWindowId, chromeSecurityPreferences)
   })
 
   mainView.webContents.on('did-fail-load', function (event, errorCode, errorDescription, validatedURL, isMainFrame) {
