@@ -14,7 +14,13 @@ const buildBrowserStyles = require('./buildBrowserStyles.js')
 
 chokidar.watch(jsDir, { ignored: preloadDir }).on('change', function () {
   console.log('rebuilding browser')
-  buildBrowser()
+  try {
+    buildBrowser()
+  } catch (e) {
+    // a build error is usually a typo that is about to be fixed, so report it
+    // and keep watching rather than dropping out of the dev loop
+    console.warn('\x1b[31m' + 'Error while building: ' + e.message + '\x1b[0m')
+  }
 })
 
 chokidar.watch(preloadDir).on('change', function () {

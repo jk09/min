@@ -83,5 +83,3 @@ export function parsePlan (raw?: string | null, knownToolIds?: string[] | null):
 
   return { ok: true, plan: { message, toolCalls } }
 }
-
-module.exports = { MAX_TOOL_CALLS, parsePlan, extractJSON }

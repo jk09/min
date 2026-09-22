@@ -1,11 +1,7 @@
 require('./registerTs.js')
-const browserify = require('browserify')
-const browserResolve = require('browser-resolve')
-const renderify = require('electron-renderify')
+const esbuild = require('esbuild')
 const path = require('path')
 const fs = require('fs')
-
-const tsTransform = require('./tsTransform')
 
 const rootDir = path.resolve(__dirname, '../')
 const jsDir = path.resolve(__dirname, '../js')
@@ -19,37 +15,31 @@ const fileList = [
 ]
 
 /*
-The chrome renderer is context-isolated, so Node's `global` is not present.
-Browser libraries in the bundle (dragula -> crossvent -> custom-event) expect it,
-so browserify defines it per module as the browser's own global object. Node
-globals are deliberately left undefined: the renderer must use the window.min
-bridge instead. Stage 7 replaces this with esbuild's `define` option.
+Renderer modules address each other by paths relative to the repo root or to
+js/ (`require('util/settings/settings.js')`, `require('ext/textColor/textColor.js')`).
+Browserify resolved those through its `paths` option; esbuild resolves them
+through `nodePaths`, which behaves like NODE_PATH. This is the documented
+build-time alias map - renderer code never resolves a module at runtime.
 */
-const insertGlobalVars = {
-  global: () => 'globalThis',
-  process: () => undefined,
-  Buffer: () => undefined,
-  'Buffer.isBuffer': () => undefined,
-  setImmediate: () => undefined,
-  clearImmediate: () => undefined,
-  __filename: () => undefined,
-  __dirname: () => undefined
+const nodePaths = [rootDir, jsDir]
+
+/*
+The chrome renderer is context-isolated and sandboxed, so Node's `global` is
+absent. Browser libraries in the bundle (dragula -> crossvent -> custom-event)
+expect it. Node globals are deliberately left alone: there is no `process` or
+`Buffer` in the renderer, and any module reaching for one is a bug to fix at
+the source rather than to paper over with a shim.
+*/
+const define = {
+  global: 'globalThis'
 }
 
-function customResolve (id, opts, cb) {
-  browserResolve(id, opts, function (err, res) {
-    if (err && typeof id === 'string' && id.endsWith('.js')) {
-      const tsId = id.slice(0, -3) + '.ts'
-      return browserResolve(tsId, opts, function (err2, res2) {
-        if (!err2 && res2) {
-          return cb(null, res2)
-        }
-        cb(err)
-      })
-    }
-    cb(err, res)
-  })
-}
+/*
+Modules that only main-process code pulls in. Nothing in the renderer graph
+should reach them; marking them external turns a silent Node dependency into a
+build error instead of a bundled copy.
+*/
+const external = ['electron', 'fs', 'path', 'child_process', 'events', 'write-file-atomic', 'chokidar']
 
 function buildBrowser () {
   // build localization support first, since it is included in the browser bundle
@@ -66,52 +56,54 @@ function buildBrowser () {
 
   fs.writeFileSync(intermediateOutput, output, 'utf-8')
 
-  const instance = browserify(intermediateOutput, {
-    paths: [rootDir, jsDir],
-    extensions: ['.js', '.json', '.ts', '.tsx'],
-    resolve: customResolve,
-    ignoreMissing: false,
-    node: true,
-    detectGlobals: true,
-    insertGlobalVars,
-    debug: true // emit source maps so breakpoints bind to the original js/ files
+  const result = esbuild.buildSync({
+    entryPoints: [intermediateOutput],
+    outfile: outFile,
+    bundle: true,
+    format: 'iife',
+    platform: 'browser',
+    target: 'chrome120',
+    nodePaths,
+    define,
+    external,
+    resolveExtensions: ['.js', '.json', '.ts', '.tsx'],
+    // the bundle lives in dist/ but its sources are repo-root-relative,
+    // so without this the debugger resolves them one directory too deep
+    sourceRoot: '../',
+    sourcemap: 'inline',
+    sourcesContent: true,
+    logLevel: 'warning',
+    metafile: true
   })
 
-  instance.exclude('chokidar')
-  instance.exclude('write-file-atomic')
+  assertNoNodeDependencies(result.metafile)
 
-  instance.transform(tsTransform)
-  instance.transform(renderify)
-  const stream = fs.createWriteStream(outFile, { encoding: 'utf-8' })
-  instance.bundle()
-    .on('error', function (e) {
-      console.warn('\x1b[31m' + 'Error while building: ' + e.message + '\x1b[30m')
-    })
-    .pipe(stream)
-
-  // the bundle's sources are repo-root-relative, but the bundle itself lives in dist/,
-  // so without a sourceRoot the debugger resolves them one directory too deep
-  stream.on('finish', function () {
-    fixSourceMapRoot(outFile)
-  })
+  return result
 }
 
-function fixSourceMapRoot (bundlePath) {
-  const marker = '//# sourceMappingURL=data:application/json;charset=utf-8;base64,'
-  const content = fs.readFileSync(bundlePath, 'utf-8')
-  const markerIndex = content.lastIndexOf(marker)
+/*
+esbuild leaves an unresolved `require('fs')` in the output as a runtime call
+that throws only when it runs. Failing the build instead keeps a Node
+dependency from reaching the renderer unnoticed.
+*/
+function assertNoNodeDependencies (metafile) {
+  const offenders = []
 
-  if (markerIndex === -1) {
-    return
+  Object.entries(metafile.inputs).forEach(function ([file, input]) {
+    input.imports.forEach(function (imported) {
+      if (imported.external && external.includes(imported.path)) {
+        offenders.push(file + ' requires ' + imported.path)
+      }
+    })
+  })
+
+  if (offenders.length > 0) {
+    throw new Error(
+      'the chrome renderer bundle must not depend on Node or Electron modules:\n  ' +
+      offenders.join('\n  ') +
+      '\nMove the capability into the main process and expose it through window.min.'
+    )
   }
-
-  const base64 = content.slice(markerIndex + marker.length).trim()
-  const map = JSON.parse(Buffer.from(base64, 'base64').toString('utf-8'))
-  map.sourceRoot = '../'
-
-  const newBase64 = Buffer.from(JSON.stringify(map), 'utf-8').toString('base64')
-  const newContent = content.slice(0, markerIndex) + marker + newBase64
-  fs.writeFileSync(bundlePath, newContent, 'utf-8')
 }
 
 if (module.parent) {

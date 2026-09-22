@@ -66,6 +66,7 @@
     "electron-builder": "^24.13.3",
     "electron-installer-windows": "^3.0.0",
     "electron-renderify": "0.0.2",
+    "esbuild": "^0.28.2",
     "eslint": "^6.8.0",
     "prebuild-install": "^7.0.1",
     "prettier": "^2.2.1",

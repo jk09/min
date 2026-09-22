@@ -131,5 +131,3 @@ export function buildDebugRecord (input: DebugRecordInput): DebugRecord {
     failureMessage: input.failureMessage || null
   }
 }
-
-module.exports = { MAX_TOOL_CALLS_HINT, buildSystemPrompt, describePlanOutcome, buildDebugRecord }

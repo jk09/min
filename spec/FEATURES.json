@@ -43,7 +43,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:3ac1a9d43913375a21bef88a09a3c8159dbbc7d3eb5485257ebcae71d10ee209",
+      "sourceHash": "sha256:d3e258133b233fd94e1c41016adb9da4e0420420af3839bfbdef43a521f54ad2",
       "lastVerified": "2026-09-22"
     },
     {
@@ -193,8 +193,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:6cb2479983af0edc2c63bf24c31e06fab542a1d3d37c62cbd400cd4c03539b9e",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:9b54fd9923e4139cd1d6fe4825c10106fa7a1e4d414114fc960d864ad7a5b72e",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "prompt-debug-tab",
@@ -243,8 +243,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:6f2db0981da2f448a93c3b8be1f2834472cdd1a3072c06ab3ba96dd060e02c13",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:ff5df1f9f1d7aadd403392ba72851aa17c9de68076458895e18e01fd4dc6e82e",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "prompt-plaintext-search",
@@ -291,8 +291,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:bfda1b3b7daa7f3c7ff130a83c8f4dfa8e286ef11a356415efd8c10afd712243",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:2827d14ad81fb107d69f799c410d72dc9e4278adf9a603d9464fe8337bcecf8a",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "prompt-search-engine-selector",
@@ -492,7 +492,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:6cf05ff204ddcac501c7a2484a49f411fdc43714d7689a537f295d65efe234e8",
+      "sourceHash": "sha256:1a1b18153418716d5a3b8a9d9a331ce0a58ed9a4b2feac5d9844140ca405ae5f",
       "lastVerified": "2026-09-22"
     },
     {
@@ -534,7 +534,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ec86a732a0431ed4ec658c2ed1e623bfc5db7cdb0d339cf260eede1c17116991",
+      "sourceHash": "sha256:f86e8b57a8c60a7424ae65fc51bee97091f13eaf5e4c63178d90a1cc791fd1de",
       "lastVerified": "2026-09-22"
     },
     {
@@ -557,7 +557,7 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:98e0b444c27f2254e977da14aa64f3d4282918f06633764d482f77e4444de85d",
+      "sourceHash": "sha256:e2a6162993cfa354d280476f57dccfed69f30d891515ea7f61df1f9913533f78",
       "lastVerified": "2026-09-22"
     },
     {
@@ -590,7 +590,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:b5f8963264121de793f073bca7c8753e946afb6b51fa37b0ecb226ef176de9be",
+      "sourceHash": "sha256:1f9350c0ccddcad05a40f06a1dfbe577dd78badae416431075457764e8187c30",
       "lastVerified": "2026-09-22"
     },
     {
@@ -656,7 +656,10 @@
         "js/places/places.js",
         "js/statistics.js",
         "js/tabState/windowSync.js",
-        "scripts/buildBrowser.js"
+        "scripts/buildBrowser.js",
+        "localization/localizationHelpers.js",
+        "main/localizationMain.js",
+        "scripts/watch.js"
       ],
       "tests": {
         "unit": [
@@ -669,7 +672,8 @@
           "test/userscriptService.test.js",
           "test/chromeAppService.test.js",
           "test/eventBus.test.js",
-          "test/rendererTrustBoundary.test.js"
+          "test/rendererTrustBoundary.test.js",
+          "test/buildBrowser.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -677,7 +681,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:b66fc0ef0d71a9c790000b6949926160322ad18ae9c5873789c6bdf9a0b4f9cc",
+      "sourceHash": "sha256:118e5764881831b79fad5223d19b2a6df899125a6c7c9eb12cf6bd079d649d75",
       "lastVerified": "2026-09-22"
     },
     {

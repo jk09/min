@@ -122,12 +122,3 @@ export function summarizeHiddenTabs (hiddenTabs: HiddenTabItem[] = []): HiddenTa
     groups
   }
 }
-
-module.exports = {
-  DEFAULT_TAB_WIDTH,
-  MIN_TAB_WIDTH,
-  MAX_TAB_WIDTH,
-  clampTabWidth,
-  computeVisibleTabs,
-  summarizeHiddenTabs
-}
