@@ -32,7 +32,8 @@ test('type declarations exist and provide Min ambient types', function () {
   assert.match(globalsContent, /declare global/, 'globals.d.ts should declare global types')
   assert.match(globalsContent, /tabs:\s*TabList/, 'globals.d.ts should declare tabs')
   assert.match(globalsContent, /tasks:\s*TaskList/, 'globals.d.ts should declare tasks')
-  assert.match(globalsContent, /ipc:\s*IpcRenderer/, 'globals.d.ts should declare ipc')
+  assert.match(globalsContent, /min:\s*ChromeBridge/, 'globals.d.ts should declare the chrome bridge')
+  assert.doesNotMatch(globalsContent, /ipc:\s*IpcRenderer/, 'globals.d.ts must not declare a renderer ipc global')
 
   const minContent = fs.readFileSync(minDts, 'utf-8')
   assert.match(minContent, /interface TabList/, 'min.d.ts should declare TabList interface')

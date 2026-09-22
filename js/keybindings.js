@@ -162,7 +162,7 @@ function initialize () {
     beforeInputEventHandler(input)
   })
 
-  ipc.on('before-input-event', function (e, input) {
+  window.min.app.onBeforeInputEvent(function (input) {
     beforeInputEventHandler(input)
   })
 }

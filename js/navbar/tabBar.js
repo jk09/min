@@ -1,4 +1,4 @@
-const EventEmitter = require('events')
+const EventBus = require('util/eventBus.js')
 
 const webviews = require('webviews.js')
 const focusMode = require('focusMode.js')
@@ -28,7 +28,7 @@ const tabBar = {
   useSiteTheme: true,
   hiddenTabIds: [],
   tabElementMap: {}, // tabId: tab element
-  events: new EventEmitter(),
+  events: new EventBus(),
   dragulaInstance: null,
   getTab: function (tabId) {
     return tabBar.tabElementMap[tabId]

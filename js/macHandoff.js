@@ -6,18 +6,18 @@ module.exports = {
       tasks.on('tab-selected', function (id) {
         if (tabs.get(id)) {
           if (tabs.get(id).private) {
-            ipc.send('handoffUpdate', { url: '' })
+            window.min.app.updateHandoff('')
           } else {
-            ipc.send('handoffUpdate', { url: tabs.get(id).url })
+            window.min.app.updateHandoff(tabs.get(id).url)
           }
         }
       })
       tasks.on('tab-updated', function (id, key) {
         if (key === 'url' && tabs.getSelected() === id) {
           if (tabs.get(id).private) {
-            ipc.send('handoffUpdate', { url: '' })
+            window.min.app.updateHandoff('')
           } else {
-            ipc.send('handoffUpdate', { url: tabs.get(id).url })
+            window.min.app.updateHandoff(tabs.get(id).url)
           }
         }
       })

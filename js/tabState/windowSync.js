@@ -5,7 +5,7 @@ const windowSync = {
   pendingEvents: [],
   syncTimeout: null,
   sendEvents: function () {
-    ipc.send('tab-state-change', windowSync.pendingEvents)
+    window.min.tabState.sendChanges(windowSync.pendingEvents)
     windowSync.pendingEvents = []
     windowSync.syncTimeout = null
   },
@@ -20,7 +20,7 @@ const windowSync = {
       }
     })
 
-    ipc.on('tab-state-change-receive', function (e, data) {
+    const unsubscribe = window.min.tabState.onChanges(function (data) {
       const {sourceWindowId, events} = data
       events.forEach(function (event) {
         const priorSelectedTask = tasks.getSelected().id
@@ -30,8 +30,8 @@ const windowSync = {
           (event[0] === 'task-destroyed' && event[1] === priorSelectedTask)
           || (event[0] === 'tab-destroyed' && event[2] === priorSelectedTask && tasks.getSelected().tabs.count() === 1)
         ) {
-          ipc.invoke('close')
-          ipc.removeAllListeners('tab-state-change-receive')
+          window.min.window.close()
+          unsubscribe()
           return
         }
 

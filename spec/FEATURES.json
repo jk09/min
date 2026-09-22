@@ -43,8 +43,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:3ba909e46381776243e233b15a79df90b1fda2dbb3a70231b70b1140b4f1fb57",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:3ac1a9d43913375a21bef88a09a3c8159dbbc7d3eb5485257ebcae71d10ee209",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "personal-history-graph",
@@ -338,8 +338,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:430d89a6791205ce89b279b3ead7ca8667dd471a9338c2591c22eb7974451353",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:e76f23f459ad303ec0b62cefa891eadd878e139f9ab062418da97909f6f6e096",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "empty-state-prompt",
@@ -363,8 +363,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:41f5c61f5361ca8296249ad5bc3e97b7f634806a2c5b74b0d8838669954fc8ad",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:8099017537d3ae74b1717d9966a339a5d9e281e6740181c0df19ba72d1c8c776",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "simplified-browser-controls",
@@ -492,8 +492,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ea2cd82add698637f4e469122fb50e4aca6c385bcb0afbadc2deb99bef1b60c6",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:6cf05ff204ddcac501c7a2484a49f411fdc43714d7689a537f295d65efe234e8",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "session-sidebar-navigation",
@@ -534,8 +534,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:e51baeac16023596995d904490ed8f182cad54e156f5a8aa84eaeb0b1795b6ca",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:ec86a732a0431ed4ec658c2ed1e623bfc5db7cdb0d339cf260eede1c17116991",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "esm-module-refactor",
@@ -557,8 +557,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:7b800d7d3ab9a764da9cda51f0e1da259879491f43cba7b915d0bb55e4746b26",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:98e0b444c27f2254e977da14aa64f3d4282918f06633764d482f77e4444de85d",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "typescript-support",
@@ -590,8 +590,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:718bac2ec2712e3ca8a2752dd53dcb7a8bc1ecd3902626b670b31d2f493e7d45",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:b5f8963264121de793f073bca7c8753e946afb6b51fa37b0ecb226ef176de9be",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "secure-renderer-architecture",
@@ -637,7 +637,26 @@
         "js/passwordManager/onePassword.js",
         "js/passwordManager/passwordManager.js",
         "js/passwordManager/passwordViewer.js",
-        "types/globals.d.ts"
+        "types/globals.d.ts",
+        "main/chromeAppService.js",
+        "main/historyService.js",
+        "main/permissionManager.js",
+        "js/util/eventBus.js",
+        "js/util/hosts.js",
+        "js/bookmarkConverter.js",
+        "js/browserUI.js",
+        "js/defaultKeybindings.js",
+        "js/focusMode.js",
+        "js/keybindings.js",
+        "js/macHandoff.js",
+        "js/menuRenderer.js",
+        "js/navbar/menuButton.js",
+        "js/navbar/permissionRequests.js",
+        "js/pdfViewer.js",
+        "js/places/places.js",
+        "js/statistics.js",
+        "js/tabState/windowSync.js",
+        "scripts/buildBrowser.js"
       ],
       "tests": {
         "unit": [
@@ -647,7 +666,9 @@
           "test/passwordManagerService.test.js",
           "test/sessionPersistence.test.js",
           "test/settingsCapabilities.test.js",
-          "test/userscriptService.test.js"
+          "test/userscriptService.test.js",
+          "test/chromeAppService.test.js",
+          "test/eventBus.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -655,8 +676,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:34c721eca0b44d01fe18907eafd9f63f08d2bca79b73d2cc298a762a984ff748",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:4b1808ba5c604b3aee0c303a9705aa3ff5abaf4fd2298f4edd0160c56b6212de",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "tasks-ui",

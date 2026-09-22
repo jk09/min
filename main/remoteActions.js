@@ -41,6 +41,21 @@ ipc.handle('chrome:clipboard:write-text', function (event, text) {
   require('electron').clipboard.writeText(text)
 })
 
+ipc.handle('chrome:clipboard:write-bookmark', function (event, data) {
+  if (!data || typeof data !== 'object') {
+    throw new Error('bookmark data is required')
+  }
+  if (typeof data.text !== 'string' || typeof data.html !== 'string') {
+    throw new Error('bookmark text and html must be strings')
+  }
+  getChromeWindow(event)
+  require('electron').clipboard.write({
+    text: data.text,
+    bookmark: typeof data.bookmark === 'string' ? data.bookmark : '',
+    html: data.html
+  })
+})
+
 function requireDownloadPath (event, path) {
   if (typeof path !== 'string' || path.length === 0) {
     throw new Error('download path must be a non-empty string')
@@ -94,6 +109,11 @@ function showFocusModeDialog2() {
 }
 
 ipc.handle('showFocusModeDialog2', showFocusModeDialog2)
+
+ipc.handle('chrome:app:show-focus-mode-dialog', function (event) {
+  getChromeWindow(event)
+  showFocusModeDialog2()
+})
 
 ipc.handle('showOpenDialog', async function (e, options) {
   const result = await dialog.showOpenDialog(windows.windowFromContents(e.sender).win, options)

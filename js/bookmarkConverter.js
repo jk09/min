@@ -3,8 +3,6 @@
 var places = require('places/places.js')
 var urlParser = require('util/urlParser.js')
 var settings = require('util/settings/settings.js')
-var path = require('path')
-var fs = require('fs')
 
 const bookmarkConverter = {
   import: function (data) {
@@ -97,11 +95,8 @@ const bookmarkConverter = {
       if (!settings.get('lastBookmarksBackup') || (Date.now() - settings.get('lastBookmarksBackup')) > interval) {
         bookmarkConverter.exportAll().then(function (res) {
           if (res.length > minSize) {
-            fs.writeFile(path.join(window.globalArgs['user-data-path'], 'bookmarksBackup.html'), res, { encoding: 'utf-8' }, function (err) {
-              if (err) {
-                console.warn(err)
-              }
-            })
+            window.min.app.writeBookmarksBackup(res)
+              .catch(e => console.warn('error writing bookmarks backup', e))
             settings.set('lastBookmarksBackup', Date.now())
           }
         })

@@ -1,11 +1,11 @@
 var isFocusMode = false
 
-ipc.on('enterFocusMode', function () {
+window.min.app.onCommand('enterFocusMode', function () {
   isFocusMode = true
   document.body.classList.add('is-focus-mode')
 })
 
-ipc.on('exitFocusMode', function () {
+window.min.app.onCommand('exitFocusMode', function () {
   isFocusMode = false
   document.body.classList.remove('is-focus-mode')
 })
@@ -15,6 +15,6 @@ module.exports = {
     return isFocusMode
   },
   warn: function () {
-    ipc.invoke('showFocusModeDialog2')
+    window.min.app.showFocusModeDialog()
   }
 }

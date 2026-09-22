@@ -10,6 +10,13 @@ const VIEW_METHODS = Object.freeze([
   'toggleDevTools', 'zoomFactor'
 ])
 
+/* main-process commands the chrome renderer is allowed to listen for */
+const APP_COMMANDS = Object.freeze([
+  'addPrivateTab', 'addTab', 'enterFocusMode', 'exitFocusMode', 'findInPage',
+  'goBack', 'goForward', 'inspectPage', 'openPDF', 'print', 'saveCurrentPage',
+  'set-file-view', 'zoomIn', 'zoomOut', 'zoomReset'
+])
+
 function getArgument (name) {
   const prefix = '--' + name + '='
   const argument = process.argv.find(value => value.startsWith(prefix))
@@ -18,8 +25,11 @@ function getArgument (name) {
 
 contextBridge.exposeInMainWorld('min', {
   bootstrap: {
+    appName: getArgument('app-name'),
     appVersion: getArgument('app-version'),
     developmentMode: process.argv.includes('--development-mode'),
+    initialTask: getArgument('initial-task') || null,
+    initialWindow: process.argv.includes('--initial-window'),
     platform: process.platform,
     windowId: getArgument('window-id')
   },
@@ -30,7 +40,7 @@ contextBridge.exposeInMainWorld('min', {
     setFullScreen: enabled => ipcRenderer.invoke('chrome:window:set-full-screen', enabled),
     unmaximize: () => ipcRenderer.invoke('chrome:window:unmaximize'),
     onStateChange: callback => {
-      const states = ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen']
+      const states = ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen', 'focus', 'blur']
       const listeners = states.map(function (state) {
         const listener = function () {
           callback(state)
@@ -46,7 +56,40 @@ contextBridge.exposeInMainWorld('min', {
     }
   },
   clipboard: {
-    writeText: text => ipcRenderer.invoke('chrome:clipboard:write-text', text)
+    writeText: text => ipcRenderer.invoke('chrome:clipboard:write-text', text),
+    writeBookmark: data => ipcRenderer.invoke('chrome:clipboard:write-bookmark', data)
+  },
+  app: {
+    quit: () => ipcRenderer.invoke('chrome:app:quit'),
+    setWindowTitle: title => ipcRenderer.invoke('chrome:app:set-window-title', title),
+    showSecondaryMenu: position => ipcRenderer.invoke('chrome:app:show-secondary-menu', position),
+    showSaveDialog: defaultPath => ipcRenderer.invoke('chrome:app:show-save-dialog', defaultPath),
+    showFocusModeDialog: () => ipcRenderer.invoke('chrome:app:show-focus-mode-dialog'),
+    addWordToDictionary: word => ipcRenderer.invoke('chrome:app:add-word-to-dictionary', word),
+    updateHandoff: url => ipcRenderer.invoke('chrome:app:update-handoff', url),
+    getHosts: () => ipcRenderer.invoke('chrome:app:hosts'),
+    writeBookmarksBackup: html => ipcRenderer.invoke('chrome:app:write-bookmarks-backup', html),
+    onCommand: (command, callback) => {
+      if (!APP_COMMANDS.includes(command)) {
+        throw new Error('app command is not allowed')
+      }
+      return subscribe(command, callback)
+    },
+    onBeforeInputEvent: callback => subscribe('before-input-event', callback)
+  },
+  permissions: {
+    grant: permissionId => ipcRenderer.invoke('chrome:permissions:grant', permissionId),
+    onChange: callback => subscribe('updatePermissions', callback)
+  },
+  tabState: {
+    requestSync: () => ipcRenderer.invoke('chrome:tab-state:request'),
+    sendChanges: events => ipcRenderer.send('chrome:tab-state:change', events),
+    returnState: state => ipcRenderer.send('chrome:tab-state:return', state),
+    onChanges: callback => subscribe('chrome:tab-state:receive', callback),
+    onReadRequest: callback => subscribe('chrome:tab-state:read', callback)
+  },
+  history: {
+    request: data => ipcRenderer.invoke('chrome:history:request', data)
   },
   settings: {
     read: () => ipcRenderer.invoke('chrome:settings:read'),

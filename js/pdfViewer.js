@@ -39,7 +39,7 @@ const PDFViewer = {
 
     webviews.callAsync(tabs.getSelected(), 'executeJavaScript', 'parentProcessActions.endFindInPage()')
   },
-  handlePDFOpenEvent: function (event, data) {
+  handlePDFOpenEvent: function (data) {
     if (!data.tabId) {
       var matchingTabs = tabs.get().filter(t => urlParser.getSourceURL(t.url) === data.url).sort((a, b) => { return b.lastActivity - a.lastActivity })
       if (matchingTabs[0]) {
@@ -54,7 +54,7 @@ const PDFViewer = {
     webviews.update(data.tabId, PDFurl)
   },
   initialize: function () {
-    ipc.on('openPDF', PDFViewer.handlePDFOpenEvent)
+    window.min.app.onCommand('openPDF', PDFViewer.handlePDFOpenEvent)
   }
 }
 

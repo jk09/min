@@ -200,8 +200,8 @@ const sessionRestore = {
       statistics.incrementValue('sessionRestorationErrors')
     }
   },
-  syncWithWindow: function () {
-    const data = ipc.sendSync('request-tab-state')
+  syncWithWindow: async function () {
+    const data = await window.min.tabState.requestSync()
     console.log('got from window', data)
 
     data.tasks.forEach(function (task) {
@@ -209,8 +209,8 @@ const sessionRestore = {
       tasks.add(task, undefined, false)
     })
 
-    if (Object.hasOwn(window.globalArgs, 'initial-task')) {
-      browserUI.switchToTask(window.globalArgs['initial-task'])
+    if (window.min.bootstrap.initialTask) {
+      browserUI.switchToTask(window.min.bootstrap.initialTask)
       return
     }
 
@@ -228,10 +228,10 @@ const sessionRestore = {
     }
   },
   restore: async function () {
-    if (Object.hasOwn(window.globalArgs, 'initial-window')) {
+    if (window.min.bootstrap.initialWindow) {
       await sessionRestore.restoreFromFile()
     } else {
-      sessionRestore.syncWithWindow()
+      await sessionRestore.syncWithWindow()
     }
   },
   initialize: function () {
@@ -241,13 +241,13 @@ const sessionRestore = {
       sessionRestore.save(true)
       //workaround for notifying the other windows that the task open in this window isn't open anymore.
       //This should ideally be done in windowSync, but it needs to run synchronously, which windowSync doesn't
-      ipc.send('tab-state-change', [
+      window.min.tabState.sendChanges([
         ['task-updated', tasks.getSelected().id, 'selectedInWindow', null]
       ])
     }
 
-    ipc.on('read-tab-state', function (e) {
-      ipc.send('return-tab-state', tasks.getCopyableState())
+    window.min.tabState.onReadRequest(function () {
+      window.min.tabState.returnState(tasks.getCopyableState())
     })
   }
 }

@@ -2,6 +2,7 @@ const { app, ipcMain: ipc, session } = require('electron')
 const { windows } = require('./windowManagement')
 const { sendIPCToWindow } = require('./windowUtils')
 const { getTabIDFromWebContents } = require('./viewManager')
+const { getChromeWindow } = require('./chromeCapabilities')
 
 var pendingPermissions = []
 var grantedPermissions = []
@@ -218,7 +219,11 @@ app.on('session-created', function (session) {
   session.setPermissionCheckHandler(pagePermissionCheckHandler)
 })
 
-ipc.on('permissionGranted', function (e, permissionId) {
+ipc.handle('chrome:permissions:grant', function (event, permissionId) {
+  getChromeWindow(event)
+  if (typeof permissionId !== 'number') {
+    throw new TypeError('permission id must be a number')
+  }
   for (var i = 0; i < pendingPermissions.length; i++) {
     if (permissionId && pendingPermissions[i].permissionId === permissionId) {
       pendingPermissions[i].granted = true

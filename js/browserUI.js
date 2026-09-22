@@ -156,7 +156,7 @@ function setWindowTitle () {
 
   if (document.title !== title) {
     document.title = title
-    ipc.send('set-window-title', title)
+    window.min.app.setWindowTitle(title)
   }
 }
 
@@ -243,7 +243,7 @@ webviews.bindIPC('close-window', function (tabId, args) {
   closeTab(tabId)
 })
 
-ipc.on('set-file-view', function (e, data) {
+window.min.app.onCommand('set-file-view', function (data) {
   tabs.get().forEach(function (tab) {
     if (tab.url === data.url) {
       tabs.update(tab.id, { isFileView: data.isFileView })

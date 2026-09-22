@@ -1,19 +1,5 @@
-window.globalArgs = {}
-
-process.argv.forEach(function (arg) {
-  if (arg.startsWith('--')) {
-    var key = arg.split('=')[0].replace('--', '')
-    var value = arg.split('=')[1]
-    globalArgs[key] = value
-  }
-})
-
-window.windowId = globalArgs['window-id']
-
-window.electron = require('electron')
-window.fs = require('fs')
-window.EventEmitter = require('events')
-window.ipc = electron.ipcRenderer
+/* the window id is read by tabState/task.js as a global */
+window.windowId = window.min.bootstrap.windowId
 
 if (navigator.platform === 'MacIntel') {
   document.body.classList.add('mac')
@@ -31,30 +17,22 @@ if (navigator.maxTouchPoints > 0) {
 }
 
 /* add classes so that the window state can be used in CSS */
-ipc.on('enter-full-screen', function () {
-  document.body.classList.add('fullscreen')
-})
-
-ipc.on('leave-full-screen', function () {
-  document.body.classList.remove('fullscreen')
-})
-
-ipc.on('maximize', function () {
-  document.body.classList.add('maximized')
-})
-
-ipc.on('unmaximize', function () {
-  document.body.classList.remove('maximized')
-})
-
 document.body.classList.add('focused')
 
-ipc.on('focus', function () {
-  document.body.classList.add('focused')
-})
+const windowStateClasses = {
+  'enter-full-screen': ['add', 'fullscreen'],
+  'leave-full-screen': ['remove', 'fullscreen'],
+  maximize: ['add', 'maximized'],
+  unmaximize: ['remove', 'maximized'],
+  focus: ['add', 'focused'],
+  blur: ['remove', 'focused']
+}
 
-ipc.on('blur', function () {
-  document.body.classList.remove('focused')
+window.min.window.onStateChange(function (state) {
+  const change = windowStateClasses[state]
+  if (change) {
+    document.body.classList[change[0]](change[1])
+  }
 })
 
 // https://remysharp.com/2010/07/21/throttling-function-calls

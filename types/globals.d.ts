@@ -1,15 +1,15 @@
 /// <reference types="node" />
 /// <reference types="electron" />
 
-import type { IpcRenderer, App, BrowserWindow, WebContents } from 'electron'
-import type * as FSType from 'fs'
-import type { EventEmitter as NodeEventEmitter } from 'events'
 import type { TabList, TaskList } from './min'
 
 interface ChromeBridge {
   bootstrap: Readonly<{
+    appName: string
     appVersion: string
     developmentMode: boolean
+    initialTask: string | null
+    initialWindow: boolean
     platform: 'darwin' | 'linux' | 'win32'
     windowId: string
   }>
@@ -23,7 +23,35 @@ interface ChromeBridge {
   }>
   clipboard: Readonly<{
     readText: () => Promise<string>
+    writeBookmark: (data: { text: string, bookmark?: string, html: string }) => Promise<void>
     writeText: (text: string) => Promise<void>
+  }>
+  app: Readonly<{
+    addWordToDictionary: (word: string) => Promise<void>
+    getHosts: () => Promise<string[]>
+    onBeforeInputEvent: (callback: (input: any) => void) => () => void
+    onCommand: (command: string, callback: (data?: any) => void) => () => void
+    quit: () => Promise<void>
+    setWindowTitle: (title: string) => Promise<void>
+    showFocusModeDialog: () => Promise<void>
+    showSaveDialog: (defaultPath: string) => Promise<string | undefined>
+    showSecondaryMenu: (position: { x: number, y: number }) => Promise<void>
+    updateHandoff: (url: string) => Promise<void>
+    writeBookmarksBackup: (html: string) => Promise<void>
+  }>
+  permissions: Readonly<{
+    grant: (permissionId: number) => Promise<void>
+    onChange: (callback: (requests: any[]) => void) => () => void
+  }>
+  tabState: Readonly<{
+    onChanges: (callback: (data: { sourceWindowId: string, events: any[] }) => void) => () => void
+    onReadRequest: (callback: () => void) => () => void
+    requestSync: () => Promise<{ tasks: any[] }>
+    returnState: (state: any) => void
+    sendChanges: (events: any[]) => void
+  }>
+  history: Readonly<{
+    request: (data: { action: string, [key: string]: any }) => Promise<any>
   }>
   settings: Readonly<{
     read: () => Promise<Record<string, any>>
@@ -100,12 +128,7 @@ interface ChromeBridge {
 
 declare global {
   // Global variables attached to window in renderer
-  var globalArgs: Record<string, any>
   var windowId: string | undefined
-  var electron: typeof import('electron')
-  var fs: typeof FSType
-  var EventEmitter: typeof NodeEventEmitter
-  var ipc: IpcRenderer
   var platformType: 'mac' | 'windows' | 'linux'
 
   var tabs: TabList
@@ -122,12 +145,7 @@ declare global {
 
   interface Window {
     min: ChromeBridge
-    globalArgs: Record<string, any>
     windowId: string | undefined
-    electron: typeof import('electron')
-    fs: typeof FSType
-    EventEmitter: typeof NodeEventEmitter
-    ipc: IpcRenderer
     platformType: 'mac' | 'windows' | 'linux'
     tabs: TabList
     tasks: TaskList

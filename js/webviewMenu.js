@@ -48,7 +48,7 @@ const webviewMenu = {
         suggestionEntries.push({
           label: l('addToDictionary'),
           click: function () {
-            ipc.invoke('addWordToSpellCheckerDictionary', data.misspelledWord)
+            window.min.app.addWordToDictionary(data.misspelledWord)
           }
         })
       }

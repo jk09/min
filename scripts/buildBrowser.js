@@ -18,6 +18,24 @@ const fileList = [
   'js/default.js'
 ]
 
+/*
+The chrome renderer is context-isolated, so Node's `global` is not present.
+Browser libraries in the bundle (dragula -> crossvent -> custom-event) expect it,
+so browserify defines it per module as the browser's own global object. Node
+globals are deliberately left undefined: the renderer must use the window.min
+bridge instead. Stage 7 replaces this with esbuild's `define` option.
+*/
+const insertGlobalVars = {
+  global: () => 'globalThis',
+  process: () => undefined,
+  Buffer: () => undefined,
+  'Buffer.isBuffer': () => undefined,
+  setImmediate: () => undefined,
+  clearImmediate: () => undefined,
+  __filename: () => undefined,
+  __dirname: () => undefined
+}
+
 function customResolve (id, opts, cb) {
   browserResolve(id, opts, function (err, res) {
     if (err && typeof id === 'string' && id.endsWith('.js')) {
@@ -54,7 +72,8 @@ function buildBrowser () {
     resolve: customResolve,
     ignoreMissing: false,
     node: true,
-    detectGlobals: false,
+    detectGlobals: true,
+    insertGlobalVars,
     debug: true // emit source maps so breakpoints bind to the original js/ files
   })
 
