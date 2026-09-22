@@ -43,7 +43,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:d3e258133b233fd94e1c41016adb9da4e0420420af3839bfbdef43a521f54ad2",
+      "sourceHash": "sha256:9c58b75bd7c8ff633278b3db6d76d38bb6c6d9ec5b67e00a7030abd38ad02930",
       "lastVerified": "2026-09-22"
     },
     {
@@ -95,8 +95,8 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:07aa30573b736248af6b9a193ab4a8c5aa610dab68ebe1cc1abc972fbaebaeec",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:e4543c2f4a0331d07ab05163ae21b2d19425da0fe77ca741973e914905accdd8",
+      "lastVerified": "2026-09-22"
     },
     {
       "id": "prompt-panel",
@@ -575,7 +575,6 @@
         "types/globals.d.ts",
         "types/min.d.ts",
         "types/modules.d.ts",
-        "scripts/tsTransform.ts",
         "scripts/registerTs.js",
         "scripts/buildBrowser.js",
         "scripts/buildPreload.js"
@@ -590,7 +589,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:1f9350c0ccddcad05a40f06a1dfbe577dd78badae416431075457764e8187c30",
+      "sourceHash": "sha256:23300c6dd8e5a6799185a4abcb7ea67da6c35a11f7955fb093db81a25ded0fbd",
       "lastVerified": "2026-09-22"
     },
     {
@@ -659,7 +658,8 @@
         "scripts/buildBrowser.js",
         "localization/localizationHelpers.js",
         "main/localizationMain.js",
-        "scripts/watch.js"
+        "scripts/watch.js",
+        "main/viewPreferences.js"
       ],
       "tests": {
         "unit": [
@@ -673,7 +673,8 @@
           "test/chromeAppService.test.js",
           "test/eventBus.test.js",
           "test/rendererTrustBoundary.test.js",
-          "test/buildBrowser.test.js"
+          "test/buildBrowser.test.js",
+          "test/viewCapabilities.test.js"
         ],
         "integration": [],
         "e2e": []
@@ -681,7 +682,7 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:118e5764881831b79fad5223d19b2a6df899125a6c7c9eb12cf6bd079d649d75",
+      "sourceHash": "sha256:45926f1e329c59e2a500aaf1d650f9e72949b98e54d6a96a0a27fb98482df04e",
       "lastVerified": "2026-09-22"
     },
     {

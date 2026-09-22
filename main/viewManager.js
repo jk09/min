@@ -8,6 +8,8 @@ const { windows, getWindowWebContents } = require('./windowManagement')
 const { filterPopups } = require('./filtering')
 const { createPrompt } = require('./prompt')
 const { l } = require('./localizationMain')
+const { getChromeWindow } = require('./chromeCapabilities')
+const { ALLOWED_VIEW_METHODS, sanitizeViewWebPreferences } = require('./viewPreferences')
 
 var viewMap = {} // id: view
 var viewStateMap = {} // id: view state
@@ -40,12 +42,17 @@ function getDefaultViewWebPreferences () {
   )
 }
 
-function createView (existingViewId, id, webPreferences, boundsString, events) {
+function createView (existingViewId, id, webPreferences, boundsString, events, internalPreferences = {}) {
   if (viewStateMap[id]) {
     console.warn("Creating duplicate view")
   }
 
-  const viewPrefs = Object.assign({}, getDefaultViewWebPreferences(), webPreferences)
+  const viewPrefs = Object.assign(
+    {},
+    getDefaultViewWebPreferences(),
+    sanitizeViewWebPreferences(webPreferences),
+    internalPreferences
+  )
 
   viewStateMap[id] = {
     loadedInitialURL: false,
@@ -233,7 +240,7 @@ function createView (existingViewId, id, webPreferences, boundsString, events) {
           view.webContents.stop()
           const currentWindow = getWindowFromViewContents(view.webContents)
           destroyView(id)
-          const newView = createView(existingViewId, id, Object.assign({}, webPreferences, { javascript: shouldHaveJS }), boundsString, events)
+          const newView = createView(existingViewId, id, webPreferences, boundsString, events, { javascript: shouldHaveJS })
           loadURLInView(id, event.url, currentWindow)
 
           if (currentWindow) {
@@ -340,18 +347,17 @@ function getWindowFromViewContents (webContents) {
 }
 
 ipc.on('createView', function (e, args) {
+  getChromeWindow(e)
   createView(args.existingViewId, args.id, args.webPreferences, args.boundsString, args.events)
 })
 
 ipc.on('destroyView', function (e, id) {
+  getChromeWindow(e)
   destroyView(id)
 })
 
-ipc.on('destroyAllViews', function () {
-  destroyAllViews()
-})
-
 ipc.on('setView', function (e, args) {
+  getChromeWindow(e)
   setView(args.id, e.sender)
   setBounds(args.id, args.bounds)
   if (args.focus && BrowserWindow.fromWebContents(e.sender) && BrowserWindow.fromWebContents(e.sender).isFocused()) {
@@ -363,14 +369,17 @@ ipc.on('setView', function (e, args) {
 })
 
 ipc.on('setBounds', function (e, args) {
+  getChromeWindow(e)
   setBounds(args.id, args.bounds)
 })
 
 ipc.on('focusView', function (e, id) {
+  getChromeWindow(e)
   focusView(id)
 })
 
 ipc.on('hideCurrentView', function (e) {
+  getChromeWindow(e)
   hideCurrentView(e.sender)
 })
 
@@ -391,11 +400,16 @@ function loadURLInView (id, url, win) {
 }
 
 ipc.on('loadURLInView', function (e, args) {
+  getChromeWindow(e)
   const win = windows.windowFromContents(e.sender)?.win
   loadURLInView(args.id, args.url, win)
 })
 
 ipc.on('callViewMethod', function (e, data) {
+  getChromeWindow(e)
+  if (!data || !ALLOWED_VIEW_METHODS.includes(data.method)) {
+    throw new Error('view method is not allowed')
+  }
   var error, result
   try {
     var webContents = viewMap[data.id].webContents
@@ -431,6 +445,7 @@ ipc.on('callViewMethod', function (e, data) {
 })
 
 ipc.handle('getNavigationHistory', function (e, id) {
+  getChromeWindow(e)
   if (!viewMap[id]?.webContents) {
     return null
   }
@@ -449,6 +464,7 @@ ipc.handle('getNavigationHistory', function (e, id) {
 })
 
 ipc.on('getCapture', function (e, data) {
+  getChromeWindow(e)
   var view = viewMap[data.id]
   if (!view) {
     // view could have been destroyed
@@ -462,17 +478,6 @@ ipc.on('getCapture', function (e, data) {
     }
     img = img.resize({ width: data.width, height: data.height })
     e.sender.send('captureData', { id: data.id, url: img.toDataURL() })
-  })
-})
-
-ipc.on('saveViewCapture', function (e, data) {
-  var view = viewMap[data.id]
-  if (!view) {
-    // view could have been destroyed
-  }
-
-  view.webContents.capturePage().then(function (image) {
-    view.webContents.downloadURL(image.toDataURL())
   })
 })
 

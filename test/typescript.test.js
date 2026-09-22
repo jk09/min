@@ -4,7 +4,6 @@ const assert = require('node:assert')
 const fs = require('fs')
 const path = require('path')
 const ts = require('typescript')
-const tsTransform = require('../scripts/tsTransform')
 
 test('tsconfig.json exists and is properly configured', function () {
   const tsconfigPath = path.resolve(__dirname, '../tsconfig.json')
@@ -39,24 +38,6 @@ test('type declarations exist and provide Min ambient types', function () {
   assert.match(minContent, /interface TabList/, 'min.d.ts should declare TabList interface')
   assert.match(minContent, /interface TaskList/, 'min.d.ts should declare TaskList interface')
   assert.match(minContent, /interface ToolDefinition/, 'min.d.ts should declare ToolDefinition')
-})
-
-test('tsTransform transpiles TypeScript to CommonJS JavaScript', function (t, done) {
-  const transform = tsTransform('test.ts')
-  let output = ''
-
-  transform.on('data', function (chunk) {
-    output += chunk.toString('utf-8')
-  })
-
-  transform.on('end', function () {
-    assert.match(output, /const greet = \(name\)/, 'TypeScript function should be transpiled')
-    assert.doesNotMatch(output, /:\s*string/, 'Type annotations should be stripped')
-    done()
-  })
-
-  transform.write('const greet = (name: string): string => `Hello, ${name}`;')
-  transform.end()
 })
 
 test('TypeScript compiler program runs on project without diagnostic errors', function () {

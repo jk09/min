@@ -233,9 +233,6 @@ function cancel (event, request = {}) {
     return { ok: true }
 }
 
-ipc.handle('llmEngine:getStatus', getStatus)
-ipc.handle('llmEngine:complete', complete)
-ipc.handle('llmEngine:cancel', cancel)
 ipc.handle('chrome:prompt:get-status', getStatus)
 ipc.handle('chrome:prompt:complete', complete)
 ipc.handle('chrome:prompt:cancel', cancel)

@@ -276,7 +276,6 @@ function createWindowWithBounds (bounds, customArgs) {
         ...((appState.isDevelopmentMode ? ['--development-mode'] : [])),
         '--window-id=' + windows.nextId,
         ...((windows.getAll().length === 0 ? ['--initial-window'] : [])),
-        ...(windows.hasEverCreatedWindow ? [] : ['--launch-window']),
         ...(customArgs.initialTask ? ['--initial-task=' + customArgs.initialTask] : [])
       ]
     }

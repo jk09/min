@@ -1,8 +1,18 @@
-# Secure Renderer Migration Resume Handoff
+# Secure Renderer Migration Handoff
 
-## Current Checkpoint
+## Status
 
-Resume from branch `feat/k9m2rs-secure-renderer-architecture-stage-6-renderer-audit`.
+**All nine stages of `IMPLEMENTATION-PLAN.md` are implemented.** The chrome
+renderer runs with `nodeIntegration: false`, `nodeIntegrationInWorker: false`,
+`contextIsolation: true` and `sandbox: true`, is built by esbuild, and reaches
+every privileged operation through named `window.min` capabilities.
+
+The final boundary and the rules for extending it are documented in
+[docs/renderer-trust-boundary.md](../../../docs/renderer-trust-boundary.md).
+This file is kept as the migration record; start from the boundary doc instead
+when adding a capability.
+
+Latest branch: `feat/k9m2rs-secure-renderer-architecture-stage-9-cleanup`.
 
 This branch is a cascade built from the following committed checkpoints:
 
@@ -15,14 +25,20 @@ This branch is a cascade built from the following committed checkpoints:
 | 5: Persistent data | `feat/k9m2rs-secure-renderer-architecture-stage-5-data` | `0da83569`, `d925082a` | Main-owned settings/session persistence capabilities; async browser initialization. |
 | 6a: Userscripts | `feat/k9m2rs-secure-renderer-architecture-stage-6-privileges` | `a59f44d2` | Main-owned userscript directory service and safe dropped-file URL conversion. |
 | 6b: Password manager | `feat/k9m2rs-secure-renderer-architecture-stage-6-password-manager` | `b081f82f`, `1cafb00b` | Main-owned, allowlisted password-manager operations and final feature restamps. |
-| 6c: Renderer audit | `feat/k9m2rs-secure-renderer-architecture-stage-6-renderer-audit` | this run | Completed the prerequisite audit: every remaining renderer Node/Electron dependency moved behind named capabilities, and the context-isolated renderer made to start again. |
+| 6c: Renderer audit | `feat/k9m2rs-secure-renderer-architecture-stage-6-renderer-audit` | `48daafbe` | Completed the prerequisite audit: every remaining renderer Node/Electron dependency moved behind named capabilities, and the context-isolated renderer made to start again. |
+| 8: Hardening | `feat/k9m2rs-secure-renderer-architecture-stage-8-hardening` | `53cda6ee` | `nodeIntegration: false`, `nodeIntegrationInWorker: false`, `sandbox: true`, and the renderer trust-boundary regression test. |
+| 7: Esbuild | `feat/k9m2rs-secure-renderer-architecture-stage-7-esbuild` | `4d2846e9` | esbuild renderer bundle with a build-time alias map and a build that fails on any Node dependency. |
+| 9: Cleanup | `feat/k9m2rs-secure-renderer-architecture-stage-9-cleanup` | this run | Sender guards and payload validation for view creation, removal of dead ungated handlers and Browserify scaffolding, trust-boundary documentation. |
+
+Stage 8 was done before Stage 7: the Stage 6c audit was what actually blocked
+it, and landing the security settings first gave the esbuild work a hardened
+target to build against.
 
 ## Implemented Security Boundary
 
 The main chrome renderer currently has:
 
-- `contextIsolation: true` and `dist/preload-chrome.js` attached in `main/windowUtils.js`.
-- `nodeIntegration: true` and `nodeIntegrationInWorker: true` still enabled, but no bundled renderer module depends on them any more. Stage 8 can now turn both off.
+- `nodeIntegration: false`, `nodeIntegrationInWorker: false`, `contextIsolation: true`, `sandbox: true`, and `dist/preload-chrome.js` attached in `main/windowUtils.js`.
 - A `window.min` bridge defined by `js/preload/browserChrome.js`, with typed declarations in `types/globals.d.ts` and a capability inventory in `js/preload/chromeBridgeContract.ts`.
 
 Note for anyone reading the earlier checkpoints: because `contextIsolation: true` was enabled in Stage 2 while `js/default.js` still read `process.argv` and `require('electron')`, the chrome renderer threw `process is not defined` on startup and never finished booting from Stage 2 through Stage 6b. Stage 6c removed those globals and the renderer starts again. Verify startup with `npx electron . --development-mode --startup-diagnostics --enable-logging` after any further change; a crash in the chrome bundle does not fail any test suite.
@@ -67,65 +83,48 @@ Every new privileged handler must validate that its sender is the owning main ch
 - History handler: `main/historyService.js`
 - Renderer bootstrap and async initialization: `js/default.js`
 - Renderer event emitter (replaces Node `events`): `js/util/eventBus.js`
-- Renderer bundle globals policy: `scripts/buildBrowser.js` (`insertGlobalVars`)
+- Renderer bundle and globals policy: `scripts/buildBrowser.js` (esbuild `nodePaths`, `define`, `external`)
+- View payload validation: `main/viewPreferences.js`
+- Trust-boundary probe: `main/windowUtils.js`, asserted by `test/rendererTrustBoundary.test.js`
+- Boundary documentation: `docs/renderer-trust-boundary.md`
 - Feature ledger: `spec/FEATURES.json`, feature id `secure-renderer-architecture`
 
 ## Validation Baseline
 
-At the Stage 6c checkpoint:
+At the Stage 9 checkpoint:
 
 - `npm run build` passed.
 - `npm run typecheck` passed.
 - `npm run verify:features` passed with 15 existing coverage warnings.
-- `npm run test:unit` passed with 86 tests.
+- `npm run test:unit` passed with 99 tests.
 - A development Electron startup run reached `did-finish-load` for `min://app/index.html`, restored the previous session, and produced no errors from `dist/bundle.js`.
 - Focused bridge/service tests cover sender guards, preload contents, the app-command allowlist, session/settings validation, userscript filename/path restrictions, password-manager allowlists, hosts/bookmarks path ownership, and the renderer event bus.
 
-`npm test` remains blocked by pre-existing JavaScript Standard indentation violations in legacy files, including `main/llmEngine.js`, `js/llmPrompt/skills/skillRegistry.js`, and related existing modules. Do not reformat these files as part of future migration stages unless explicitly making a separate lint cleanup change.
+`npm test` remains blocked by pre-existing JavaScript Standard violations in legacy files, including `main/llmEngine.js`, `js/llmPrompt/skills/skillRegistry.js`, and related existing modules. Do not reformat these files except as a separate, deliberate lint cleanup change.
 
 ## Remaining Work
 
-### Prerequisite Audit — done in Stage 6c
+The nine planned stages are complete. What is left is follow-up rather than
+migration, and none of it blocks anything:
 
-No module in the chrome bundle requires `electron`, `fs`, `path`, `child_process` or `events`, and none reads `process.*`, `globalArgs`, `window.electron`, `window.fs` or a raw `ipc.*`. Re-run the audit against the modules the bundle actually contains, not all of `js/` — several files under `js/` are main-process or other-page code and legitimately keep Node access:
-
-```sh
-node -e "const fs=require('fs');const c=fs.readFileSync('dist/bundle.js','utf8');const m='//# sourceMappingURL=data:application/json;charset=utf-8;base64,';const i=c.lastIndexOf(m);console.log(JSON.parse(Buffer.from(c.slice(i+m.length).trim(),'base64').toString()).sources.filter(s=>s.startsWith('js/')).join('\n'))"
-```
-
-Files under `js/` that are *not* in the bundle and must keep Node access: `js/util/settings/settingsMain.js`, `js/util/proxy.js`, `js/util/process.js`, `js/util/processWorker.js`, `js/places/legacyHistoryExport.js`, `js/taskOverlay/taskOverlay.js`, `js/util/settings/settingsPreload.js`, `js/llmPrompt/llmDebugPreload.js`, and everything in `js/preload/`.
-
-### Stage 7: Esbuild
-
-Use `IMPLEMENTATION-PLAN.md` Stage 7. Create a child branch from the current checkpoint, for example `feat/k9m2rs-secure-renderer-architecture-stage-7-esbuild`.
-
-- Add esbuild beside Browserify first.
-- Preserve existing `dist/bundle.js` and source-map behavior while validating equivalent startup behavior.
-- Replace Browserify alias resolution with explicit imports or a documented build-time alias map; never depend on runtime Node module resolution in renderer code.
-- Keep `npm run typecheck` separate from build transpilation.
-- Carry over the globals policy: `scripts/buildBrowser.js` now passes browserify `insertGlobalVars` that defines `global` as `globalThis` and deliberately leaves `process`, `Buffer`, `setImmediate`, `clearImmediate`, `__filename` and `__dirname` undefined. The esbuild equivalent is `define: { global: 'globalThis' }` with no Node polyfills. Bundled browser libraries (dragula → crossvent → custom-event, ticky) depend on this.
-- Update feature ledger sources/tests and restamp every feature whose listed source files changed.
-
-### Stage 8: Final Chrome Hardening
-
-Only after the audit and Stage 7 are complete:
-
-- Change main chrome web preferences to `nodeIntegration: false`.
-- Disable `nodeIntegrationInWorker` unless a reviewed bridge-backed need remains.
-- Keep `contextIsolation: true`.
-- Consider `sandbox: true` only after validating preload compatibility.
-- Add security regression coverage proving renderer globals such as `require`, `process`, direct Electron APIs, raw IPC, and Node built-ins are unavailable.
-- Run a development Electron startup test and manual core-workflow check before committing.
-
-### Stage 9: Cleanup
-
-Remove Browserify, its transforms, aliases, transitional globals, and obsolete compatibility code only after the Chromium-only renderer runs successfully. Update the feature ledger and documentation to remove stale references.
-
-Known cleanup targets left in place on purpose, because removing them is not part of a capability migration:
-
-- `main/remoteActions.js` still registers ungated `ipc.handle` channels that no longer have a chrome-renderer caller: `minimize`, `maximize`, `unmaximize`, `close`, `setFullScreen`, `showSaveDialog`, `addWordToSpellCheckerDictionary`, `showFocusModeDialog2`, `showOpenDialog`, `showItemInFolder`, `startFileDrag`, `clearStorageData`, and `newWindow`. Each accepts any sender, so they should be deleted or given `getChromeWindow` guards. Keep the exported `showFocusModeDialog1`/`showFocusModeDialog2` functions, which `main/menu.js` calls directly.
-- `main/historyService.js` keeps the ungated `history:request` channel for `js/places/legacyHistoryExport.js`, which still runs in a `nodeIntegration: true` hidden window. Retire that window or scope the channel to it.
-- `main/download.js` keeps `cancelDownload` alongside the guarded `chrome:downloads:cancel`.
+- **The legacy history export window.** `main/main.js` still creates a hidden
+  `BrowserWindow` with `nodeIntegration: true` and `contextIsolation: false` to
+  migrate history out of the old IndexedDB store, and the ungated
+  `history:request` channel exists to serve it. It belongs to
+  `history-sqlite-migration`, not to this spec. Retiring the window would let
+  the ungated channel go with it.
+- **Prompt and translation channels.** `main/prompt.js` (`show-prompt`,
+  `open-prompt`, `close-prompt`, `prompt`) and `page-translation-session-create`
+  in `main/main.js` have no chrome sender check, because they serve the prompt
+  window and the web-content preload rather than the chrome renderer. They are
+  narrow, but they are not sender-validated.
+- **`clearStorageData` was removed, not migrated.** It was an ungated handler
+  with no caller anywhere - the UI that used to invoke it is gone from this
+  fork. If a "clear browsing data" feature comes back, it needs a new
+  sender-validated capability rather than a revert.
+- **Lint debt.** `npm test` is still blocked by pre-existing JavaScript
+  Standard violations in legacy files. The count dropped from 848 to 834 across
+  this migration purely by deleting code; no file was reformatted.
 
 ## Future Agent Run Checklist
 
