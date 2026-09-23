@@ -81,8 +81,6 @@ module.exports = function (platform, extraOptions) {
       // localization files are compiled and copied to dist
       '!localization/',
       '!scripts/',
-      // These are bundled in.
-      '!**/main',
       // parts of modules that aren"t needed
       '!**/node_modules/@types/',
       '!**/node_modules/pdfjs-dist/legacy',
