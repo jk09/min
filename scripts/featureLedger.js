@@ -35,6 +35,12 @@ function testFilesOf (feature) {
   return TIERS.reduce((all, tier) => all.concat((feature.tests && feature.tests[tier]) || []), [])
 }
 
+/* line endings are normalised so a Windows (CRLF) and a Linux (LF) checkout of the same commit hash identically */
+function readNormalized (repoPath) {
+  const content = fs.readFileSync(toAbsolutePath(repoPath))
+  return content.includes(0) ? content : Buffer.from(content.toString('latin1').replace(/\r\n/g, '\n'), 'latin1')
+}
+
 /* hashes the feature's own source files, so a code change without re-verification is detectable in the working tree */
 function computeSourceHash (feature) {
   const files = (feature.sourceFiles || []).slice().sort()
@@ -45,7 +51,7 @@ function computeSourceHash (feature) {
   files.forEach(function (file) {
     hash.update(file)
     hash.update('\0')
-    hash.update(fs.readFileSync(toAbsolutePath(file)))
+    hash.update(readNormalized(file))
     hash.update('\0')
   })
   return 'sha256:' + hash.digest('hex')

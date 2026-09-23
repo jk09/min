@@ -1,4 +1,3 @@
-const { ipcRenderer } = require('electron')
 const papaparse = require('papaparse')
 
 class Keychain {
@@ -27,7 +26,7 @@ class Keychain {
   }
 
   async getSuggestions (domain) {
-    return ipcRenderer.invoke('credentialStoreGetCredentials').then(function (results) {
+    return window.min.passwordManager.credentials.getAll().then(function (results) {
       return results
         .filter(function (result) {
           return result.domain === domain
@@ -42,11 +41,11 @@ class Keychain {
   }
 
   saveCredential (domain, username, password) {
-    ipcRenderer.invoke('credentialStoreSetPassword', { domain, username, password })
+    window.min.passwordManager.credentials.set({ domain, username, password })
   }
 
   deleteCredential (domain, username) {
-    ipcRenderer.invoke('credentialStoreDeletePassword', { domain, username })
+    window.min.passwordManager.credentials.delete({ domain, username })
   }
 
   async importCredentials (fileContents) {
@@ -80,7 +79,7 @@ class Keychain {
 
       const mergedCredentials = credentialsWithoutDuplicates.concat(credentialsToImport)
 
-      await ipcRenderer.invoke('credentialStoreSetPasswordBulk', mergedCredentials)
+      await window.min.passwordManager.credentials.setAll(mergedCredentials)
       return mergedCredentials
     } catch (error) {
       console.error('Error importing credentials:', error)
@@ -89,7 +88,7 @@ class Keychain {
   }
 
   getAllCredentials () {
-    return ipcRenderer.invoke('credentialStoreGetCredentials').then(function (results) {
+    return window.min.passwordManager.credentials.getAll().then(function (results) {
       return results.map(function (result) {
         return {
           ...result,

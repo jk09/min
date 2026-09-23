@@ -11,19 +11,19 @@ var readerView = require('readerView.js')
 
 module.exports = {
   initialize: function () {
-    ipc.on('zoomIn', function () {
+    window.min.app.onCommand('zoomIn', function () {
       webviewGestures.zoomWebviewIn(tabs.getSelected())
     })
 
-    ipc.on('zoomOut', function () {
+    window.min.app.onCommand('zoomOut', function () {
       webviewGestures.zoomWebviewOut(tabs.getSelected())
     })
 
-    ipc.on('zoomReset', function () {
+    window.min.app.onCommand('zoomReset', function () {
       webviewGestures.resetWebviewZoom(tabs.getSelected())
     })
 
-    ipc.on('print', function () {
+    window.min.app.onCommand('print', function () {
       if (PDFViewer.isPDFViewer(tabs.getSelected())) {
         PDFViewer.printPDF(tabs.getSelected())
       } else if (readerView.isReader(tabs.getSelected())) {
@@ -35,7 +35,7 @@ module.exports = {
       }
     })
 
-    ipc.on('findInPage', function () {
+    window.min.app.onCommand('findInPage', function () {
       /* Page search is not available in modal mode. */
       if (modalMode.enabled()) {
         return
@@ -44,11 +44,11 @@ module.exports = {
       findinpage.start()
     })
 
-    ipc.on('inspectPage', function () {
+    window.min.app.onCommand('inspectPage', function () {
       webviews.callAsync(tabs.getSelected(), 'toggleDevTools')
     })
 
-    ipc.on('addTab', function (e, data) {
+    window.min.app.onCommand('addTab', function (data) {
       /* new tabs can't be created in modal mode */
       if (modalMode.enabled()) {
         return
@@ -69,7 +69,7 @@ module.exports = {
       })
     })
 
-    ipc.on('saveCurrentPage', async function () {
+    window.min.app.onCommand('saveCurrentPage', async function () {
       var currentTab = tabs.get(tabs.getSelected())
 
       // new tabs cannot be saved
@@ -86,9 +86,7 @@ module.exports = {
       if (tabs.get(tabs.getSelected()).isFileView) {
         webviews.callAsync(tabs.getSelected(), 'downloadURL', [tabs.get(tabs.getSelected()).url])
       } else {
-        var savePath = await ipc.invoke('showSaveDialog', {
-          defaultPath: currentTab.title.replace(/[/\\]/g, '_')
-        })
+        var savePath = await window.min.app.showSaveDialog(currentTab.title.replace(/[/\\]/g, '_'))
 
         // savePath will be undefined if the save dialog is canceled
         if (savePath) {
@@ -100,7 +98,7 @@ module.exports = {
       }
     })
 
-    ipc.on('addPrivateTab', function () {
+    window.min.app.onCommand('addPrivateTab', function () {
       /* new tabs can't be created in modal mode */
       if (modalMode.enabled()) {
         return
@@ -117,11 +115,11 @@ module.exports = {
       }))
     })
 
-    ipc.on('goBack', function () {
+    window.min.app.onCommand('goBack', function () {
       webviews.callAsync(tabs.getSelected(), 'goBack')
     })
 
-    ipc.on('goForward', function () {
+    window.min.app.onCommand('goForward', function () {
       webviews.callAsync(tabs.getSelected(), 'goForward')
     })
   }

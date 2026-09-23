@@ -1,4 +1,4 @@
-const EventEmitter = require('events')
+const EventBus = require('util/eventBus.js')
 
 const webviews = require('webviews.js')
 const focusMode = require('focusMode.js')
@@ -28,7 +28,7 @@ const tabBar = {
   useSiteTheme: true,
   hiddenTabIds: [],
   tabElementMap: {}, // tabId: tab element
-  events: new EventEmitter(),
+  events: new EventBus(),
   dragulaInstance: null,
   getTab: function (tabId) {
     return tabBar.tabElementMap[tabId]
@@ -444,18 +444,19 @@ tabBar.container.addEventListener('dragover', e => e.preventDefault())
 tabBar.container.addEventListener('drop', e => {
   e.preventDefault()
   var data = e.dataTransfer
-  var path = data.files[0] ? 'file://' + electron.webUtils.getPathForFile(data.files[0]) : data.getData('text')
-  if (!path) {
-    return
-  }
-  if (tabs.isEmpty()) {
-    webviews.update(tabs.getSelected(), path)
-  } else {
-    require('browserUI.js').addTab(tabs.add({
-      url: path,
-      private: tabs.get(tabs.getSelected()).private
-    }), { openPrompt: false, openInBackground: !settings.get('openTabsInForeground') })
-  }
+  Promise.resolve(data.files[0] ? window.min.files.toFileURL(data.files[0]) : data.getData('text')).then(function (url) {
+    if (!url) {
+      return
+    }
+    if (tabs.isEmpty()) {
+      webviews.update(tabs.getSelected(), url)
+    } else {
+      require('browserUI.js').addTab(tabs.add({
+        url,
+        private: tabs.get(tabs.getSelected()).private
+      }), { openPrompt: false, openInBackground: !settings.get('openTabsInForeground') })
+    }
+  })
 })
 
 module.exports = tabBar

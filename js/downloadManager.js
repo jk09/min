@@ -58,11 +58,11 @@ const downloadManager = {
     }
   },
   openFolder: function (path) {
-    ipc.invoke('showItemInFolder', path)
+    window.min.downloads.showInFolder(path)
   },
   onItemClicked: function (path) {
     if (downloadManager.downloadItems[path].status === 'completed') {
-      electron.shell.openPath(path)
+      window.min.downloads.open(path)
       // provide a bit of time for the file to open before the download bar disappears
       setTimeout(function () {
         downloadManager.removeItem(path)
@@ -70,7 +70,7 @@ const downloadManager = {
     }
   },
   onItemDragged: function (path) {
-    ipc.invoke('startFileDrag', path)
+    window.min.downloads.startFileDrag(path)
   },
   onDownloadCompleted: function () {
     downloadManager.lastDownloadCompleted = Date.now()
@@ -127,7 +127,7 @@ const downloadManager = {
           {
             label: l('downloadCancel'),
             click: function () {
-              ipc.send('cancelDownload', downloadItem.path)
+              window.min.downloads.cancel(downloadItem.path)
               downloadManager.removeItem(downloadItem.path)
             }
           }
@@ -184,7 +184,7 @@ const downloadManager = {
       downloadManager.hide()
     })
 
-    ipc.on('download-info', function (e, info) {
+    window.min.downloads.onInfo(function (info) {
       if (!info.path) {
         // download save location hasn't been chosen yet
         return

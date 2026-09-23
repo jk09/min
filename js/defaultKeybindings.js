@@ -14,7 +14,7 @@ var keyMap = keyMapModule.userKeyMap(settings.get('keyMap'))
 const defaultKeybindings = {
   initialize: function () {
     keybindings.defineShortcut('quitMin', function () {
-      ipc.send('quit')
+      window.min.app.quit()
     })
 
     keybindings.defineShortcut('addTab', function () {
@@ -209,7 +209,7 @@ const defaultKeybindings = {
     })
 
     keybindings.defineShortcut('closeWindow', function() {
-      ipc.invoke('close')
+      window.min.window.close()
     })
 
     keybindings.defineShortcut('reload', function () {
@@ -234,7 +234,7 @@ const defaultKeybindings = {
         anchorTag.href = url
         anchorTag.textContent = url
 
-        electron.clipboard.write({
+        window.min.clipboard.writeBookmark({
           text: url,
           bookmark: tab.title,
           html: anchorTag.outerHTML

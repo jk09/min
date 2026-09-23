@@ -62,12 +62,14 @@ Migrate Min's trusted browser-chrome renderer from direct Node integration and B
 - Open questions: Which capability groups should form the initial preload API? Should esbuild emit one bundle or use code splitting for internal pages? Can the existing `min://app` protocol load ESM chunks without additional protocol support?
 
 ## 11. Acceptance Criteria
-- [ ] The main browser-chrome renderer has Node integration disabled and context isolation enabled.
-- [ ] Renderer JavaScript cannot access `require`, Node built-ins, direct Electron APIs, or unrestricted IPC at runtime.
-- [ ] Required browser-chrome workflows work through documented, allowlisted preload bridge APIs.
-- [ ] Renderer bundles are built by esbuild and loaded successfully by Min in development and packaged builds.
-- [ ] `npm run typecheck`, existing linting, and applicable unit/integration tests pass.
-- [ ] Webview content remains unprivileged and cannot invoke browser-chrome bridge capabilities.
+- [x] The main browser-chrome renderer has Node integration disabled and context isolation enabled.
+- [x] Renderer JavaScript cannot access `require`, Node built-ins, direct Electron APIs, or unrestricted IPC at runtime.
+- [x] Required browser-chrome workflows work through documented, allowlisted preload bridge APIs.
+- [x] Renderer bundles are built by esbuild and loaded successfully by Min in development and packaged builds.
+- [ ] `npm run typecheck`, existing linting, and applicable unit/integration tests pass. *(typecheck and unit tests pass; `npm test` linting is still blocked by pre-existing JavaScript Standard violations in legacy files - see RESUME.md)*
+- [x] Webview content remains unprivileged and cannot invoke browser-chrome bridge capabilities.
+
+Verified at close-out (2026-09-23) on Linux: `npm run build`, `npm run typecheck`, `npm run verify:features` and all 99 unit tests pass, including `test/rendererTrustBoundary.test.js`, which launches Min and probes the live chrome renderer. A packaged Linux x64 build starts with the same probe result. The workflows were exercised by automated tests and startup, not by a manual walkthrough.
 
 ## 12. Testing / Verification
 - Manual test plan: Launch Min in development and packaged modes; exercise startup/session restoration, tab lifecycle, browser navigation, prompt actions, settings, downloads, window controls, internal pages, and focused webview browsing. Confirm from renderer devtools that Node globals and direct Electron APIs are unavailable.

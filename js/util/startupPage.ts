@@ -24,5 +24,3 @@ export function resolveStartupPageURL (currentSearchEngine?: SearchEngineSource 
 
   return fallbackStartupPageURL
 }
-
-module.exports = { resolveStartupPageURL, fallbackStartupPageURL }

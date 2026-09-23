@@ -55,11 +55,11 @@ const statistics = {
       body: JSON.stringify({
         clientID: settings.get('clientID'),
         installTime: settings.get('installTime'),
-        os: process.platform,
+        os: window.min.bootstrap.platform,
         lang: navigator.language,
-        appVersion: window.globalArgs['app-version'],
-        appName: window.globalArgs['app-name'],
-        isDev: 'development-mode' in window.globalArgs,
+        appVersion: window.min.bootstrap.appVersion,
+        appName: window.min.bootstrap.appName,
+        isDev: window.min.bootstrap.developmentMode,
         usageData: usageData
       })
     })

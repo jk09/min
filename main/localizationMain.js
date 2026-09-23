@@ -7,7 +7,14 @@ localization/localizationHelpers.js, which exports { l } when loaded via require
 */
 
 const path = require('path')
+const { app } = require('electron')
 
-const { l } = require(path.join(__dirname, '../dist/localization.build.js'))
+const { l, setLanguageResolver } = require(path.join(__dirname, '../dist/localization.build.js'))
+
+// the helpers read navigator.language in the renderer; the main process has no
+// navigator, so it supplies the locale itself rather than the shared file
+// reaching for Electron, which would put Electron in the renderer's import graph.
+// Resolved lazily because app.getLocale() is only valid once the app is ready.
+setLanguageResolver(() => app.getLocale())
 
 module.exports = { l }

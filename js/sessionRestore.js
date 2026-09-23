@@ -4,7 +4,6 @@ var tabState = require('tabState.js')
 var settings = require('util/settings/settings.js')
 var searchEngine = require('util/searchEngine.js')
 const { resolveStartupPageURL } = require('util/startupPage')
-const writeFileAtomic = require('write-file-atomic')
 const statistics = require('js/statistics.js')
 
 function getStartupPageURL () {
@@ -35,9 +34,8 @@ function openStartupPage () {
 }
 
 const sessionRestore = {
-  savePath: window.globalArgs['user-data-path'] + (platformType === 'windows' ? '\\sessionRestore.json' : '/sessionRestore.json'),
   previousState: null,
-  save: function (forceSave, sync) {
+  save: function (forceSave) {
     //only one window (the focused one) should be responsible for saving session restore data
     if (!document.body.classList.contains('focused')) {
       return
@@ -68,23 +66,17 @@ const sessionRestore = {
     }
 
     if (forceSave === true || stateString !== sessionRestore.previousState) {
-      if (sync === true) {
-        writeFileAtomic.sync(sessionRestore.savePath, JSON.stringify(data), {})
-      } else {
-        writeFileAtomic(sessionRestore.savePath, JSON.stringify(data), {}, function (err) {
-          if (err) {
-            console.warn(err)
-            statistics.incrementValue('sessionRestoreSaveAsyncWriteErrors')
-          }
-        })
-      }
+      window.min.session.write(JSON.stringify(data)).catch(function (error) {
+        console.warn(error)
+        statistics.incrementValue('sessionRestoreSaveAsyncWriteErrors')
+      })
       sessionRestore.previousState = stateString
     }
   },
-  restoreFromFile: function () {
-    var savedStringData
+  restoreFromFile: async function () {
+    let savedStringData
     try {
-      savedStringData = fs.readFileSync(sessionRestore.savePath, 'utf-8')
+      savedStringData = await window.min.session.read()
     } catch (e) {
       console.warn('failed to read session restore data', e)
     }
@@ -191,9 +183,7 @@ const sessionRestore = {
 
       console.error('restoring session failed: ', e)
 
-      var backupSavePath = require('path').join(window.globalArgs['user-data-path'], 'sessionRestoreBackup-' + Date.now() + '.json')
-
-      writeFileAtomic.sync(backupSavePath, savedStringData, {})
+      var backupSavePath = await window.min.session.backup(savedStringData)
 
       // destroy any tabs that were created during the restore attempt
       tabState.initialize()
@@ -210,8 +200,8 @@ const sessionRestore = {
       statistics.incrementValue('sessionRestorationErrors')
     }
   },
-  syncWithWindow: function () {
-    const data = ipc.sendSync('request-tab-state')
+  syncWithWindow: async function () {
+    const data = await window.min.tabState.requestSync()
     console.log('got from window', data)
 
     data.tasks.forEach(function (task) {
@@ -219,8 +209,8 @@ const sessionRestore = {
       tasks.add(task, undefined, false)
     })
 
-    if (Object.hasOwn(window.globalArgs, 'initial-task')) {
-      browserUI.switchToTask(window.globalArgs['initial-task'])
+    if (window.min.bootstrap.initialTask) {
+      browserUI.switchToTask(window.min.bootstrap.initialTask)
       return
     }
 
@@ -237,27 +227,27 @@ const sessionRestore = {
       browserUI.addTask()
     }
   },
-  restore: function () {
-    if (Object.hasOwn(window.globalArgs, 'initial-window')) {
-      sessionRestore.restoreFromFile()
+  restore: async function () {
+    if (window.min.bootstrap.initialWindow) {
+      await sessionRestore.restoreFromFile()
     } else {
-      sessionRestore.syncWithWindow()
+      await sessionRestore.syncWithWindow()
     }
   },
   initialize: function () {
     setInterval(sessionRestore.save, 30000)
 
     window.onbeforeunload = function (e) {
-      sessionRestore.save(true, true)
+      sessionRestore.save(true)
       //workaround for notifying the other windows that the task open in this window isn't open anymore.
       //This should ideally be done in windowSync, but it needs to run synchronously, which windowSync doesn't
-      ipc.send('tab-state-change', [
+      window.min.tabState.sendChanges([
         ['task-updated', tasks.getSelected().id, 'selectedInWindow', null]
       ])
     }
 
-    ipc.on('read-tab-state', function (e) {
-      ipc.send('return-tab-state', tasks.getCopyableState())
+    window.min.tabState.onReadRequest(function () {
+      window.min.tabState.returnState(tasks.getCopyableState())
     })
   }
 }

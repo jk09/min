@@ -20,7 +20,7 @@ function captureCurrentTab (options) {
     return
   }
 
-  ipc.send('getCapture', {
+  window.min.views.capture({
     id: webviews.selectedId,
     width: Math.round(window.innerWidth / 10),
     height: Math.round(window.innerHeight / 10)
@@ -194,7 +194,7 @@ const webviews = {
       var partition = tabId.toString() // options.tabId is a number, which remote.session.fromPartition won't accept. It must be converted to a string first
     }
 
-    ipc.send('createView', {
+    window.min.views.create({
       existingViewId,
       id: tabId,
       webPreferences: {
@@ -206,10 +206,10 @@ const webviews = {
 
     if (!existingViewId) {
       if (tabData.url) {
-        ipc.send('loadURLInView', { id: tabData.id, url: urlParser.parse(tabData.url) })
+        window.min.views.loadURL({ id: tabData.id, url: urlParser.parse(tabData.url) })
       } else if (tabData.private) {
         // workaround for https://github.com/minbrowser/min/issues/872
-        ipc.send('loadURLInView', { id: tabData.id, url: urlParser.parse('min://newtab') })
+        window.min.views.loadURL({ id: tabData.id, url: urlParser.parse('min://newtab') })
       }
     }
 
@@ -233,7 +233,7 @@ const webviews = {
       return
     }
 
-    ipc.send('setView', {
+    window.min.views.setCurrent({
       id: id,
       bounds: webviews.getViewBounds(),
       focus: !options || options.focus !== false
@@ -241,7 +241,7 @@ const webviews = {
     webviews.emitEvent('view-shown', id)
   },
   update: function (id, url) {
-    ipc.send('loadURLInView', { id: id, url: urlParser.parse(url) })
+    window.min.views.loadURL({ id: id, url: urlParser.parse(url) })
   },
   destroy: function (id) {
     webviews.emitEvent('view-hidden', id)
@@ -252,7 +252,7 @@ const webviews = {
       })
     }
     //we may be destroying a view for which the tab object no longer exists, so this message should be sent unconditionally
-    ipc.send('destroyView', id)
+    window.min.views.destroy(id)
 
     delete webviews.viewFullscreenMap[id]
     if (webviews.selectedId === id) {
@@ -281,7 +281,7 @@ const webviews = {
       // wait to make sure the image is visible before the view is hidden
       // make sure the placeholder was not removed between when the timeout was created and when it occurs
       if (webviews.placeholderRequests.length > 0) {
-        ipc.send('hideCurrentView')
+        window.min.views.hideCurrent()
         webviews.emitEvent('view-hidden', webviews.selectedId)
       }
     }, 0)
@@ -294,7 +294,7 @@ const webviews = {
     if (webviews.placeholderRequests.length === 0) {
       // multiple things can request a placeholder at the same time, but we should only show the view again if nothing requires a placeholder anymore
       if (webviews.hasViewForTab(webviews.selectedId)) {
-        ipc.send('setView', {
+        window.min.views.setCurrent({
           id: webviews.selectedId,
           bounds: webviews.getViewBounds(),
           focus: true
@@ -310,15 +310,15 @@ const webviews = {
     }
   },
   releaseFocus: function () {
-    ipc.send('focusMainWebContents')
+    window.min.views.focusMain()
   },
   focus: function () {
     if (webviews.selectedId) {
-      ipc.send('focusView', webviews.selectedId)
+      window.min.views.focus(webviews.selectedId)
     }
   },
   resize: function () {
-    ipc.send('setBounds', { id: webviews.selectedId, bounds: webviews.getViewBounds() })
+    window.min.views.setBounds({ id: webviews.selectedId, bounds: webviews.getViewBounds() })
   },
   goBackIgnoringRedirects: async function (id) {
     const navHistory = await webviews.getNavigationHistory(id)
@@ -359,10 +359,10 @@ const webviews = {
       var callId = Math.random()
       webviews.asyncCallbacks[callId] = cb
     }
-    ipc.send('callViewMethod', { id: id, callId: callId, method: method, args: args })
+    window.min.views.callMethod({ id: id, callId: callId, method: method, args: args })
   },
   getNavigationHistory: function (id) {
-    return ipc.invoke('getNavigationHistory', id)
+    return window.min.views.getNavigationHistory(id)
   }
 }
 
@@ -375,7 +375,10 @@ window.addEventListener('resize', throttle(function () {
 }, 75))
 
 // leave HTML fullscreen when leaving window fullscreen
-ipc.on('leave-full-screen', function () {
+window.min.window.onStateChange(function (state) {
+  if (state !== 'leave-full-screen') {
+    return
+  }
   // electron normally does this automatically (https://github.com/electron/electron/pull/13090/files), but it doesn't work for BrowserViews
   for (var view in webviews.viewFullscreenMap) {
     if (webviews.viewFullscreenMap[view]) {
@@ -394,23 +397,18 @@ webviews.bindEvent('leave-html-full-screen', function (tabId) {
   webviews.resize()
 })
 
-ipc.on('maximize', function () {
-  windowIsMaximized = true
-  webviews.resize()
-})
-
-ipc.on('unmaximize', function () {
-  windowIsMaximized = false
-  webviews.resize()
-})
-
-ipc.on('enter-full-screen', function () {
-  windowIsFullscreen = true
-  webviews.resize()
-})
-
-ipc.on('leave-full-screen', function () {
-  windowIsFullscreen = false
+window.min.window.onStateChange(function (state) {
+  if (state === 'maximize') {
+    windowIsMaximized = true
+  } else if (state === 'unmaximize') {
+    windowIsMaximized = false
+  } else if (state === 'enter-full-screen') {
+    windowIsFullscreen = true
+  } else if (state === 'leave-full-screen') {
+    windowIsFullscreen = false
+  } else {
+    return
+  }
   webviews.resize()
 })
 
@@ -489,16 +487,18 @@ webviews.bindIPC('downloadFile', function (tabId, args) {
   }
 })
 
-ipc.on('view-event', function (e, args) {
+window.min.views.onEvent(function (args) {
   webviews.emitEvent(args.event, args.tabId, args.args)
 })
 
-ipc.on('async-call-result', function (e, args) {
-  webviews.asyncCallbacks[args.callId](args.error, args.result)
+window.min.views.onAsyncCallResult(function (args) {
+  if (webviews.asyncCallbacks[args.callId]) {
+    webviews.asyncCallbacks[args.callId](args.error, args.result)
+  }
   delete webviews.asyncCallbacks[args.callId]
 })
 
-ipc.on('view-ipc', function (e, args) {
+window.min.views.onIPC(function (args) {
   if (!webviews.hasViewForTab(args.id)) {
     // the view could have been destroyed between when the event was occured and when it was recieved in the UI process, see https://github.com/minbrowser/min/issues/604#issuecomment-419653437
     return
@@ -514,7 +514,7 @@ setInterval(function () {
   captureCurrentTab()
 }, 15000)
 
-ipc.on('captureData', function (e, data) {
+window.min.views.onCapture(function (data) {
   tabs.update(data.id, { previewImage: data.url })
   if (data.id === webviews.selectedId && webviews.placeholderRequests.length > 0) {
     placeholderImg.src = data.url
@@ -524,7 +524,7 @@ ipc.on('captureData', function (e, data) {
 
 /* focus the view when the window is focused */
 
-ipc.on('windowFocus', function () {
+window.min.views.onWindowFocus(function () {
   if (webviews.placeholderRequests.length === 0 && document.activeElement.tagName !== 'INPUT') {
     webviews.focus()
   }

@@ -9,33 +9,44 @@ var languages = {
 
 */
 
+var languageResolver = null
+var resolvedLanguage = null
+
+/*
+The main process has no `navigator`, so it supplies its own locale through this
+function (see main/localizationMain.js). It used to be read here with
+require('electron'), but this file is also bundled into the sandboxed chrome
+renderer, where Electron must not appear in the import graph at all.
+
+A resolver rather than a value, because Electron's app.getLocale() is only
+valid once the app is ready, which is later than this module is loaded.
+*/
+function setLanguageResolver (resolver) {
+  languageResolver = resolver
+  resolvedLanguage = null
+}
+
 function getCurrentLanguage () {
   // TODO add a setting to change the language to something other than the default
 
-  var language = 'en-US' // default
-
   if (typeof navigator !== 'undefined') { // renderer process
-    language = navigator.language
-  } else if (typeof require !== 'undefined') { // main process
-    try {
-      language = require('electron').app.getLocale()
-    } catch (e) {
-      // not running in the main process, fall back to default
-    }
-  } else {
-    // nothing worked, fall back to default
+    return navigator.language
   }
 
-  return language
+  if (!resolvedLanguage && languageResolver) {
+    try {
+      resolvedLanguage = languageResolver()
+    } catch (e) {
+      // the locale is not available yet, fall back until it is
+      resolvedLanguage = null
+    }
+  }
+
+  return resolvedLanguage || 'en-US'
 }
 
-var userLanguage = null
-
 function l (stringId) {
-  if (!userLanguage) {
-    userLanguage = getCurrentLanguage()
-  }
-
+  var userLanguage = getCurrentLanguage()
   var userBaseLanguage = userLanguage.split('-')[0] // examples: es-419 -> es, nl-BE -> nl
 
   // get the translated string for the given ID
@@ -91,12 +102,12 @@ if (typeof document !== 'undefined') {
 }
 if (typeof window !== 'undefined') {
   window.l = l
-  window.userLanguage = userLanguage
+  window.userLanguage = getCurrentLanguage()
   window.getCurrentLanguage = getCurrentLanguage
 }
 
 // allows main process modules to `require()` this file (via dist/localization.build.js,
 // which prepends the compiled `languages` data) instead of relying on a shared global scope
 if (typeof module !== 'undefined' && typeof languages !== 'undefined') {
-  module.exports = { l, getCurrentLanguage, languages }
+  module.exports = { l, getCurrentLanguage, setLanguageResolver, languages }
 }

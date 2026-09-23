@@ -92,9 +92,3 @@ export function computeVisibleBreadcrumbs ({
     visibleIndexes
   }
 }
-
-module.exports = {
-  MAX_LABEL_LENGTH,
-  getBreadcrumbLabel,
-  computeVisibleBreadcrumbs
-}

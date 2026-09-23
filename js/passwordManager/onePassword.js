@@ -1,7 +1,3 @@
-const ProcessSpawner = require('util/process.js')
-const path = require('path')
-const fs = require('fs')
-var { ipcRenderer } = require('electron')
 const compareVersions = require('util/compareVersions.js')
 const settings = require('util/settings/settings.js')
 
@@ -41,10 +37,6 @@ class OnePassword {
     }
   }
 
-  getLocalPath () {
-    return path.join(window.globalArgs['user-data-path'], 'tools', (platformType === 'windows' ? 'op.exe' : 'op'))
-  }
-
   getSetupMode () {
     return (platformType === 'mac') ? 'installer' : 'dragdrop'
   }
@@ -54,44 +46,23 @@ class OnePassword {
   // by checking the settings value. If that is not set or doesn't point
   // to a valid executable, it checks if 'op' is available globally.
   async _getToolPath () {
-    const localPath = this.getLocalPath()
-    if (localPath) {
-      let local = false
-      try {
-        await fs.promises.access(localPath, fs.constants.X_OK)
-        local = true
-      } catch (e) { }
-      if (local) {
-        return localPath
-      }
-    }
-
-    const global = await new ProcessSpawner('op').checkCommandExists()
-
-    if (global) {
-      return 'op'
-    }
-
-    return null
+    return (await window.min.passwordManager.checkTool('onepassword')) ? 'configured' : null
   }
 
-  async _checkVersion (command) {
-    const process = new ProcessSpawner(command, ['--version'])
-    const data = await process.executeSyncInAsyncContext()
+  async _checkVersion () {
+    const data = await window.min.passwordManager.onePassword('version', { deviceID: this.deviceID })
 
     return compareVersions('2.2.0', data) >= 0
   }
 
-  async _completeIntegrationPrompt (command) {
+  async _completeIntegrationPrompt () {
     try {
-      const process = new ProcessSpawner(command, ['whoami'], {}, 1000)
-      await process.executeSyncInAsyncContext()
+      await window.min.passwordManager.onePassword('whoami', { deviceID: this.deviceID })
     } catch (e) {
       if (e.toString().includes('Would you like to turn on the 1Password app integration?')) {
         console.warn('disabling 1password app integration')
         try {
-          const retryProcess = new ProcessSpawner(command, ['whoami'], {}, 1000)
-          await retryProcess.executeSyncInAsyncContext('n\n')
+          await window.min.passwordManager.onePassword('whoami', { deviceID: this.deviceID, input: 'n\n' })
         } catch (e) {
           console.warn(e)
         }
@@ -104,7 +75,7 @@ class OnePassword {
   // obtain a valid 1Password-CLI tool path.
   async checkIfConfigured () {
     this.path = await this._getToolPath()
-    return this.path != null && (await this._checkVersion(this.path)) && (await this._completeIntegrationPrompt(this.path))
+    return this.path != null && (await this._checkVersion()) && (await this._completeIntegrationPrompt())
   }
 
   // Returns current 1Password-CLI status. If we have a session key, then
@@ -119,8 +90,7 @@ class OnePassword {
       return this.lastCallList[domain]
     }
 
-    const command = this.path
-    if (!command) {
+    if (!this.path) {
       return Promise.resolve([])
     }
 
@@ -128,7 +98,7 @@ class OnePassword {
       throw new Error()
     }
 
-    this.lastCallList[domain] = this.loadSuggestions(command, domain).then(suggestions => {
+    this.lastCallList[domain] = this.loadSuggestions(domain).then(suggestions => {
       this.lastCallList[domain] = null
       return suggestions
     }).catch(ex => {
@@ -139,10 +109,9 @@ class OnePassword {
   }
 
   // Loads credential suggestions for given domain name.
-  async loadSuggestions (command, domain) {
+  async loadSuggestions (domain) {
     try {
-      const process = new ProcessSpawner(command, ['item', 'list', '--categories', 'login', '--session=' + this.sessionKey, '--format=json'], { OP_DEVICE: this.deviceID })
-      const data = await process.executeSyncInAsyncContext()
+      const data = await window.min.passwordManager.onePassword('list', { deviceID: this.deviceID, sessionKey: this.sessionKey })
 
       const matches = JSON.parse(data)
 
@@ -162,8 +131,7 @@ class OnePassword {
 
       for (var i = 0; i < credentials.length; i++) {
         const item = credentials[i]
-        const process = new ProcessSpawner(command, ['item', 'get', item.id, '--session=' + this.sessionKey, '--format=json'], { OP_DEVICE: this.deviceID })
-        const output = await process.executeSyncInAsyncContext()
+        const output = await window.min.passwordManager.onePassword('get', { deviceID: this.deviceID, sessionKey: this.sessionKey, itemId: item.id })
         const credential = JSON.parse(output)
 
         var usernameFields = credential.fields.filter(f => f.label === 'username')
@@ -189,8 +157,7 @@ class OnePassword {
   // Tries to unlock the password store with given master password.
   async unlockStore (password) {
     try {
-      const process = new ProcessSpawner(this.path, ['signin', '--raw', '--account', 'min-autofill'], { OP_DEVICE: this.deviceID }, 5000)
-      const result = await process.executeSyncInAsyncContext(password)
+      const result = await window.min.passwordManager.onePassword('unlock', { deviceID: this.deviceID, password })
       // no session key -> invalid password
       if (!result) {
         throw new Error()
@@ -214,11 +181,10 @@ class OnePassword {
     }
   }
 
-  async signInAndSave (path = this.path) {
+  async signInAndSave () {
     // It's possible to be already logged in
-    const logoutProcess = new ProcessSpawner(path, ['signout'], { OP_DEVICE: this.deviceID }, 5000)
     try {
-      await logoutProcess.executeSyncInAsyncContext()
+      await window.min.passwordManager.onePassword('signout', { deviceID: this.deviceID })
     } catch (e) {
       console.warn(e)
     }
@@ -231,7 +197,7 @@ class OnePassword {
     ]
 
     // Verify the tool by trying to use it to unlock the password store.
-    const credentials = ipcRenderer.sendSync('prompt', {
+    const credentials = window.min.passwordManager.prompt({
       text: l('passwordManagerSetupSignIn'),
       values: signInFields,
       ok: l('dialogConfirmButton'),
@@ -246,9 +212,7 @@ class OnePassword {
       }
     }
 
-    const process = new ProcessSpawner(path, ['account', 'add', '--address', 'my.1password.com', '--email', credentials.email, '--secret-key', credentials.secretKey, '--shorthand', 'min-autofill', '--signin', '--raw'], { OP_DEVICE: this.deviceID })
-
-    const key = await process.executeSyncInAsyncContext(credentials.password)
+    const key = await window.min.passwordManager.onePassword('sign-in', { ...credentials, deviceID: this.deviceID })
     if (!key) {
       throw new Error()
     }

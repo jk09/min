@@ -5,7 +5,7 @@
 The live feature set of the browser, derived from [`spec/FEATURES.json`](../spec/FEATURES.json).
 See [the feature ledger](feature-ledger.md) for how this file is maintained.
 
-## Active features (16)
+## Active features (17)
 
 ### SQLite-backed personal history graph
 
@@ -151,8 +151,17 @@ TypeScript configuration, ambient type definitions, build transpilation, and typ
 
 - **id:** `typescript-support`
 - **spec:** [spec/done/feat-t7s4q9-typescript-support/SPEC.md](../spec/done/feat-t7s4q9-typescript-support/SPEC.md)
-- **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/tsTransform.ts`, `scripts/registerTs.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
+- **source:** `tsconfig.json`, `types/globals.d.ts`, `types/min.d.ts`, `types/modules.d.ts`, `scripts/registerTs.js`, `scripts/buildBrowser.js`, `scripts/buildPreload.js`
 - **tests:** unit (1)
+
+### Secure Chromium-only chrome renderer
+
+Staged migration to a context-isolated chrome renderer with a typed, least-privilege preload bridge and esbuild-managed bundles.
+
+- **id:** `secure-renderer-architecture`
+- **spec:** [spec/done/feat-k9m2rs-secure-renderer-architecture/SPEC.md](../spec/done/feat-k9m2rs-secure-renderer-architecture/SPEC.md)
+- **source:** `package.json`, `main/windowUtils.js`, `main/chromeCapabilities.js`, `main/sessionPersistence.js`, `main/userscriptService.js`, `main/remoteActions.js`, `main/remoteMenu.js`, `main/viewManager.js`, `main/download.js`, `main/llmEngine.js`, `main/main.js`, `main/passwordManagerService.js`, `scripts/buildPreload.js`, `js/preload/browserChrome.js`, `js/preload/chromeBridgeContract.ts`, `js/default.js`, `js/navbar/tabBar.js`, `js/sessionRestore.js`, `js/userscripts.js`, `js/util/settings/settings.js`, `js/util/settings/settingsMain.js`, `js/windowControls.js`, `js/webviewMenu.js`, `js/webviews.js`, `js/remoteMenuRenderer.js`, `js/downloadManager.js`, `js/llmPrompt/engineClient.js`, `js/passwordManager/bitwarden.js`, `js/passwordManager/keychain.js`, `js/passwordManager/managerSetup.js`, `js/passwordManager/onePassword.js`, `js/passwordManager/passwordManager.js`, `js/passwordManager/passwordViewer.js`, `types/globals.d.ts`, `main/chromeAppService.js`, `main/historyService.js`, `main/permissionManager.js`, `js/util/eventBus.js`, `js/util/hosts.js`, `js/bookmarkConverter.js`, `js/browserUI.js`, `js/defaultKeybindings.js`, `js/focusMode.js`, `js/keybindings.js`, `js/macHandoff.js`, `js/menuRenderer.js`, `js/navbar/menuButton.js`, `js/navbar/permissionRequests.js`, `js/pdfViewer.js`, `js/places/places.js`, `js/statistics.js`, `js/tabState/windowSync.js`, `scripts/buildBrowser.js`, `localization/localizationHelpers.js`, `main/localizationMain.js`, `scripts/watch.js`, `main/viewPreferences.js`
+- **tests:** unit (12)
 
 ## Retired features (8)
 

@@ -1,4 +1,3 @@
-const { ipcRenderer } = require('electron')
 const webviews = require('webviews.js')
 
 const permissionRequests = {
@@ -7,7 +6,7 @@ const permissionRequests = {
   grantPermission: function (permissionId) {
     permissionRequests.requests.forEach(function (request) {
       if (request.permissionId && request.permissionId === permissionId) {
-        ipcRenderer.send('permissionGranted', permissionId)
+        window.min.permissions.grant(permissionId)
       }
     })
   },
@@ -63,7 +62,7 @@ const permissionRequests = {
     permissionRequests.listeners.push(listener)
   },
   initialize: function () {
-    ipcRenderer.on('updatePermissions', function (e, data) {
+    window.min.permissions.onChange(function (data) {
       var oldData = permissionRequests.requests
       permissionRequests.requests = data
       oldData.forEach(function (req) {

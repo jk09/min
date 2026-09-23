@@ -11,12 +11,12 @@ const lastRecordedURLByTab = {}
 
 const places = {
   sendMessage: function (data) {
-    ipc.invoke('history:request', data).catch(function (error) {
+    window.min.history.request(data).catch(function (error) {
       console.warn('failed to update history', error)
     })
   },
   invokeWithPromise: function (data) {
-    return ipc.invoke('history:request', data)
+    return window.min.history.request(data)
   },
   savePage: function (tabId, extractedText) {
     /* this prevents pages that are immediately left from being saved to history, and also gives the page-favicon-updated event time to fire (so the colors saved to history are correct). */

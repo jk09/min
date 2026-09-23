@@ -12,9 +12,13 @@ const {
 
 const appState = require('./appState')
 const settings = require('../js/util/settings/settingsMain')
+const { registerSessionPersistenceCapabilities } = require('./sessionPersistence')
+const { registerUserscriptCapabilities } = require('./userscriptService')
+const { registerChromeAppCapabilities } = require('./chromeAppService')
 const { windows } = require('./windowManagement')
 const { registerBundleProtocol } = require('./minInternalProtocol')
 const { registryInstaller } = require('./registryConfig')
+const { getChromeWindow } = require('./chromeCapabilities')
 const { buildAppMenu, createDockMenu } = require('./menu')
 const {
   createWindow,
@@ -58,6 +62,16 @@ if (process.platform === 'win32') {
 app.commandLine.appendSwitch('disable-backgrounding-occluded-windows', 'true')
 
 settings.initialize(appState.userDataPath)
+registerSessionPersistenceCapabilities(appState.userDataPath)
+registerUserscriptCapabilities(appState.userDataPath)
+registerChromeAppCapabilities(appState.userDataPath, {
+  showSecondaryMenu: function (position) {
+    if (!secondaryMenu) {
+      secondaryMenu = buildAppMenu({ secondary: true })
+    }
+    secondaryMenu.popup(position)
+  }
+})
 
 if (settings.get('userSelectedLanguage')) {
   app.commandLine.appendSwitch('lang', settings.get('userSelectedLanguage'))
@@ -86,6 +100,7 @@ require('./remoteMenu')
 require('./remoteActions')
 require('./llmEngine')
 require('./keychainService')
+require('./passwordManagerService').registerPasswordManagerCapabilities()
 require('./historyService')
 require('../js/util/proxy')
 require('./themeMain')
@@ -168,57 +183,14 @@ app.on('activate', function (/* e, hasVisibleWindows */) {
   }
 })
 
-ipc.on('focusMainWebContents', function () {
-  getWindowWebContents(windows.getCurrent()).focus()
+ipc.on('focusMainWebContents', function (event) {
+  getChromeWindow(event)
+  event.sender.focus()
 })
 
-ipc.on('showSecondaryMenu', function (event, data) {
-  if (!secondaryMenu) {
-    secondaryMenu = buildAppMenu({ secondary: true })
-  }
-  secondaryMenu.popup({
-    x: data.x,
-    y: data.y
-  })
-})
-
-ipc.on('handoffUpdate', function (e, data) {
-  if (app.setUserActivity && data.url && data.url.startsWith('http')) {
-    app.setUserActivity('NSUserActivityTypeBrowsingWeb', {}, data.url)
-  } else if (app.invalidateCurrentActivity) {
-    app.invalidateCurrentActivity()
-  }
-})
-
-ipc.on('quit', function () {
-  app.quit()
-})
-
-ipc.on('tab-state-change', function (e, events) {
-  const sourceWindowId = windows.windowFromContents(e.sender)?.id
-  if (!sourceWindowId) {
-    console.warn('warning: received tab state update from window after destruction, ignoring')
-    return
-  }
-  windows.getAll().forEach(function (window) {
-    if (getWindowWebContents(window).id !== e.sender.id) {
-      getWindowWebContents(window).send('tab-state-change-receive', {
-        sourceWindowId,
-        events
-      })
-    }
-  })
-})
-
-ipc.on('request-tab-state', function (e) {
-  const otherWindow = windows.getAll().find(w => getWindowWebContents(w).id !== e.sender.id)
-  if (!otherWindow) {
-    throw new Error('secondary window doesn\'t exist as source for tab state')
-  }
-  ipc.once('return-tab-state', function (e2, data) {
-    e.returnValue = data
-  })
-  getWindowWebContents(otherWindow).send('read-tab-state')
+ipc.on('chrome:views:focus-main', function (event) {
+  getChromeWindow(event)
+  event.sender.focus()
 })
 
 /* places service */

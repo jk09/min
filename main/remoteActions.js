@@ -2,17 +2,79 @@
 Wraps APIs that are only available in the main process in IPC messages, so that the BrowserWindow can use them
 */
 
-const { app, ipcMain: ipc, dialog, session, shell } = require('electron')
-const { windows } = require('./windowManagement')
-const { createWindow } = require('./windowUtils')
+const { app, ipcMain: ipc, dialog, shell } = require('electron')
+const { getChromeWindow } = require('./chromeCapabilities')
 const { l } = require('./localizationMain')
 
-ipc.handle('startFileDrag', function (e, path) {
-  app.getFileIcon(path, {}).then(function (icon) {
-    e.sender.startDrag({
-      file: path,
-      icon: icon
-    })
+function registerChromeWindowAction (name, action) {
+  ipc.handle('chrome:window:' + name, function (event, value) {
+    action(getChromeWindow(event), value)
+  })
+}
+
+registerChromeWindowAction('minimize', function (window) {
+  window.minimize()
+})
+registerChromeWindowAction('maximize', function (window) {
+  window.maximize()
+})
+registerChromeWindowAction('unmaximize', function (window) {
+  window.unmaximize()
+})
+registerChromeWindowAction('close', function (window) {
+  window.close()
+})
+registerChromeWindowAction('set-full-screen', function (window, enabled) {
+  if (typeof enabled !== 'boolean') {
+    throw new Error('fullscreen state must be a boolean')
+  }
+  window.setFullScreen(enabled)
+})
+
+ipc.handle('chrome:clipboard:write-text', function (event, text) {
+  if (typeof text !== 'string') {
+    throw new Error('clipboard text must be a string')
+  }
+  getChromeWindow(event)
+  require('electron').clipboard.writeText(text)
+})
+
+ipc.handle('chrome:clipboard:write-bookmark', function (event, data) {
+  if (!data || typeof data !== 'object') {
+    throw new Error('bookmark data is required')
+  }
+  if (typeof data.text !== 'string' || typeof data.html !== 'string') {
+    throw new Error('bookmark text and html must be strings')
+  }
+  getChromeWindow(event)
+  require('electron').clipboard.write({
+    text: data.text,
+    bookmark: typeof data.bookmark === 'string' ? data.bookmark : '',
+    html: data.html
+  })
+})
+
+function requireDownloadPath (event, path) {
+  if (typeof path !== 'string' || path.length === 0) {
+    throw new Error('download path must be a non-empty string')
+  }
+  getChromeWindow(event)
+}
+
+ipc.handle('chrome:downloads:open', function (event, path) {
+  requireDownloadPath(event, path)
+  return shell.openPath(path)
+})
+
+ipc.handle('chrome:downloads:show-in-folder', function (event, path) {
+  requireDownloadPath(event, path)
+  shell.showItemInFolder(path)
+})
+
+ipc.handle('chrome:downloads:start-file-drag', function (event, path) {
+  requireDownloadPath(event, path)
+  return app.getFileIcon(path, {}).then(function (icon) {
+    event.sender.startDrag({ file: path, icon })
   })
 })
 
@@ -34,86 +96,9 @@ function showFocusModeDialog2() {
   })
 }
 
-ipc.handle('showFocusModeDialog2', showFocusModeDialog2)
-
-ipc.handle('showOpenDialog', async function (e, options) {
-  const result = await dialog.showOpenDialog(windows.windowFromContents(e.sender).win, options)
-  return result.filePaths
-})
-
-ipc.handle('showSaveDialog', async function (e, options) {
-  const result = await dialog.showSaveDialog(windows.windowFromContents(e.sender).win, options)
-  return result.filePath
-})
-
-ipc.handle('addWordToSpellCheckerDictionary', function (e, word) {
-  session.fromPartition('persist:webcontent').addWordToSpellCheckerDictionary(word)
-})
-
-ipc.handle('clearStorageData', function () {
-  return session.fromPartition('persist:webcontent').clearStorageData()
-  /* It's important not to delete data from file:// from the default partition, since that would also remove internal browser data (such as bookmarks). However, HTTP data does need to be cleared, as there can be leftover data from loading external resources in the browser UI */
-    .then(function () {
-      return session.defaultSession.clearStorageData({ origin: 'http://' })
-    })
-    .then(function () {
-      return session.defaultSession.clearStorageData({ origin: 'https://' })
-    })
-    .then(function () {
-      return session.fromPartition('persist:webcontent').clearCache()
-    })
-    .then(function () {
-      return session.fromPartition('persist:webcontent').clearHostResolverCache()
-    })
-    .then(function () {
-      return session.fromPartition('persist:webcontent').clearAuthCache()
-    })
-    .then(function () {
-      return session.defaultSession.clearCache()
-    })
-    .then(function () {
-      return session.defaultSession.clearHostResolverCache()
-    })
-    .then(function () {
-      return session.defaultSession.clearAuthCache()
-    })
-})
-
-/* window actions */
-
-ipc.handle('minimize', function (e) {
-  windows.windowFromContents(e.sender).win.minimize()
-  // workaround for https://github.com/minbrowser/min/issues/1662
-  e.sender.send('minimize')
-})
-
-ipc.handle('maximize', function (e) {
-  windows.windowFromContents(e.sender).win.maximize()
-  // workaround for https://github.com/minbrowser/min/issues/1662
-  e.sender.send('maximize')
-})
-
-ipc.handle('unmaximize', function (e) {
-  windows.windowFromContents(e.sender).win.unmaximize()
-  // workaround for https://github.com/minbrowser/min/issues/1662
-  e.sender.send('unmaximize')
-})
-
-ipc.handle('close', function (e) {
-  windows.windowFromContents(e.sender).win.close()
-})
-
-ipc.handle('setFullScreen', function (e, fullScreen) {
-  windows.windowFromContents(e.sender).win.setFullScreen(e, fullScreen)
-})
-
-//workaround for https://github.com/electron/electron/issues/38540
-ipc.handle('showItemInFolder', function (e, path) {
-  shell.showItemInFolder(path)
-})
-
-ipc.on('newWindow', function (e, customArgs) {
-  createWindow(customArgs)
+ipc.handle('chrome:app:show-focus-mode-dialog', function (event) {
+  getChromeWindow(event)
+  showFocusModeDialog2()
 })
 
 module.exports = { showFocusModeDialog1, showFocusModeDialog2 }

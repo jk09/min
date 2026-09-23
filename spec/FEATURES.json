@@ -43,8 +43,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:448736b5850bd9074e127daa50c66221e0a43c8d143c089e98f9e23ed1d6c093",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:b5294ec921282e58bb2dbbbc4a509846e30d7f28a1e83a4a19a5af747b9acdac",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "personal-history-graph",
@@ -95,8 +95,8 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:d3e56836b324db5227ccd9e6db4ab60dbddda105bc670ab015c0ab8e50310ca4",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:0be78445911d871b2d4d576b3d56374de951a72c9719a1e92dcb82eeb2f96fb5",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-panel",
@@ -166,8 +166,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:835f8a6e22af418760ae1f4d25795efe96123f0cb3ee0f8976279ff2b861fc4b",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:36f993dce7a9368f20c0b61f4123b64da613f94cfbf7e845fbefbfa3795ba373",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "build-commit-indicator",
@@ -193,8 +193,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:6cb2479983af0edc2c63bf24c31e06fab542a1d3d37c62cbd400cd4c03539b9e",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:cda4cfa49ca64ab4812410fb0caa784d03179653f2000b2b37b3702e7314398f",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-debug-tab",
@@ -219,8 +219,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:fd3caaa5f7cc6a32f708ddfdcb337e718840de47a67397ff2a26f7dd5ae8d70e",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:cc6dbcf426e01ca1e320b72440ede17343fb7fb6e69dc56f5582355ff237b6e0",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "nl-browser-commands",
@@ -243,8 +243,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:6f2db0981da2f448a93c3b8be1f2834472cdd1a3072c06ab3ba96dd060e02c13",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:d6eee4649fc64568a18fa796b862fa498b915ba2634d2d441895301a19db186d",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-plaintext-search",
@@ -269,8 +269,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:f2e8f6f6c1ec28a81d13966bd1d7626dc7ddc0b684ad9ab83dc0503571a45ad0",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:7918f03662796b5eb6d036e54e137ee93c84082e323e4214e4f3f518e821d21b",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "ai-agent-handoff",
@@ -291,8 +291,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:bfda1b3b7daa7f3c7ff130a83c8f4dfa8e286ef11a356415efd8c10afd712243",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:6fa8d7bc3c092a403c964cb8932bdd63b582dac4f91063bc0e6fda45f0197f64",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-search-engine-selector",
@@ -313,8 +313,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:4144b3c6b8361f552788af571527e3d367252d5781df7927bffdb0785c9979a8",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:f3e9ea48b104b26056f1fe3cf9f6ffcaefda8fe7990f09f52195b5abd5d11a0a",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-shortcut-url-navigation",
@@ -338,8 +338,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:430d89a6791205ce89b279b3ead7ca8667dd471a9338c2591c22eb7974451353",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:6ee4ddd9a83947e7780f9bad42670cce58fb43c731e2a64ef5d6ba427ebb561c",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "empty-state-prompt",
@@ -363,8 +363,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:41f5c61f5361ca8296249ad5bc3e97b7f634806a2c5b74b0d8838669954fc8ad",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:e01a2b2f92e6bcaf4e8a370a31258ff620f55a159984465eec92b6e9c94f3237",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "simplified-browser-controls",
@@ -385,8 +385,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:01f605b73e69f7a6791cc9cd7c22f57e6f24b05b6f8d3b6e55343149c0e20a0b",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:1ca9cf515354ba55723151fc938ed13bda640ce37119c94fdd9da64d92c9c5da",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "fixed-width-tabs",
@@ -492,8 +492,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:da42fe73e62136b4aecd70b5b885e630e4382a046b93f263123233e550c95cc4",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:fbd4a78bd78e37f4bf110f41524517fc39f24489c3c6830526c2480224ac257a",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "session-sidebar-navigation",
@@ -534,8 +534,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:3986e1e855149bc1bcd5456be1aa77cd63602ecd08ba764b70d3157ea58fcff3",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:dd3b8bd0550ef0a4d09681c4e48a43eed1f02790aada258abe66e78e37a96bbc",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "esm-module-refactor",
@@ -557,8 +557,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:0282a14396398556bdd38940e4519244db22094ea7fcffaa0f37063503e7f4ed",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:9b6fd765af33aea1400e269df711c207f35652cde15a74096678de44df6745af",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "typescript-support",
@@ -575,7 +575,6 @@
         "types/globals.d.ts",
         "types/min.d.ts",
         "types/modules.d.ts",
-        "scripts/tsTransform.ts",
         "scripts/registerTs.js",
         "scripts/buildBrowser.js",
         "scripts/buildPreload.js"
@@ -590,8 +589,101 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:ee778ef37485d1c861ff54478db4e3c052eea54288000163c0b28fbc5007f982",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:9d2859c3d54d53b980bbe6d1f4e7ae925c0a922e568e177ee8a9a24c219038c7",
+      "lastVerified": "2026-09-23"
+    },
+    {
+      "id": "secure-renderer-architecture",
+      "title": "Secure Chromium-only chrome renderer",
+      "summary": "Staged migration to a context-isolated chrome renderer with a typed, least-privilege preload bridge and esbuild-managed bundles.",
+      "status": "active",
+      "specPath": "spec/done/feat-k9m2rs-secure-renderer-architecture/SPEC.md",
+      "supersedes": [],
+      "supersededBy": null,
+      "removalReason": null,
+      "userVisible": false,
+      "sourceFiles": [
+        "package.json",
+        "main/windowUtils.js",
+        "main/chromeCapabilities.js",
+        "main/sessionPersistence.js",
+        "main/userscriptService.js",
+        "main/remoteActions.js",
+        "main/remoteMenu.js",
+        "main/viewManager.js",
+        "main/download.js",
+        "main/llmEngine.js",
+        "main/main.js",
+        "main/passwordManagerService.js",
+        "scripts/buildPreload.js",
+        "js/preload/browserChrome.js",
+        "js/preload/chromeBridgeContract.ts",
+        "js/default.js",
+        "js/navbar/tabBar.js",
+        "js/sessionRestore.js",
+        "js/userscripts.js",
+        "js/util/settings/settings.js",
+        "js/util/settings/settingsMain.js",
+        "js/windowControls.js",
+        "js/webviewMenu.js",
+        "js/webviews.js",
+        "js/remoteMenuRenderer.js",
+        "js/downloadManager.js",
+        "js/llmPrompt/engineClient.js",
+        "js/passwordManager/bitwarden.js",
+        "js/passwordManager/keychain.js",
+        "js/passwordManager/managerSetup.js",
+        "js/passwordManager/onePassword.js",
+        "js/passwordManager/passwordManager.js",
+        "js/passwordManager/passwordViewer.js",
+        "types/globals.d.ts",
+        "main/chromeAppService.js",
+        "main/historyService.js",
+        "main/permissionManager.js",
+        "js/util/eventBus.js",
+        "js/util/hosts.js",
+        "js/bookmarkConverter.js",
+        "js/browserUI.js",
+        "js/defaultKeybindings.js",
+        "js/focusMode.js",
+        "js/keybindings.js",
+        "js/macHandoff.js",
+        "js/menuRenderer.js",
+        "js/navbar/menuButton.js",
+        "js/navbar/permissionRequests.js",
+        "js/pdfViewer.js",
+        "js/places/places.js",
+        "js/statistics.js",
+        "js/tabState/windowSync.js",
+        "scripts/buildBrowser.js",
+        "localization/localizationHelpers.js",
+        "main/localizationMain.js",
+        "scripts/watch.js",
+        "main/viewPreferences.js"
+      ],
+      "tests": {
+        "unit": [
+          "test/chromeBridgeContract.test.js",
+          "test/chromePreload.test.js",
+          "test/chromeCapabilities.test.js",
+          "test/passwordManagerService.test.js",
+          "test/sessionPersistence.test.js",
+          "test/settingsCapabilities.test.js",
+          "test/userscriptService.test.js",
+          "test/chromeAppService.test.js",
+          "test/eventBus.test.js",
+          "test/rendererTrustBoundary.test.js",
+          "test/buildBrowser.test.js",
+          "test/viewCapabilities.test.js"
+        ],
+        "integration": [],
+        "e2e": []
+      },
+      "requiredTiers": [
+        "unit"
+      ],
+      "sourceHash": "sha256:5bdc81ecb745bf5cd3f4dac35cefbead2e55fc9435fbf355f22626259e42898a",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "tasks-ui",

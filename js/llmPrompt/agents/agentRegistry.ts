@@ -64,10 +64,3 @@ export function get (id: string): AgentDefinition | null {
 export function getDefault (): AgentDefinition | null {
   return get(DEFAULT_AGENT_ID)
 }
-
-module.exports = {
-  DEFAULT_AGENT_ID,
-  list,
-  get,
-  getDefault
-}

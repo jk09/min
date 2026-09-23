@@ -55,10 +55,3 @@ export function get (id: string): OwnModelOption | null {
 export function getDefault (): OwnModelOption | null {
   return get(DEFAULT_OWN_MODEL_ID)
 }
-
-module.exports = {
-  DEFAULT_OWN_MODEL_ID,
-  list,
-  get,
-  getDefault
-}

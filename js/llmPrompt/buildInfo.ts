@@ -40,5 +40,3 @@ export function render (element?: HTMLElement | { textContent?: string; title?: 
   element.title = title
   element.setAttribute('aria-label', title)
 }
-
-module.exports = { UNKNOWN, formatLabel, formatTitle, render }

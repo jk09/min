@@ -84,10 +84,3 @@ export function getFaviconURL (tabData?: TabData | null): string | null {
   }
   return null
 }
-
-module.exports = {
-  abbreviateDomain,
-  getTabLabel,
-  getAccentColor,
-  getFaviconURL
-}

@@ -1,36 +1,18 @@
+/*
+Hostnames from the system hosts file, used to recognize local hostnames while
+parsing URLs. The file is read and parsed in the main process; this array is
+filled in asynchronously, exactly as it was when the renderer read the file
+itself.
+*/
+
 var hosts = []
 
-var HOSTS_FILE = process.platform === 'win32'
-  ? 'C:/Windows/System32/drivers/etc/hosts'
-  : '/etc/hosts'
-
-function truncatedHostsFileLines (data, limit) {
-  return data.length > limit
-    ? data.substring(0, limit).split('\n').slice(0, -1)
-    : data.split('\n')
-}
-
-fs.readFile(HOSTS_FILE, 'utf8', function (err, data) {
-  if (err) {
-    console.warn('error retrieving hosts file', err)
-    return
-  }
-
-  var hostsMap = {} // this is used to deduplicate the list
-
-  const lines = truncatedHostsFileLines(data, 128 * 1024)
-
-  lines.forEach(function (line) {
-    if (line.startsWith('#')) {
-      return
-    }
-    line.split(/\s/g).forEach(function (host) {
-      if (host.length > 0 && host !== '255.255.255.255' && host !== 'broadcasthost' && !hostsMap[host]) {
-        hosts.push(host)
-        hostsMap[host] = true
-      }
-    })
+window.min.app.getHosts()
+  .then(function (data) {
+    hosts.push(...data)
   })
-})
+  .catch(function (err) {
+    console.warn('error retrieving hosts file', err)
+  })
 
 module.exports = hosts
