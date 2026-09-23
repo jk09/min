@@ -43,8 +43,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:9c58b75bd7c8ff633278b3db6d76d38bb6c6d9ec5b67e00a7030abd38ad02930",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:b5294ec921282e58bb2dbbbc4a509846e30d7f28a1e83a4a19a5af747b9acdac",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "personal-history-graph",
@@ -95,8 +95,8 @@
       "requiredTiers": [
         "integration"
       ],
-      "sourceHash": "sha256:e4543c2f4a0331d07ab05163ae21b2d19425da0fe77ca741973e914905accdd8",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:0be78445911d871b2d4d576b3d56374de951a72c9719a1e92dcb82eeb2f96fb5",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-panel",
@@ -166,8 +166,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:835f8a6e22af418760ae1f4d25795efe96123f0cb3ee0f8976279ff2b861fc4b",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:36f993dce7a9368f20c0b61f4123b64da613f94cfbf7e845fbefbfa3795ba373",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "build-commit-indicator",
@@ -193,8 +193,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:9b54fd9923e4139cd1d6fe4825c10106fa7a1e4d414114fc960d864ad7a5b72e",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:cda4cfa49ca64ab4812410fb0caa784d03179653f2000b2b37b3702e7314398f",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-debug-tab",
@@ -219,8 +219,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:fd3caaa5f7cc6a32f708ddfdcb337e718840de47a67397ff2a26f7dd5ae8d70e",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:cc6dbcf426e01ca1e320b72440ede17343fb7fb6e69dc56f5582355ff237b6e0",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "nl-browser-commands",
@@ -243,8 +243,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:ff5df1f9f1d7aadd403392ba72851aa17c9de68076458895e18e01fd4dc6e82e",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:d6eee4649fc64568a18fa796b862fa498b915ba2634d2d441895301a19db186d",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-plaintext-search",
@@ -269,8 +269,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:f2e8f6f6c1ec28a81d13966bd1d7626dc7ddc0b684ad9ab83dc0503571a45ad0",
-      "lastVerified": "2026-09-06"
+      "sourceHash": "sha256:7918f03662796b5eb6d036e54e137ee93c84082e323e4214e4f3f518e821d21b",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "ai-agent-handoff",
@@ -291,8 +291,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:2827d14ad81fb107d69f799c410d72dc9e4278adf9a603d9464fe8337bcecf8a",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:6fa8d7bc3c092a403c964cb8932bdd63b582dac4f91063bc0e6fda45f0197f64",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-search-engine-selector",
@@ -313,8 +313,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:4144b3c6b8361f552788af571527e3d367252d5781df7927bffdb0785c9979a8",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:f3e9ea48b104b26056f1fe3cf9f6ffcaefda8fe7990f09f52195b5abd5d11a0a",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "prompt-shortcut-url-navigation",
@@ -338,8 +338,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:e76f23f459ad303ec0b62cefa891eadd878e139f9ab062418da97909f6f6e096",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:6ee4ddd9a83947e7780f9bad42670cce58fb43c731e2a64ef5d6ba427ebb561c",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "empty-state-prompt",
@@ -363,8 +363,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:8099017537d3ae74b1717d9966a339a5d9e281e6740181c0df19ba72d1c8c776",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:e01a2b2f92e6bcaf4e8a370a31258ff620f55a159984465eec92b6e9c94f3237",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "simplified-browser-controls",
@@ -385,8 +385,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:01f605b73e69f7a6791cc9cd7c22f57e6f24b05b6f8d3b6e55343149c0e20a0b",
-      "lastVerified": "2026-09-05"
+      "sourceHash": "sha256:1ca9cf515354ba55723151fc938ed13bda640ce37119c94fdd9da64d92c9c5da",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "fixed-width-tabs",
@@ -492,8 +492,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:1a1b18153418716d5a3b8a9d9a331ce0a58ed9a4b2feac5d9844140ca405ae5f",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:fbd4a78bd78e37f4bf110f41524517fc39f24489c3c6830526c2480224ac257a",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "session-sidebar-navigation",
@@ -534,8 +534,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:f86e8b57a8c60a7424ae65fc51bee97091f13eaf5e4c63178d90a1cc791fd1de",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:dd3b8bd0550ef0a4d09681c4e48a43eed1f02790aada258abe66e78e37a96bbc",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "esm-module-refactor",
@@ -557,8 +557,8 @@
         "e2e": []
       },
       "requiredTiers": [],
-      "sourceHash": "sha256:e2a6162993cfa354d280476f57dccfed69f30d891515ea7f61df1f9913533f78",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:9b6fd765af33aea1400e269df711c207f35652cde15a74096678de44df6745af",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "typescript-support",
@@ -589,8 +589,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:23300c6dd8e5a6799185a4abcb7ea67da6c35a11f7955fb093db81a25ded0fbd",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:9d2859c3d54d53b980bbe6d1f4e7ae925c0a922e568e177ee8a9a24c219038c7",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "secure-renderer-architecture",
@@ -682,8 +682,8 @@
       "requiredTiers": [
         "unit"
       ],
-      "sourceHash": "sha256:45926f1e329c59e2a500aaf1d650f9e72949b98e54d6a96a0a27fb98482df04e",
-      "lastVerified": "2026-09-22"
+      "sourceHash": "sha256:5bdc81ecb745bf5cd3f4dac35cefbead2e55fc9435fbf355f22626259e42898a",
+      "lastVerified": "2026-09-23"
     },
     {
       "id": "tasks-ui",
