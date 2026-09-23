@@ -597,7 +597,7 @@
       "title": "Secure Chromium-only chrome renderer",
       "summary": "Staged migration to a context-isolated chrome renderer with a typed, least-privilege preload bridge and esbuild-managed bundles.",
       "status": "active",
-      "specPath": "spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md",
+      "specPath": "spec/done/feat-k9m2rs-secure-renderer-architecture/SPEC.md",
       "supersedes": [],
       "supersededBy": null,
       "removalReason": null,

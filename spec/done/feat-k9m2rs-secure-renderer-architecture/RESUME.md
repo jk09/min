@@ -12,9 +12,15 @@ The final boundary and the rules for extending it are documented in
 This file is kept as the migration record; start from the boundary doc instead
 when adding a capability.
 
-Latest branch: `feat/k9m2rs-secure-renderer-architecture-stage-9-cleanup`.
+**Closed out on 2026-09-23** and merged into `jk-main-2` from
+`feat/k9m2rs-secure-renderer-architecture-stage-9-cleanup`. The spec moved from
+`spec/backlog/` to `spec/done/`; see [Close-out](#close-out) below.
 
-This branch is a cascade built from the following committed checkpoints:
+The work is a cascade of the following committed checkpoints. Only the
+stage-2, stage-3, stage-6-password-manager and stage-9 checkpoint branches (and
+the root `feat/k9m2rs-secure-renderer-architecture`) were pushed; the other
+branch names below were local-only, but every listed commit is in the history of
+the stage-9 branch.
 
 | Stage | Branch | Commits | Result |
 | --- | --- | --- | --- |
@@ -28,7 +34,7 @@ This branch is a cascade built from the following committed checkpoints:
 | 6c: Renderer audit | `feat/k9m2rs-secure-renderer-architecture-stage-6-renderer-audit` | `48daafbe` | Completed the prerequisite audit: every remaining renderer Node/Electron dependency moved behind named capabilities, and the context-isolated renderer made to start again. |
 | 8: Hardening | `feat/k9m2rs-secure-renderer-architecture-stage-8-hardening` | `53cda6ee` | `nodeIntegration: false`, `nodeIntegrationInWorker: false`, `sandbox: true`, and the renderer trust-boundary regression test. |
 | 7: Esbuild | `feat/k9m2rs-secure-renderer-architecture-stage-7-esbuild` | `4d2846e9` | esbuild renderer bundle with a build-time alias map and a build that fails on any Node dependency. |
-| 9: Cleanup | `feat/k9m2rs-secure-renderer-architecture-stage-9-cleanup` | this run | Sender guards and payload validation for view creation, removal of dead ungated handlers and Browserify scaffolding, trust-boundary documentation. |
+| 9: Cleanup | `feat/k9m2rs-secure-renderer-architecture-stage-9-cleanup` | `a4777ed4` | Sender guards and payload validation for view creation, removal of dead ungated handlers and Browserify scaffolding, trust-boundary documentation. |
 
 Stage 8 was done before Stage 7: the Stage 6c audit was what actually blocked
 it, and landing the security settings first gave the esbuild work a hardened
@@ -102,6 +108,32 @@ At the Stage 9 checkpoint:
 
 `npm test` remains blocked by pre-existing JavaScript Standard violations in legacy files, including `main/llmEngine.js`, `js/llmPrompt/skills/skillRegistry.js`, and related existing modules. Do not reformat these files except as a separate, deliberate lint cleanup change.
 
+## Close-out
+
+Verified on Linux on 2026-09-23, after which the branch was merged into
+`jk-main-2`:
+
+- `npm run build`, `npm run typecheck` and `npm run verify:features` pass (15
+  existing coverage warnings).
+- All 99 unit tests pass, including `test/rendererTrustBoundary.test.js`. On
+  Linux it must run as a non-root user: Chromium refuses to start as root
+  without `--no-sandbox`, and adding that flag would defeat the `sandbox: true`
+  check.
+- Development and packaged (Linux x64 `dir` target) startups both reach
+  `did-finish-load` with the Chromium-only preferences, an initialised
+  renderer, all 16 bridge groups, no bridge leaks and no Node/Electron globals.
+  This is the automated equivalent of the devtools check in Stage 8.
+
+Close-out changes:
+
+- `scripts/featureLedger.js` now hashes source files with CRLF normalised to LF.
+  Hashes stamped on a Windows checkout never matched a Linux checkout, so 17
+  features reported as stale on a clean clone. Every feature was restamped.
+- `scripts/createPackage.js` no longer excludes `main/`, a leftover from the
+  `main.build.js` era that made packaging fail since the esm-module-refactor.
+- Deleted `js/taskOverlay/`. It still required `electron` for raw
+  `ipcRenderer`, but nothing imported it since the Tasks UI was removed.
+
 ## Remaining Work
 
 The nine planned stages are complete. What is left is follow-up rather than
@@ -122,13 +154,17 @@ migration, and none of it blocks anything:
   with no caller anywhere - the UI that used to invoke it is gone from this
   fork. If a "clear browsing data" feature comes back, it needs a new
   sender-validated capability rather than a revert.
+- **Dead task-overlay styles.** `css/taskOverlay.css` and the
+  `task-overlay-is-shown` selectors in `css/downloadManager.css` and
+  `css/windowControls.css` have no markup left to style. They are harmless and
+  belong to the earlier Tasks UI removal, not to this spec.
 - **Lint debt.** `npm test` is still blocked by pre-existing JavaScript
-  Standard violations in legacy files. The count dropped from 848 to 834 across
+  Standard violations in legacy files. The count dropped from 848 to 830 across
   this migration purely by deleting code; no file was reformatted.
 
-## Future Agent Run Checklist
+## Checklist For Extending The Boundary
 
-1. Start from the latest committed checkpoint branch; create a new child branch only after confirming `git status --short` is clean.
+1. Branch from `jk-main-2` only after confirming `git status --short` is clean; read `docs/renderer-trust-boundary.md` first.
 2. Read `AGENTS.md`, `SPEC.md`, `IMPLEMENTATION-PLAN.md`, and this file.
 3. Run `npm run features:context` and read `spec/CONTEXT.md`.
 4. Work on one named capability group or build step at a time.

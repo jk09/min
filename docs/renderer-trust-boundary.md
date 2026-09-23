@@ -2,7 +2,7 @@
 
 How Min's browser chrome is isolated from Node and Electron, and the rules for
 adding to the boundary. Implemented by
-[the secure renderer specification](../spec/backlog/feat-k9m2rs-secure-renderer-architecture/SPEC.md).
+[the secure renderer specification](../spec/done/feat-k9m2rs-secure-renderer-architecture/SPEC.md).
 
 ## The shape of it
 
